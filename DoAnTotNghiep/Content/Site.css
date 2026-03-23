@@ -1,0 +1,127 @@
+﻿/* Set padding to keep content from hitting the edges */
+.body-content {
+    margin-top: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Override the default bootstrap behavior where horizontal description lists 
+   will truncate terms that are too long to fit in the left column 
+*/
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+    max-width: 280px;
+}
+/* Tổng quát */
+body {
+    font-family: 'Segoe UI', Arial, 'Times New Roman';
+}
+
+/* Top Bar */
+/* Top Bar */
+.top-bar {
+    background-color: #000;
+    font-size: 13px;
+}
+
+    /* Xóa bỏ justify-content-end cũ nếu có */
+    .top-bar .container {
+        display: flex;
+        justify-content: space-between !important; /* Chia ra 2 đầu */
+    }
+
+    .top-bar a {
+        color: #fff;
+        text-decoration: none;
+        font-weight: 500;
+        transition: 0.2s;
+    }
+
+        .top-bar a:hover {
+            color: #F57C00; /* Màu cam khi di chuột vào */
+        }
+
+.sep-light {
+    color: #444; /* Màu vạch kẻ mờ hơn để không bị thô */
+    font-weight: 300;
+}
+
+.top-right i {
+    font-size: 14px;
+}
+.sep-light {
+    color: #555;
+    font-weight: 300;
+}
+
+/* Navbar & Logo */
+.navbar {
+    background: #fff;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.logo-text {
+    color: #D32F2F;
+    font-weight: 800;
+    font-size: 26px;
+    letter-spacing: -1px;
+}
+
+.logo-icon {
+    color: #D32F2F;
+    font-size: 24px;
+    transform: rotate(-20deg);
+}
+
+/* Menu */
+.nav-link {
+    color: #333 !important;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 0 15px !important;
+}
+
+    .nav-link.active {
+        color: #F57C00 !important;
+    }
+
+    .nav-link:hover {
+        color: #F57C00 !important;
+    }
+
+/* Vạch ngăn cách tối */
+.sep-dark {
+    color: #ddd;
+    font-weight: 300;
+    font-size: 18px;
+}
+
+/* Icons & Actions */
+.right-actions .action-item {
+    color: #333 !important;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.right-actions i {
+    font-size: 20px;
+    margin-right: 6px;
+    font-weight: bold;
+}
+.right-actions a:hover {
+    color: #F57C00 !important;
+}
+/* Chỉnh icon mũi tên nhỏ lại */
+.small {
+    font-size: 10px;
+    vertical-align: middle;
+}

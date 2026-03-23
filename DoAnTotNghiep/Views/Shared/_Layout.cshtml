@@ -1,0 +1,76 @@
+﻿@* Views/Shared/_Layout.cshtml - GIỐNG 100% ẢNH MỚI *@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title - Website Của Bạn</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+
+    <link href="~/bootstrap-icons-1.2.2/bootstrap-icons-1.2.2/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="~/Content/Site.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="top-bar py-2">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="top-left d-flex align-items-center">
+                <a href="#">Đánh Giá</a>
+                <span class="sep-light mx-2">|</span>
+                <a href="#">Hỗ Trợ</a>
+            </div>
+
+            <div class="top-right d-flex align-items-center gap-3">
+                <a href="mailto:sales@matbao.ws" class="d-flex align-items-center">
+                    <i class="bi bi-envelope me-1"></i>sales@matbao.ws
+                </a>
+                <span class="sep-light">|</span>
+                <a href="tel:02877777999" class="d-flex align-items-center">
+                    <i class="bi bi-phone me-1"></i>(028) 7777 7999
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg py-3">
+        <div class="container d-flex align-items-center">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <span class="logo-text">LOGO</span>
+                <i class="bi bi-slash-circle-fill logo-icon ms-1"></i>
+            </a>
+
+            <span class="sep-dark mx-3">|</span>
+
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link active" href="#">Trang Chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Giới Thiệu</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Sản Phẩm <i class="bi bi-chevron-down ms-1 small"></i></a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Tin Tức</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Liên Hệ</a></li>
+                </ul>
+            </div>
+
+            <div class="right-actions d-flex align-items-center gap-3">
+                <a href="#" class="action-item"><i class="bi bi-box-arrow-in-right"></i> Đăng Nhập</a>
+                <span class="sep-dark">|</span>
+                <a href="#" class="action-item"><i class="bi bi-search"></i> Tìm Kiếm</a>
+                <span class="sep-dark">|</span>
+                <a href="#" class="action-item"><i class="bi bi-bag"></i> Giỏ Hàng</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mt-4">
+        @RenderBody()
+    </main>
+    <script src="~/Scripts/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function toggleSearch() {
+            alert("✅ Tìm kiếm đã mở (bạn có thể thay bằng Bootstrap Modal sau)");
+        }
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
