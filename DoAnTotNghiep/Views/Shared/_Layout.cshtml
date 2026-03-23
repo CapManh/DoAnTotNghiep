@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewBag.Title - Website Của Bạn</title>
     <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
-
     <link href="~/bootstrap-icons-1.2.2/bootstrap-icons-1.2.2/font/bootstrap-icons.css" rel="stylesheet" />
     <link href="~/Content/Site.css" rel="stylesheet" />
+    @RenderSection("PageCss", required: false)
 </head>
 <body>
     <div class="top-bar py-2">
@@ -20,11 +20,21 @@
             </div>
 
             <div class="top-right d-flex align-items-center gap-3">
-                <a href="mailto:sales@matbao.ws" class="d-flex align-items-center">
-                    <i class="bi bi-envelope me-1"></i>sales@matbao.ws
+                <a href="mailto:sales@matbao.ws"
+                   class="d-flex align-items-center"
+                   data-bs-toggle="tooltip"
+                   data-bs-placement="bottom"
+                   title="ManhTuan@gmail.com">
+                    <i class="bi bi-envelope me-1"></i>ManhTuan@gmail.com
                 </a>
+
                 <span class="sep-light">|</span>
-                <a href="tel:02877777999" class="d-flex align-items-center">
+
+                <a href="tel:02877777999"
+                   class="d-flex align-items-center"
+                   data-bs-toggle="tooltip"
+                   data-bs-placement="bottom"
+                   title="(028) 7777 7999">
                     <i class="bi bi-phone me-1"></i>(028) 7777 7999
                 </a>
             </div>
@@ -34,8 +44,7 @@
     <nav class="navbar navbar-expand-lg py-3">
         <div class="container d-flex align-items-center">
             <a class="navbar-brand d-flex align-items-center" href="/">
-                <span class="logo-text">LOGO</span>
-                <i class="bi bi-slash-circle-fill logo-icon ms-1"></i>
+                <img src="~/AnhWeb/anhlogo.png" alt="Logo" class="logo-img" />
             </a>
 
             <span class="sep-dark mx-3">|</span>
@@ -50,12 +59,39 @@
                 </ul>
             </div>
 
-            <div class="right-actions d-flex align-items-center gap-3">
-                <a href="#" class="action-item"><i class="bi bi-box-arrow-in-right"></i> Đăng Nhập</a>
-                <span class="sep-dark">|</span>
-                <a href="#" class="action-item"><i class="bi bi-search"></i> Tìm Kiếm</a>
-                <span class="sep-dark">|</span>
-                <a href="#" class="action-item"><i class="bi bi-bag"></i> Giỏ Hàng</a>
+            <div class="right-actions d-flex align-items-center position-relative">
+                <div id="default-actions" class="d-flex align-items-center gap-3">
+                    <a href="#" class="action-item"><i class="bi bi-box-arrow-in-right"></i> Đăng Nhập</a>
+                    <span class="sep-dark">|</span>
+                    <button onclick="toggleSearch()" class="btn d-flex align-items-center border-0 p-0 action-item">
+                        <i class="bi bi-search me-1"></i>Tìm Kiếm
+                    </button>
+                    <span class="sep-dark">|</span>
+                    <div class="action-item cart-wrapper">
+                        <a href="/gio-hang" class="action-item d-flex align-items-center">
+                            <i class="bi bi-bag"></i> Giỏ Hàng
+                        </a>
+
+                        <div class="mini-cart-dropdown">
+                            <div class="cart-empty-content">
+                                <i class="bi bi-bag empty-cart-icon"></i>
+
+                                <p>Chưa có sản phẩm trong giỏ hàng.</p>
+                                <a href="/cua-hang" class="btn-return-shop">Quay Trở Lại Cửa Hàng</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="search-overlay" class="search-overlay-box">
+                    <div class="d-flex align-items-center w-100 gap-2">
+                        <div class="search-line-dynamic"></div> <i class="bi bi-search text-muted"></i>
+                        <input type="text" class="search-input-field" placeholder="Bạn tìm gì...">
+                        <button onclick="toggleSearch()" class="btn-close-search">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -63,12 +99,147 @@
     <main class="container mt-4">
         @RenderBody()
     </main>
+    <main class="container mt-4">
+        <div class="promo-banner-fluid">
+            <div class="container banner-content-wrapper">
+                <div class="row h-100 align-items-center">
+
+                    <div class="col-md-6"></div>
+
+                    <div class="col-md-6 d-flex justify-content-end">
+                        <div class="promo-box-white">
+                            <div class="promo-icon"><i class="bi bi-gift"></i></div>
+                            <h2>NHẬN 20K GIẢM GIÁ CHO ĐƠN HÀNG ĐẦU TIÊN CỦA BẠN?</h2>
+                            <p>Tham gia danh sách gửi thư của chúng tôi!</p>
+                            <div class="promo-form-group">
+                                <input type="email" placeholder="Nhập địa chỉ email của bạn" />
+                                <button type="submit">Đăng Ký</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="features-section d-flex justify-content-between py-5 border-bottom">
+            <div class="feature-item d-flex align-items-center gap-3">
+                <i class="bi bi-truck"></i>
+                <div>
+                    <strong>Miễn phí vận chuyển</strong>
+                    <span>Giới hạn ở mức 39,000 VNĐ mỗi đơn hàng</span>
+                </div>
+            </div>
+            <div class="feature-item d-flex align-items-center gap-3">
+                <i class="bi bi-cash-stack"></i>
+                <div>
+                    <strong>Thanh toán bảo mật</strong>
+                    <span>Trả góp lên tới 12 tháng</span>
+                </div>
+            </div>
+            <div class="feature-item d-flex align-items-center gap-3">
+                <i class="bi bi-arrow-counterclockwise"></i>
+                <div>
+                    <strong>Hoàn trả trong 14 ngày</strong>
+                    <span>Mua sắm với sự tự tin</span>
+                </div>
+            </div>
+            <div class="feature-item d-flex align-items-center gap-3">
+                <i class="bi bi-layers"></i>
+                <div>
+                    <strong>Mẫu thử miễn phí</strong>
+                    <span>Gửi đến nơi ở của bạn</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer py-5 bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <a class="navbar-brand d-flex align-items-center" href="/">
+                        <img src="~/AnhWeb/anhlogo.png" alt="Logo" class="logo-img" />
+                    </a>
+                    <p class="text-muted small">
+                        Cửa hàng nội thất của chúng tôi là nơi tạo ra không gian sống ấm cúng và đẹp đẽ cho gia đình của bạn.
+                        Chúng tôi hiểu rằng nội thất không chỉ là đồ vật mà còn là một phần của cuộc sống và phong cách cá nhân của bạn.
+                    </p>
+                </div>
+                <div class="col-md-2">
+                    <h5>Chính sách</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#">Chính sách mua hàng</a></li>
+                        <li><a href="#">Chính sách thanh toán</a></li>
+                        <li><a href="#">Chính sách giao hàng</a></li>
+                        <li><a href="#">Chính sách đổi trả</a></li>
+                        <li><a href="#">Chính sách quyền riêng tư</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h5>Công ty</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#">Trang chủ</a></li>
+                        <li><a href="#">Giới thiệu</a></li>
+                        <li><a href="#">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h5>Liên hệ</h5>
+                    <ul class="list-unstyled">
+                        <li>(028) 7777 7999</li>
+                        <li>ManhTuan@gmail.com</li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h5>Địa chỉ</h5>
+                    <p class="small text-muted">54 đường C1, Phường Tân Bình, TP. Hồ Chí Minh</p>
+                </div>
+            </div>
+            <hr />
+            <div class="d-flex justify-content-between align-items-center py-3">
+                <span class="small text-muted">© Copyright 2026 | Thiết kế website bởi Mạnh Tuân</span>
+                <div class="social-icons d-flex gap-3">
+                    <i class="bi bi-facebook"></i>
+                    <i class="bi bi-instagram"></i>
+                    <i class="bi bi-twitch"></i>
+                    <i class="bi bi-youtube"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <script src="~/Scripts/bootstrap.bundle.min.js"></script>
 
     <script>
         function toggleSearch() {
             alert("✅ Tìm kiếm đã mở (bạn có thể thay bằng Bootstrap Modal sau)");
         }
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+        function toggleSearch() {
+            const searchOverlay = document.getElementById('search-overlay');
+            const isOpening = !searchOverlay.classList.contains('active');
+
+            searchOverlay.classList.toggle('active');
+
+            if (isOpening) {
+                setTimeout(() => {
+                    searchOverlay.querySelector('input').focus();
+                }, 300);
+            }
+        }
+        document.addEventListener('click', function (event) {
+            const searchOverlay = document.getElementById('search-overlay');
+            const searchBtn = document.querySelector('button[onclick="toggleSearch()"]');
+            const isClickInside = searchOverlay.contains(event.target);
+            const isClickButton = searchBtn.contains(event.target);
+            if (!isClickInside && !isClickButton && searchOverlay.classList.contains('active')) {
+                searchOverlay.classList.remove('active');
+            }
+        });
     </script>
 
     @RenderSection("Scripts", required: false)

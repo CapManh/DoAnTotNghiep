@@ -155,7 +155,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="AnhWeb\LOGO.png" />
+    <Content Include="AnhWeb\837-76072.jpg" />
+    <Content Include="AnhWeb\anhlogo.png" />
+    <Content Include="AnhWeb\PHÒNG KHÁCH.jpg" />
     <Content Include="bootstrap-icons-1.2.2\bootstrap-icons-1.2.2\alarm-fill.svg" />
     <Content Include="bootstrap-icons-1.2.2\bootstrap-icons-1.2.2\alarm.svg" />
     <Content Include="bootstrap-icons-1.2.2\bootstrap-icons-1.2.2\align-bottom.svg" />
@@ -1376,6 +1378,7 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="Content\TrangChu.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
@@ -1410,9 +1413,7 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\About.cshtml" />
-    <Content Include="Views\Home\Contact.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Home\TrangChu.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
