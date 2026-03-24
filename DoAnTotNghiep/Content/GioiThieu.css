@@ -1,0 +1,59 @@
+﻿/* --- TRANG GIỚI THIỆU --- */
+
+/* Banner trên cùng */
+.about-header {
+    height: 250px;
+    background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/AnhWeb/PHÒNG KHÁCH.jpg') no-repeat center center;
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .about-header h1 {
+        font-size: 3rem;
+    }
+
+/* Ảnh Hero bo góc */
+.about-hero-img img {
+    width: 100%;
+    height: 500px;
+    object-fit: cover; /* Giúp ảnh rõ nét và không bị méo */
+    border-radius: 20px !important;
+}
+
+/* Tiêu đề chính */
+.about-main-content h2 {
+    font-weight: 800;
+    letter-spacing: -1px;
+}
+
+/* Cột văn bản */
+.about-text-details h3 {
+    line-height: 1.4;
+    padding-right: 20px;
+}
+
+.about-text-details p {
+    line-height: 1.8;
+    text-align: justify;
+}
+
+/* RESPONSIVE CHO MOBILE */
+@media (max-width: 767px) {
+    .about-header {
+        height: 180px;
+    }
+
+        .about-header h1 {
+            font-size: 2rem;
+        }
+
+    .about-hero-img img {
+        height: 300px;
+    }
+
+    .about-text-details h3 {
+        margin-bottom: 20px;
+    }
+}

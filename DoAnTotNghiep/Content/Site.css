@@ -67,8 +67,12 @@ body {
     font-weight: 300;
 }
 .navbar {
-    background: #fff;
-    border-bottom: 1px solid #f1f1f1;
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
 }
 
 .logo-text {
@@ -414,4 +418,117 @@ body {
 }
 .mini-cart-dropdown a:hover {
     filter: brightness(90%);
+}
+@media (max-width: 991px) {
+    .top-bar {
+        display: none;
+    }
+    .navbar .container {
+        flex-wrap: wrap;
+    }
+    .navbar .sep-dark {
+        display: none;
+    }
+    .right-actions {
+        order: 2;
+        margin-left: auto;
+        gap: 10px !important;
+    }
+    .action-item {
+        font-size: 0 !important;
+    }
+    .action-item i {
+        font-size: 22px !important;
+        margin: 0 !important;
+    }
+    .navbar-toggler {
+        order: 3;
+        padding-right: 0;
+    }
+    .navbar-collapse {
+        order: 4;
+        width: 100%;
+        background: #fff;
+        margin-top: 15px;
+        border-top: 1px solid #eee;
+    }
+    .navbar-nav {
+        padding: 15px 0;
+    }
+    .nav-item {
+        padding: 10px 0;
+        border-bottom: 1px solid #f9f9f9;
+    }
+    .search-overlay-box {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 60px;
+        padding: 0 15px;
+    }
+    .mini-cart-dropdown {
+        display: none !important;
+    }
+
+}
+@media (max-width: 767px) {
+    .features-section {
+        flex-direction: column !important;
+        gap: 30px !important;
+        padding: 40px 20px !important;
+        text-align: left;
+    }
+
+    .feature-item {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    .feature-item i {
+        font-size: 30px !important;
+        color: #333;
+    }
+    .feature-item strong {
+        display: block;
+        font-size: 16px;
+    }
+    .feature-item span {
+        font-size: 13px;
+        color: #777;
+    }
+    .footer {
+        text-align: center;
+    }
+    .footer .col-md-4,
+    .footer .col-md-2 {
+        margin-bottom: 30px;
+    }
+    .footer .navbar-brand {
+        justify-content: center;
+        margin-bottom: 15px;
+    }
+    .footer h5 {
+        margin-bottom: 15px;
+        font-weight: bold;
+        position: relative;
+    }
+    .footer ul {
+        padding: 0;
+    }
+    .footer ul li {
+        margin-bottom: 8px;
+    }
+    .footer .d-flex.justify-content-between {
+        flex-direction: column !important;
+     }
+
+    .social-icons {
+        justify-content: center;
+    }
+}
+@media (max-width: 576px) {
+    .logo-img {
+        height: 35px; 
+        width: auto;
+    }
 }

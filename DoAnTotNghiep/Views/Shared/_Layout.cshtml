@@ -46,16 +46,18 @@
             <a class="navbar-brand d-flex align-items-center" href="/">
                 <img src="~/AnhWeb/anhlogo.png" alt="Logo" class="logo-img" />
             </a>
-
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                <i class="bi bi-list fs-3"></i>
+            </button>
             <span class="sep-dark mx-3">|</span>
 
             <div class="collapse navbar-collapse">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link active" href="#">Trang Chủ</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Giới Thiệu</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Sản Phẩm <i class="bi bi-chevron-down ms-1 small"></i></a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Tin Tức</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Liên Hệ</a></li>
+                <ul class="navbar-nav me-auto" id="main-menu">
+                    <li class="nav-item"><a class="nav-link" href="/">Trang Chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Home/GioiThieu">Giới Thiệu</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Home/SanPham">Sản Phẩm</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Home/TinTuc">Tin Tức</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Home/LienHe">Liên Hệ</a></li>
                 </ul>
             </div>
 
@@ -239,6 +241,23 @@
             if (!isClickInside && !isClickButton && searchOverlay.classList.contains('active')) {
                 searchOverlay.classList.remove('active');
             }
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('#main-menu .nav-link');
+
+            navLinks.forEach(link => {
+                const linkPath = link.getAttribute('href');
+
+                if (currentPath === linkPath || (currentPath === "/" && linkPath === "/")) {
+                    link.classList.add('active');
+                    link.classList.add('fw-bold');
+                    link.style.color = "#000"; 
+                } else {
+                    link.classList.remove('active');
+                    link.classList.remove('fw-bold');
+                }
+            });
         });
     </script>
 
