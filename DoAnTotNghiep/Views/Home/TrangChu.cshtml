@@ -1,7 +1,254 @@
-﻿@{
+﻿
+
+@{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section PageCss {
     <link href="~/Content/Site.css" rel="stylesheet" />
-}
 
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Banner Slider</title>
+
+    <link rel="stylesheet" href="@Url.Content("~/Content/TrangChu.css")" />
+
+</head>
+
+<body>
+
+    <div class="banner">
+        <div class="slides" id="slides">
+
+            <!-- Slide 1 -->
+            <div class="slide">
+                <img src="~/AnhWeb/anhdan.jpg" class="bg-img">
+
+                <div class="content">
+                    <p>MÙA XUÂN</p>
+                    <h1>BỘ SƯU TẬP</h1>
+                    <span>Chỉ từ <b>959.760 VND</b></span>
+                    <a href="sanpham.html" class="btn-buy">Mua Ngay</a>
+                </div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="slide">
+                <img src="~/AnhWeb/anhdan.jpg" class="bg-img">
+
+                <div class="content">
+                    <p>MÙA HÈ</p>
+                    <h1>NỘI THẤT MỚI</h1>
+                    <span>Giảm đến <b>30%</b></span>
+                    <a href="sanpham.html" class="btn-buy">Mua Ngay</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ===== THÊM 2 ẢNH Ở DƯỚI ===== -->
+    <div class="section-2img">
+
+        <!-- TRÁI -->
+        <div class="box-img left">
+            <img src="~/AnhWeb/Gemini_Generated_Image_ao0jw6ao0jw6ao0j.png" />
+            <div class="box-content">
+                <p>NỘI THẤT</p>
+                <h2>HIỆN ĐẠI</h2>
+                <div class="price">Chỉ từ <b>959.760 VND</b></div>
+                <a href="#" class="btn-buy">Mua Ngay</a>
+            </div>
+        </div>
+
+        <!-- PHẢI -->
+        <div class="box-img right">
+            <img src="~/AnhWeb/Gemini_Generated_Image_ql6ry4ql6ry4ql6r.png" />
+
+            <div class="box-content">
+                <p>SẢN PHẨM MỚI</p>
+                <h2>ĐÈN</h2>
+                <div class="price">Chỉ từ <b>959.760 VND</b></div>
+                <a href="#" class="btn-buy">Mua Ngay</a>
+            </div>
+        </div>
+
+    </div>
+    <!-- ===== SẢN PHẨM MỚI ===== -->
+    <div class="new-products">
+        <h2 class="title">SẢN PHẨM MỚI</h2>
+        <p class="subtitle">Giảm giá toàn bộ sản phẩm mới & Tiết kiệm lên đến 25%</p>
+
+        <!-- ===== SẢN PHẨM MỚI ===== -->
+        <div class="product-list">
+
+            <!-- 1 -->
+            <div class="product-card">
+
+                <div class="img-box">
+                    <img src="~/AnhWeb/Screenshot 2026-03-24 170630.png" />
+                    <a href="/SanPham/ChiTiet/2" class="view-btn">👁</a>
+                </div>
+
+                <div class="stars">★★★★★</div>
+                <h3>Ghế Băng Gỗ Cao Su KENNY</h3>
+
+                <div class="price-cart">
+                    <div class="price">
+                        <span>2.860.000 đ</span>
+                    </div>
+
+                    <button class="add-cart">Thêm Vào Giỏ Hàng</button>
+                </div>
+
+            </div>
+
+            <!-- 2 -->
+            <div class="product-card">
+
+                <div class="img-box">
+                    <img src="@Url.Content("~/AnhWeb/ban2.png")" />
+                    <a href="/SanPham/ChiTiet/2" class="view-btn">👁</a>
+                </div>
+
+                <div class="stars">★★★★★</div>
+                <h3>Ghế Băng Gỗ Cao Su KENNY</h3>
+
+                <div class="price">
+                    <span>2.860.000 đ</span>
+                </div>
+
+                <button class="add-cart">Thêm Vào Giỏ Hàng</button>
+            </div>
+
+
+            <!-- 3 -->
+            <div class="product-card">
+
+                <div class="img-box">
+                    <img src="@Url.Content("~/AnhWeb/ghe1.png")" />
+                    <a href="/SanPham/ChiTiet/3" class="view-btn">👁</a>
+                    <div class="tag">Sale</div>
+                </div>
+
+                <div class="stars">★★★★★</div>
+                <h3>Ghế Ăn Gỗ Cao Su KENNY</h3>
+
+                <div class="price">
+                    <del>16.300.000 đ</del>
+                    <span>14.200.000 đ</span>
+                </div>
+
+                <button class="add-cart">Thêm Vào Giỏ Hàng</button>
+            </div>
+
+
+            <!-- 4 -->
+            <div class="product-card">
+
+                <div class="img-box">
+                    <img src="@Url.Content("~/AnhWeb/ghe2.png")" />
+                    <a href="/SanPham/ChiTiet/4" class="view-btn">👁</a>
+                </div>
+
+                <div class="stars">★★★★★</div>
+                <h3>Ghế Dài Thư Giãn CONNEMARA</h3>
+
+                <div class="price">
+                    <span>8.560.000 đ</span>
+                </div>
+
+                <button class="add-cart">Thêm Vào Giỏ Hàng</button>
+            </div>
+
+
+            <!-- 5 -->
+            <div class="product-card">
+
+                <div class="img-box">
+                    <img src="@Url.Content("~/AnhWeb/sp5.png")" />
+                    <a href="/SanPham/ChiTiet/5" class="view-btn">👁</a>
+                </div>
+
+                <div class="stars">★★★★★</div>
+                <h3>Bàn Cafe Gỗ</h3>
+
+                <div class="price">
+                    <span>3.200.000 đ</span>
+                </div>
+
+                <button class="add-cart">Thêm Vào Giỏ Hàng</button>
+            </div>
+
+
+            <!-- 6 -->
+            <div class="product-card">
+
+                <div class="img-box">
+                    <img src="@Url.Content("~/AnhWeb/sp6.png")" />
+                    <a href="/SanPham/ChiTiet/6" class="view-btn">👁</a>
+                </div>
+
+                <div class="stars">★★★★★</div>
+                <h3>Kệ Trang Trí</h3>
+
+                <div class="price">
+                    <span>4.100.000 đ</span>
+                </div>
+
+                <button class="add-cart">Thêm Vào Giỏ Hàng</button>
+            </div>
+
+
+            <!-- 7 -->
+            <div class="product-card">
+
+                <div class="img-box">
+                    <img src="@Url.Content("~/AnhWeb/sp7.png")" />
+                    <a href="/SanPham/ChiTiet/7" class="view-btn">👁</a>
+                </div>
+
+                <div class="stars">★★★★★</div>
+                <h3>Đèn Trang Trí</h3>
+
+                <div class="price">
+                    <span>1.200.000 đ</span>
+                </div>
+
+                <button class="add-cart">Thêm Vào Giỏ Hàng</button>
+            </div>
+
+
+            <!-- 8 -->
+            <div class="product-card">
+
+                <div class="img-box">
+                    <img src="@Url.Content("~/AnhWeb/sp8.png")" />
+                    <a href="/SanPham/ChiTiet/8" class="view-btn">👁</a>
+                </div>
+
+                <div class="stars">★★★★★</div>
+                <h3>Tủ Gỗ Mini</h3>
+
+                <div class="price">
+                    <span>5.600.000 đ</span>
+                </div>
+
+                <button class="add-cart">Thêm Vào Giỏ Hàng</button>
+            </div>
+
+        </div>
+
+        <script>let index = 0;
+            const slides = document.getElementById("slides");
+            const total = document.querySelectorAll(".slide").length;
+
+            setInterval(() => {
+                index = (index + 1) % total;
+                slides.style.transform = `translateX(-${index * 100}%)`;
+            }, 3000);</script>
+
+</body>
+</html>

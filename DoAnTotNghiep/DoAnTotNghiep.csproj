@@ -156,7 +156,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="AnhWeb\837-76072.jpg" />
+    <Content Include="AnhWeb\anhdan.jpg" />
     <Content Include="AnhWeb\anhlogo.png" />
+    <Content Include="AnhWeb\Gemini_Generated_Image_ao0jw6ao0jw6ao0j.png" />
+    <Content Include="AnhWeb\Gemini_Generated_Image_ql6ry4ql6ry4ql6r.png" />
     <Content Include="AnhWeb\PHÒNG KHÁCH.jpg" />
     <Content Include="AnhWeb\rabie-madaci-4iwG8QD17AE-unsplash.jpg" />
     <Content Include="AnhWeb\toa-heftiba-FV3GConVSss-unsplash.jpg" />
