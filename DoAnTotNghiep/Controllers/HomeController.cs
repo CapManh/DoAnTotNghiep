@@ -16,5 +16,9 @@ namespace DoAnTotNghiep.Controllers
         {
             return View();
         }
+        public ActionResult demo()
+        {
+            return View();
+        }
     }
 }

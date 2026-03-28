@@ -155,11 +155,27 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="AnhWeb\1524.jpg" />
+    <Content Include="AnhWeb\1528.jpg" />
+    <Content Include="AnhWeb\773_5-18471.jpg" />
     <Content Include="AnhWeb\837-76072.jpg" />
     <Content Include="AnhWeb\anhdan.jpg" />
     <Content Include="AnhWeb\anhlogo.png" />
+    <Content Include="AnhWeb\Chair-Design-773x1024-1.png" />
+    <Content Include="AnhWeb\close-up-still-life-hard-exams-scaled-1-400x400.jpg" />
     <Content Include="AnhWeb\Gemini_Generated_Image_ao0jw6ao0jw6ao0j.png" />
     <Content Include="AnhWeb\Gemini_Generated_Image_ql6ry4ql6ry4ql6r.png" />
+    <Content Include="AnhWeb\Group-8051.jpg" />
+    <Content Include="AnhWeb\Group-8052.jpg" />
+    <Content Include="AnhWeb\Group-8066 %281%29.jpg" />
+    <Content Include="AnhWeb\Group-8067.jpg" />
+    <Content Include="AnhWeb\Group-8069 %281%29.jpg" />
+    <Content Include="AnhWeb\Group-8069.jpg" />
+    <Content Include="AnhWeb\Group-8070.jpg" />
+    <Content Include="AnhWeb\Group-8071-600x600.jpg" />
+    <Content Include="AnhWeb\Group-8074-400x400.jpg" />
+    <Content Include="AnhWeb\Group_8049-1.jpg" />
+    <Content Include="AnhWeb\Group_8049-600x600 %281%29.png" />
     <Content Include="AnhWeb\PHÒNG KHÁCH.jpg" />
     <Content Include="AnhWeb\rabie-madaci-4iwG8QD17AE-unsplash.jpg" />
     <Content Include="AnhWeb\toa-heftiba-FV3GConVSss-unsplash.jpg" />
@@ -1421,6 +1437,7 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\TrangChu.cshtml" />
     <Content Include="Views\Home\GioiThieu.cshtml" />
+    <Content Include="Views\Home\demo.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
