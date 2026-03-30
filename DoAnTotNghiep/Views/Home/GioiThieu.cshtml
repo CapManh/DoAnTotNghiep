@@ -2,47 +2,142 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section PageCss {
-    <link href="~/Content/GioiThieu.css" rel="stylesheet" />
+    <link href="~/Content/Site.css" rel="stylesheet" />
+
 }
-<section class="about-header">
-    <div class="container text-center text-white">
-        <h1 class="fw-bold">Giới thiệu</h1>
-        <p class="small">Trang chủ / <span class="opacity-75">Giới thiệu</span></p>
-    </div>
-</section>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Banner Slider</title>
+    <link rel="stylesheet" href="@Url.Content("~/Content/GioiThieu.css")" />
 
-<section class="about-main-content py-5">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h6 class="text-danger fw-bold mb-1">LOGO</h6>
-            <p class="small text-uppercase tracking-widest text-muted" style="letter-spacing: 2px;">
-                TRỞ NÊN TỐT HƠN MỖI NGÀY CÙNG NHAU
+</head>
+<body>
+    <section class="about-header">
+        <div class="container text-center text-white">
+            <h1 class="fw-bold">Giới thiệu</h1>
+            <p>
+                <a href="/" class="text-white text-decoration-none opacity-100 hover-opacity-75">Trang chủ</a>
+                / <span class="opacity-75">Giới thiệu</span>
             </p>
-            <h2 class="display-6 fw-bold text-uppercase">Tương lai của nội thất</h2>
         </div>
+    </section>
 
-        <div class="row mb-5">
-            <div class="col-12">
-                <div class="about-hero-img">
-                    <img src="~/AnhWeb/about-hero.jpg" alt="Showroom" class="img-fluid rounded-4 shadow-sm" />
+    <section class="about-main-content py-5">
+        <div class="container">
+            <div class="text-center mb-5 about-brand-block">
+                <div class="about-logo-wrapper mb-3">
+                    <img src="~/AnhWeb/anhlogo.png" alt="Logo Mạnh Tuân" class="about-brand-logo" />
+                </div>
+
+                <p class="small text-uppercase tracking-widest text-muted" style="letter-spacing: 2px; font-weight: 600;">
+                    TRỞ NÊN TỐT HƠN MỖI NGÀY CÙNG NHAU
+                </p>
+                <h2 class="display-6 fw-bold text-uppercase">Tương lai của nội thất</h2>
+            </div>
+
+            <div class="row mb-5 hero-image-row">
+                <div class="col-12">
+                    <div class="about-hero-img">
+                        <img src="~/AnhWeb/toa-heftiba-FV3GConVSss-unsplash.jpg" alt="Showroom Nội Thất" class="img-fluid rounded-4 shadow-sm" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row about-text-details py-4">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h3 class="fw-bold display-6" style="line-height: 1.2;">Chất lượng thiết kế sáng tạo đơn giản</h3>
+                </div>
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <p class="fs-5 text-muted">
+                        Trở thành một tập đoàn uy tín hàng đầu khu vực trong lĩnh vực phân phối nội thất văn phòng cao cấp, hiện đại. Với phương châm kinh doanh đặt lợi ích của cộng đồng lên trên hết, 100% các sản phẩm nội thất văn phòng do Nội thất Mạnh Tuân cung cấp đều có nguồn gốc xuất xứ rõ ràng, đảm bảo chất lượng và an toàn cho người sử dụng.
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <p class="fs-5 text-muted">
+                        Nội thất Mạnh Tuân không ngừng cập nhật xu hướng, xây dựng hệ sinh thái các sản phẩm nội thất văn phòng đẳng cấp, nhằm tạo nên các không gian làm việc tiện nghi, thoải mái và khơi dậy nguồn năng lực tích cực cho người lao động trí thức. Chúng tôi cam kết mang đến giá trị bền vững.
+                    </p>
                 </div>
             </div>
         </div>
+    </section>
+    <section class="about-statistics py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <div class="about-feature-img">
+                        <img src="~/AnhWeb/rabie-madaci-4iwG8QD17AE-unsplash.jpg" alt="Ghế nội thất" class="img-fluid rounded-4 shadow-sm" />
+                    </div>
+                </div>
 
-        <div class="row about-text-details">
-            <div class="col-md-4">
-                <h3 class="fw-bold h4">Chất lượng thiết kế sáng tạo đơn giản</h3>
-            </div>
-            <div class="col-md-4">
-                <p class="small text-muted">
-                    Trở thành một tập đoàn uy tín hàng đầu khu vực trong lĩnh vực phân phối nội thất văn phòng cao cấp, hiện đại. Với phương châm kinh doanh đặt lợi ích của cộng đồng lên trên hết, 100% các sản phẩm nội thất văn phòng do Nội thất Mạnh Tuân cung cấp đều có nguồn gốc xuất xứ rõ ràng...
-                </p>
-            </div>
-            <div class="col-md-4">
-                <p class="small text-muted">
-                    Nội thất Mạnh Tuân không ngừng cập nhật xu hướng, xây dựng hệ sinh thái các sản phẩm nội thất văn phòng đẳng cấp, nhằm tạo nên các không gian làm việc tiện nghi, thoải mái và khơi dậy nguồn năng lực tích cực cho người lao động trí thức.
-                </p>
+                <div class="col-md-6 ps-md-5">
+                    <h6 class="text-warning fw-bold mb-3">Về Nội thất Mạnh Tuân</h6>
+                    <h2 class="display-5 fw-bold mb-4" style="line-height: 1.2;">Chúng tôi là đơn vị dẫn đầu về sản phẩm nội thất</h2>
+
+                    <div class="about-desc mb-5">
+                        <p class="fs-5 text-muted mb-4">
+                            Nội thất Mạnh Tuân là một đơn vị chuyên sản xuất, cung cấp và tư vấn thiết kế các sản phẩm nội thất văn phòng phong cách hiện đại. Trải qua 11 năm hình thành và phát triển, chúng tôi không ngừng chuyển mình vươn đến sự hoàn thiện trong từng sản phẩm và dịch vụ mang đến cho khách hàng.
+                        </p>
+                        <p class="fs-5 text-muted">
+                            Chúng tôi không ngừng cập nhật xu hướng, xây dựng hệ sinh thái các sản phẩm đẳng cấp, nhằm tạo nên không gian làm việc tiện nghi, thoải mái nhất.
+                        </p>
+                    </div>
+
+                    <div class="row about-counter-grid g-0 border-top pt-4">
+                        <div class="col-4 border-end">
+                            <div class="px-2">
+                                <h3 class="display-5 fw-bold text-warning mb-1"><span class="counter" data-target="53">0</span> k</h3>
+                                <p class="small fw-bold text-uppercase text-muted">Khách hàng</p>
+                            </div>
+                        </div>
+                        <div class="col-4 border-end">
+                            <div class="px-2 text-center">
+                                <h3 class="display-5 fw-bold text-warning mb-1"><span class="counter" data-target="10">0</span> k</h3>
+                                <p class="small fw-bold text-uppercase text-muted">Dự án</p>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="px-2 text-end text-md-center">
+                                <h3 class="display-5 fw-bold text-warning mb-1"><span class="counter" data-target="120">0</span></h3>
+                                <p class="small fw-bold text-uppercase text-muted">Giải thưởng</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const counters = document.querySelectorAll('.counter');
+            const speed = 100;
+
+            const startCounter = (counter) => {
+                const updateCount = () => {
+                    const target = +counter.getAttribute('data-target');
+                    const count = +counter.innerText;
+                    const inc = target / speed;
+                    if (count < target) {
+                        counter.innerText = Math.ceil(count + inc);
+                        setTimeout(updateCount, 10);
+                    } else {
+                        counter.innerText = target;
+                    }
+                };
+                updateCount();
+            };
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        startCounter(entry.target);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 }); 
+
+            counters.forEach(counter => observer.observe(counter));
+        });
+    </script>
+</body>
+</html>

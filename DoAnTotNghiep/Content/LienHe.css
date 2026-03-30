@@ -1,0 +1,51 @@
+﻿/* --- FORM LIÊN HỆ --- */
+.policy-header {
+    height: 250px;
+    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/AnhWeb/PHÒNG KHÁCH.jpg') no-repeat center center;
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .policy-header h1 {
+        font-size: 2.8rem;
+        letter-spacing: -1px;
+    }
+.contact-map-full {
+    line-height: 0;
+    margin-top: 0;
+}
+
+    .contact-map-full iframe {
+        display: block;
+        border: none;
+    }
+
+/* Kiểu dáng các khối thông tin phía trên */
+.info-box {
+    border: none;
+}
+
+@media (min-width: 768px) {
+    .border-start {
+        border-left: 1px solid #dee2e6 !important;
+    }
+
+    .border-end {
+        border-right: 1px solid #dee2e6 !important;
+    }
+}
+
+/* Nút bấm đúng màu cam trong ảnh */
+.btn-warning {
+    background-color: #f39200 !important;
+    border: none;
+}
+
+/* Form input */
+.form-control {
+    border-radius: 8px;
+    padding: 12px;
+    background-color: #fcfcfc;
+}

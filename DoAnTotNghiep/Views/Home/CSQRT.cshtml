@@ -1,0 +1,121 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Banner Slider</title>
+    <style>
+        .policy-header {
+            height: 250px;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/AnhWeb/PHÒNG KHÁCH.jpg') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .policy-header h1 {
+            font-size: 2.8rem;
+            letter-spacing: -1px;
+        }
+        .privacy-card {
+            line-height: 1.7;
+        }
+
+        .privacy-item {
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+        .privacy-item:hover {
+            border-color: #f39200 !important;
+            box-shadow: 0 5px 15px rgba(243, 146, 0, 0.1);
+        }
+
+        .privacy-item h4 {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+        }
+
+        .privacy-item p {
+            font-size: 0.95rem;
+            margin-bottom: 0;
+        }
+
+        .text-warning {
+            color: #f39200 !important;
+        }
+
+    </style>
+</head>
+<body>
+    <section class="policy-header">
+        <div class="container text-center text-white">
+            <h1 class="fw-bold">Chính sách quyền riêng tư</h1>
+            <p>
+                <a href="/" class="text-white text-decoration-none opacity-100 hover-opacity-75">Trang chủ</a>
+                / <span class="opacity-75">Chính sách quyền riêng tư</span>
+            </p>
+        </div>
+    </section>
+
+    <section class="privacy-body py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="privacy-card bg-white p-4 p-md-5 rounded-4 shadow-sm border">
+
+                        <div class="intro-text mb-5">
+                            <h2 class="fw-bold mb-3">Cam kết bảo mật thông tin</h2>
+                            <p class="fs-5 text-muted">
+                                Nội thất Mạnh Tuân hiểu rằng sự riêng tư của bạn là vô cùng quan trọng. Chúng tôi cam kết bảo vệ thông tin cá nhân của khách hàng một cách tuyệt đối và chỉ sử dụng cho các mục đích nhằm nâng cao trải nghiệm mua sắm.
+                            </p>
+                        </div>
+
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="privacy-item h-100 p-4 border rounded-3">
+                                    <i class="bi bi-person-badge display-6 text-warning mb-3 d-block"></i>
+                                    <h4 class="fw-bold">1. Thu thập thông tin</h4>
+                                    <p class="text-muted">Chúng tôi thu thập các thông tin như: Họ tên, số điện thoại, email và địa chỉ giao hàng khi bạn thực hiện đặt hàng hoặc đăng ký thành viên.</p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="privacy-item h-100 p-4 border rounded-3">
+                                    <i class="bi bi-shield-lock display-6 text-warning mb-3 d-block"></i>
+                                    <h4 class="fw-bold">2. Bảo mật dữ liệu</h4>
+                                    <p class="text-muted">Mọi thông tin cá nhân đều được mã hóa và lưu trữ trên hệ thống máy chủ bảo mật, ngăn chặn các truy cập trái phép từ bên ngoài.</p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="privacy-item h-100 p-4 border rounded-3">
+                                    <i class="bi bi-envelope-check display-6 text-warning mb-3 d-block"></i>
+                                    <h4 class="fw-bold">3. Sử dụng thông tin</h4>
+                                    <p class="text-muted">Thông tin của bạn được dùng để xác nhận đơn hàng, gửi thông báo ưu đãi và giải quyết các vấn đề khiếu nại (nếu có).</p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="privacy-item h-100 p-4 border rounded-3">
+                                    <i class="bi bi-share display-6 text-danger mb-3 d-block"></i>
+                                    <h4 class="fw-bold">4. Cam kết không chia sẻ</h4>
+                                    <p class="text-muted">Mạnh Tuân cam kết không bán, không chia sẻ thông tin của khách hàng cho bất kỳ bên thứ ba nào vì mục đích thương mại.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="contact-note mt-5 p-4 bg-light rounded-3 text-center">
+                            <p class="mb-0">Mọi thắc mắc về chính sách bảo mật, vui lòng liên hệ <strong>ManhTuan@gmail.com</strong></p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
+

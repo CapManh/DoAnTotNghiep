@@ -1,0 +1,106 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section PageCss {
+    <link href="~/Content/Site.css" rel="stylesheet" />
+
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Banner Slider</title>
+    <link rel="stylesheet" href="@Url.Content("~/Content/LienHe.css")" />
+
+</head>
+<body>
+    <section class="policy-header">
+        <div class="container text-center text-white">
+            <h1 class="fw-bold">Liên Hệ</h1>
+            <p>
+                <a href="/" class="text-white text-decoration-none opacity-100 hover-opacity-75">Trang chủ</a>
+                / <span class="opacity-75">Liên Hệ</span>
+            </p>
+        </div>
+    </section>
+
+    <section class="contact-top-info py-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="info-box text-center p-4">
+                        <i class="bi bi-geo-alt text-warning display-5"></i>
+                        <h5 class="fw-bold mt-3">Địa chỉ</h5>
+                        <p class="text-muted">54 đường C1, Phường Tân Bình, TP. Hồ Chí Minh</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="info-box text-center p-4 border-start border-end">
+                        <i class="bi bi-telephone text-warning display-5"></i>
+                        <h5 class="fw-bold mt-3">Hotline</h5>
+                        <p class="text-muted">(028) 7777 7999<br>0900 123 456</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="info-box text-center p-4">
+                        <i class="bi bi-envelope text-warning display-5"></i>
+                        <h5 class="fw-bold mt-3">Email</h5>
+                        <p class="text-muted">ManhTuan@gmail.com<br>sales@matbao.ws</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="contact-form-area py-5 bg-light">
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-7">
+                    <div class="form-wrapper bg-white p-4 p-md-5 rounded-4 shadow-sm">
+                        <h2 class="fw-bold mb-4">Gửi tin nhắn cho chúng tôi</h2>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" placeholder="Họ và tên">
+                            </div>
+                            <div class="col-md-6">
+                                <input type="email" class="form-control" placeholder="Địa chỉ Email">
+                            </div>
+                            <div class="col-md-12">
+                                <input type="text" class="form-control" placeholder="Số điện thoại">
+                            </div>
+                            <div class="col-md-12">
+                                <textarea class="form-control" rows="5" placeholder="Nội dung tin nhắn"></textarea>
+                            </div>
+                            <div class="col-md-12">
+                                <button class="btn btn-warning w-100 fw-bold py-3 text-white">GỬI TIN NHẮN</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="ps-lg-4">
+                        <h4 class="fw-bold mb-4 border-bottom pb-2">Thông tin hỗ trợ</h4>
+                        <p class="text-muted mb-4">Chúng tôi luôn sẵn sàng lắng nghe ý kiến của bạn. Hãy liên hệ với chúng tôi qua form hoặc các thông tin trực tiếp.</p>
+
+                        <h5 class="fw-bold mb-2">Giờ làm việc</h5>
+                        <p class="text-muted">Thứ 2 - Thứ 6: 08:00 - 20:00<br>Thứ 7 - CN: 09:00 - 18:00</p>
+
+                        <h5 class="fw-bold mt-4 mb-2">Kết nối mạng xã hội</h5>
+                        <div class="d-flex gap-3">
+                            <a href="#" class="btn btn-dark rounded-circle"><i class="bi bi-facebook"></i></a>
+                            <a href="#" class="btn btn-dark rounded-circle"><i class="bi bi-youtube"></i></a>
+                            <a href="#" class="btn btn-dark rounded-circle"><i class="bi bi-twitch"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="contact-map-full">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.2032585257125!2d106.6416666759059!3d10.795743458838337!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3175294ea51130d9%3A0xe54d85906d20358a!2zNTQgQzEsIFBoxrDhu5bmcgMTMsIFTDom4gQsOsbmgsIEjhu5MgQ2jDrSBNaW5oLCBWaeG7h3QgTmFt!5e0!3m2!1svi!2s!4v1711283625418!5m2!1svi!2s"
+                width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+    </section>
+</body>
+</html>
+

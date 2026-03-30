@@ -20,5 +20,29 @@ namespace DoAnTotNghiep.Controllers
         {
             return View();
         }
+        public ActionResult CSTT()
+        {
+            return View();
+        }
+        public ActionResult CSQRT()
+        {
+            return View();
+        }
+        public ActionResult CSMH()
+        {
+            return View();
+        }
+        public ActionResult CSGH()
+        {
+            return View();
+        }
+        public ActionResult CSDT()
+        {
+            return View();
+        }
+        public ActionResult LienHe()
+        {
+            return View();
+        }
     }
 }

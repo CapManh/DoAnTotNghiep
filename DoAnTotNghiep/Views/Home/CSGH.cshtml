@@ -1,0 +1,100 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Banner Slider</title>
+    <style>
+        .policy-header {
+            height: 250px;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/AnhWeb/PHÒNG KHÁCH.jpg') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .policy-header h1 {
+            font-size: 2.8rem;
+            letter-spacing: -1px;
+        }
+        .warranty-card {
+            border: 1px solid #f0f0f0;
+        }
+
+        .warranty-icon {
+            min-width: 60px;
+        }
+
+        .warranty-text h3 {
+            letter-spacing: -0.5px;
+            color: #222;
+        }
+        .warranty-text ul li {
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        .warranty-text .bi-dot {
+            color: #f39200;
+            font-size: 1.5rem;
+            vertical-align: middle;
+        }
+        .text-warning {
+            color: #f39200 !important;
+        }
+    </style>
+</head>
+<body>
+    <section class="policy-header">
+        <div class="container text-center text-white">
+            <h1 class="fw-bold">Chính sách giao hàng</h1>
+            <p>
+                <a href="/" class="text-white text-decoration-none opacity-100 hover-opacity-75">Trang chủ</a>
+                / <span class="opacity-75">Chính sách giao hàng</span>
+            </p>
+        </div>
+    </section>
+
+    <section class="warranty-content py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="warranty-card bg-white p-4 p-md-5 rounded-4 shadow-sm">
+                        <div class="warranty-item d-flex gap-4 mb-5">
+                            <div class="warranty-text">
+                                <h3 class="fw-bold mb-3">1. Chính sách vận chuyển và giao nhận.</h3>
+                                <p>Đội ngũ giao hàng của Chúng tôi sẽ tiến hành kiểm tra các đơn hàng để đảm bảo chất lượng trước khi giao hàng tới tay khách hàng. Ngoài ra, các mặt hàng đều được đóng gói cẩn thận trước khi vận chuyển cùng với giấy bảo hành (tùy từng dòng sản phẩm). Với các đơn hàng lỗi, nhân viên của chúng tôi sẽ đến lấy lấy hàng và bảo hành cho quý khách theo quy định.</p>
+                                <h3 class="fw-bold mb-3">2. Chính Sách Về Vận Chuyển.</h3>
+                                <ul class="fs-5 text-muted list-unstyled">
+                                    <li class="mb-2"><i class="bi bi-dot"></i> Thời gian giao hàng sẽ được các bên thống nhất trong quá trình kí kết hợp đồng. Với các đơn hàng hoàn thành trước thời hạn, chúng tôi sẽ thông báo cho Quý khách hàng. Nếu Quý khách hàng muốn lấy sớm thì đội ngũ giao hàng sẽ hỗ trợ chuyển ngay cho Quý khách hàng.</li>
+                                    <li class="mb-2"><i class="bi bi-dot"></i> Với các đơn hàng gấp, Chúng tôi sẽ giao hàng nhanh để đảm bảo hàng đúng ngày cho quý khách.</li>
+                                    <li class="mb-2"><i class="bi bi-dot"></i> Trong một số trường hợp, chúng tôi có thể giao hàng chậm do những điều kiện khách quan như: Thời tiết xấu, điều kiện giao thông không thuận lợi, xe hỏng hóc trên đường giao hàng, trục trặc trong quá trình xuất hàng.</li>
+                                </ul>
+                                <h3 class="fw-bold mb-3">3. Thời Gian Vận Chuyển.</h3>
+                                <ul class="fs-5 text-muted list-unstyled">
+                                    <li class="mb-2"><i class="bi bi-dot"></i> Hàng nội thành và các khu vực lân cận Hà Nội và Hồ Chí Minh: Giao hàng từ 1 – 2 ngày sau khi có thông báo Đơn hàng hoàn thành.</li>
+                                    <li class="mb-2"><i class="bi bi-dot"></i> Hàng đi tỉnh: Giao hàng từ 02- 07 ngày tùy địa điểm và tùy gói cước vận chuyển khách hàng lựa chọn.</li>
+                                    <li class="mb-2"><i class="bi bi-dot"></i> Trong thời gian chờ đợi nhận hàng, Quý khách có bất cứ thắc mắc gì về thông tin vận chuyển xin vui lòng liên hệ Hotline: (028) 7777 7999</li>
+                                </ul>
+                                <h3 class="fw-bold mb-3">4. Chính Sách Về Giao Nhận.</h3>
+                                <ul class="fs-5 text-muted list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="bi bi-dot"></i> Nếu dịch vụ vận chuyển do chúng tôi chỉ định, chúng tôi sẽ chịu trách nhiệm với các sản phẩm và các rủi ro như mất mát hoặc hư hại của sản phẩm trong suốt quá trình vận chuyển đến Quý khách hàng.
+                                        Quý khách hàng có trách nhiệm kiểm tra sản phẩm khi nhận hàng. Khi phát hiện sản phẩm bị hư hại, trầy xước, bể vỡ, mốp méo, hoặc sai thông tin sản phẩm thì ký xác nhận tình trạng hàng hóa với Nhân viên giao nhận và thông báo ngay cho Bộ phận chăm sóc khách hàng qua Hotline: (028) 7777 7999
+                                    </li>
+                                    <li class="mb-2"><i class="bi bi-dot"></i> Sau khi Quý khách hàng đã ký nhận sản phẩm mà không ghi chú hoặc có ý kiến về hàng hóa. Chúng tôi không có trách nhiệm với những yêu cầu đổi trả vì hư hỏng, trầy xước, bể vỡ, mốp méo, sai hàng hóa,… từ Quý khách hàng sau này.</li>
+                                    <li class="mb-2"><i class="bi bi-dot"></i> Nếu dịch vụ vận chuyển do Quý khách hàng chỉ định và lựa chọn thì Quý khách hàng sẽ chịu trách nhiệm với hàng hóa và các rủi ro như mất mát hoặc hư hại của hàng hóa trong suốt quá trình vận chuyển hàng từ cửa hàng đến Quý khách hàng. Khách hàng sẽ chịu trách nhiệm cước phí và tổn thất liên quan.</li>
+                                </ul>
+                                <h3 class="fw-bold mb-3">5. Chi Phí Vận Chuyển.</h3>
+                                <p>Chi phí vận chuyển sẽ tính theo thỏa thuận của Chúng tôi và khách hàng.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

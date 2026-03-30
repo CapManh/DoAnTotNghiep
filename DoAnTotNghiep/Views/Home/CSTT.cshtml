@@ -1,0 +1,136 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Banner Slider</title>
+    <style>
+        .policy-header {
+            height: 250px;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/AnhWeb/PHÒNG KHÁCH.jpg') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .policy-header h1 {
+            font-size: 3rem;
+            letter-spacing: -1px;
+        }
+        .policy-article {
+            border: 1px solid #f0f0f0;
+            line-height: 1.8;
+        }
+
+        .main-title {
+            font-size: 2rem;
+            color: #000;
+            letter-spacing: -0.5px;
+        }
+
+        .section-title {
+            color: #222;
+            margin-top: 2rem;
+        }
+        .border-warning {
+            border-color: #f39200 !important;
+        }
+        .policy-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .policy-list li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 12px;
+            color: #555;
+        }
+
+        .policy-list li::before {
+            content: "•";
+            color: #f39200;
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+            position: absolute;
+            left: 10px;
+            font-size: 1.2em;
+        }
+        .policy-article p, .policy-article li {
+            text-align: justify;
+            word-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <section class="policy-header">
+        <div class="container text-center text-white">
+            <h1 class="fw-bold">Chính sách mua hàng</h1>
+            <p>
+                <a href="/" class="text-white text-decoration-none opacity-100 hover-opacity-75">Trang chủ</a>
+                / <span class="opacity-75">Chính sách mua hàng</span>
+            </p>
+        </div>
+    </section>
+
+    <section class="policy-body py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10 col-xl-9">
+                    <article class="policy-article bg-white p-4 p-md-5 rounded-4 shadow-sm">
+                        <h2 class="main-title fw-bold mb-4">Chính sách mua hàng tại Nội thất Mạnh Tuân</h2>
+
+                        <p class="fs-5 text-dark mb-4">
+                            Để đảm bảo quyền lợi của khách hàng và mang lại trải nghiệm mua sắm tốt nhất, Nội thất Mạnh Tuân quy định cụ thể các bước và chính sách mua hàng như sau:
+                        </p>
+
+                        <div class="policy-section mb-5">
+                            <h3 class="section-title h4 fw-bold text-uppercase border-start border-4 border-warning ps-3 mb-3">
+                                1. Quy trình đặt hàng trực tuyến
+                            </h3>
+                            <p class="text-muted fs-5">Khách hàng có thể đặt hàng qua hệ thống website chính thức theo các bước:</p>
+                            <ul class="policy-list fs-5">
+                                <li><strong>Bước 1:</strong> Lựa chọn sản phẩm và thêm vào giỏ hàng.</li>
+                                <li><strong>Bước 2:</strong> Kiểm tra thông tin giỏ hàng và áp dụng mã giảm giá (nếu có).</li>
+                                <li><strong>Bước 3:</strong> Điền đầy đủ thông tin giao hàng và chọn phương thức thanh toán.</li>
+                                <li><strong>Bước 4:</strong> Nhấn "Đặt hàng" và chờ nhân viên xác nhận qua điện thoại trong vòng 30 phút.</li>
+                            </ul>
+                        </div>
+
+                        <div class="policy-section mb-5">
+                            <h3 class="section-title h4 fw-bold text-uppercase border-start border-4 border-warning ps-3 mb-3">
+                                2. Thời gian xử lý đơn hàng
+                            </h3>
+                            <ul class="policy-list fs-5">
+                                <li>Đơn hàng đặt trong giờ hành chính (8:00 - 17:30) sẽ được xử lý ngay trong ngày.</li>
+                                <li>Đơn hàng đặt sau 18:00 sẽ được xác nhận vào sáng ngày làm việc kế tiếp.</li>
+                            </ul>
+                        </div>
+
+                        <div class="policy-section mb-5">
+                            <h3 class="section-title h4 fw-bold text-uppercase border-start border-4 border-warning ps-3 mb-3">
+                                3. Lưu ý đối với hàng đặt sản xuất
+                            </h3>
+                            <p class="text-muted fs-5">
+                                Đối với các sản phẩm không có sẵn hoặc sản xuất theo yêu cầu riêng (kích thước, màu sắc đặc biệt), quý khách vui lòng đặt cọc trước <strong>30% - 50%</strong> giá trị đơn hàng.
+                            </p>
+                        </div>
+
+                        <div class="policy-note p-3 bg-light rounded-3 border-start border-5 border-dark">
+                            <p class="mb-0 small text-dark">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <strong>Lưu ý:</strong> Mọi thắc mắc về đơn hàng, quý khách vui lòng liên hệ Hotline: <strong>(028) 7777 7999</strong> để được hỗ trợ nhanh nhất.
+                            </p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
+

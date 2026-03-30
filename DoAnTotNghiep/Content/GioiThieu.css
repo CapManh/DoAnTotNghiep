@@ -1,45 +1,94 @@
-﻿/* --- TRANG GIỚI THIỆU --- */
-
-/* Banner trên cùng */
+﻿
 .about-header {
     height: 250px;
-    background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/AnhWeb/PHÒNG KHÁCH.jpg') no-repeat center center;
+    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/AnhWeb/PHÒNG KHÁCH.jpg') no-repeat center center;
     background-size: cover;
     display: flex;
     align-items: center;
     justify-content: center;
 }
-
-    .about-header h1 {
-        font-size: 3rem;
-    }
-
-/* Ảnh Hero bo góc */
-.about-hero-img img {
-    width: 100%;
-    height: 500px;
-    object-fit: cover; /* Giúp ảnh rõ nét và không bị méo */
-    border-radius: 20px !important;
+.about-header h1 {
+    font-size: 3rem;
+    margin-bottom: 5px;
 }
-
-/* Tiêu đề chính */
+.hover-opacity-75:hover {
+    opacity: 0.75 !important;
+    transition: opacity 0.3s ease;
+}
+.about-brand-block {
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.about-logo-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.about-brand-logo {
+    height: 60px;
+    width: auto;
+    object-fit: contain;
+}
 .about-main-content h2 {
     font-weight: 800;
     letter-spacing: -1px;
+    line-height: 1.2;
 }
-
-/* Cột văn bản */
-.about-text-details h3 {
-    line-height: 1.4;
-    padding-right: 20px;
+.about-hero-img img {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+    border-radius: 20px !important;
 }
-
 .about-text-details p {
-    line-height: 1.8;
+    line-height: 1.5;
     text-align: justify;
+    color: #444 !important;
 }
 
-/* RESPONSIVE CHO MOBILE */
+.about-text-details h3 {
+    letter-spacing: -1px;
+}
+.about-statistics .display-5 {
+    font-weight: 800 !important;
+    letter-spacing: -1px;
+}
+.about-feature-img img {
+    width: 100%;
+    height: auto;
+    border-radius: 30px !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+}
+.text-warning {
+    color: #f39200 !important;
+}
+.about-counter-grid .border-end {
+    border-color: #ddd !important;
+}
+
+.about-counter-grid h3 {
+    line-height: 1;
+}
+
+.about-counter-grid p {
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+.about-desc .fs-5 {
+    line-height: 1.7;
+    text-align: justify;
+    color: #555 !important;
+}
+.counter {
+    display: inline-block;
+    min-width: 1ch;
+    transition: all 0.3s ease;
+}
+
+.text-warning {
+    color: #f39200 !important;
+}
 @media (max-width: 767px) {
     .about-header {
         height: 180px;
@@ -49,11 +98,16 @@
             font-size: 2rem;
         }
 
+    .about-brand-logo {
+        height: 45px;
+    }
+
     .about-hero-img img {
         height: 300px;
     }
 
     .about-text-details h3 {
-        margin-bottom: 20px;
+        margin-bottom: 15px;
+        padding-right: 0;
     }
 }

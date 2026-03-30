@@ -1,0 +1,130 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Banner Slider</title>
+    <style>
+        .policy-header {
+            height: 250px;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/AnhWeb/PHÒNG KHÁCH.jpg') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .policy-header h1 {
+            font-size: 2.8rem;
+            letter-spacing: -1px;
+        }
+        .policy-card {
+            line-height: 1.8;
+        }
+        .policy-list, .policy-sub-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .policy-list li, .policy-sub-list li {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 15px;
+            color: #444;
+        }
+        .policy-list li::before, .policy-sub-list li::before {
+            content: "•";
+            color: #f39200;
+            font-weight: bold;
+            position: absolute;
+            left: 10px;
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+        .policy-section h3 {
+            color: #000;
+            margin-top: 30px;
+        }
+        .alert-light {
+            background-color: #fff9f0;
+            border-color: #f39200 !important;
+        }
+        .fs-5 {
+            font-size: 1.1rem !important;
+        }
+    </style>
+</head>
+<body>
+    <section class="policy-header">
+        <div class="container text-center text-white">
+            <h1 class="fw-bold">Chính sách hoàn tiền và trả hàng</h1>
+            <p>
+                <a href="/" class="text-white text-decoration-none opacity-100 hover-opacity-75">Trang chủ</a>
+                / <span class="opacity-75">Chính sách hoàn tiền và trả hàng</span>
+            </p>
+        </div>
+    </section>
+
+    <section class="refund-policy-body py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <article class="policy-card bg-white p-4 p-md-5 rounded-4 shadow-sm border">
+
+                        <p class="fs-5 text-dark mb-4">
+                            Mẫu website MBWS 3.0 luôn cam kết giao đến khách hàng những sản phẩm mới 100%, trong tình trạng tốt nhất, nguyên đai nguyên kiện và chính xác đầy đủ theo đơn hàng đã đặt. Những trường hợp trả hàng và hoàn tiền sẽ được xem xét như sau:
+                        </p>
+
+                        <ul class="policy-list fs-5 mb-5">
+                            <li>Sản phẩm bị lỗi, sai loại sản phẩm, thiếu sản phẩm so với đơn hàng được đặt.</li>
+                            <li>Sản phẩm bị hết hạn sử dụng.</li>
+                            <li>Sản phẩm hư hỏng trong quá trình vận chuyển.</li>
+                        </ul>
+
+                        <div class="alert alert-light border-start border-4 border-warning ps-4 mb-5">
+                            <p class="mb-0 fs-5"><strong>Thời gian đổi trả:</strong> Trong vòng 10 ngày kể từ khi nhận hàng.</p>
+                        </div>
+
+                        <div class="policy-section mb-5">
+                            <h3 class="fw-bold h4 mb-3">1. Quy định về thời gian thông báo và gửi sản phẩm đổi trả</h3>
+                            <ul class="policy-sub-list fs-5">
+                                <li><strong>Thời gian thông báo đổi trả:</strong> Trong vòng 24h kể từ khi nhận sản phẩm đối với trường hợp sản phẩm lỗi, hư hỏng.</li>
+                                <li><strong>Thời gian gửi chuyển trả sản phẩm:</strong> Trong vòng 14 ngày từ ngày nhận sản phẩm.</li>
+                                <li>
+                                    Khách hàng có thể gửi qua đường bưu điện hoặc mang sản phẩm trực tiếp đến:
+                                    <ul class="list-unstyled mt-2 ps-4 border-start">
+                                        <li><i class="bi bi-geo-alt-fill text-warning"></i> Địa chỉ: 54 đường C1, Phường Tân Bình, TP. Hồ Chí Minh</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="policy-section mb-5">
+                            <h3 class="fw-bold h4 mb-3">2. Trường hợp áp dụng đổi trả</h3>
+                            <ul class="policy-sub-list fs-5">
+                                <li>Sản phẩm bị lỗi kỹ thuật, hư hỏng của nhà sản xuất.</li>
+                                <li>Sản phẩm hết hạn sử dụng hoặc có dấu hiệu đã qua sử dụng.</li>
+                                <li>Lỗi khi giao hàng thiếu, bể vỡ trước khi đến tay khách hàng.</li>
+                                <li>Giao sai sản phẩm.</li>
+                            </ul>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="fw-bold h4 mb-3">3. Điều kiện áp dụng đổi trả</h3>
+                            <ul class="policy-sub-list fs-5">
+                                <li>Sản phẩm còn nguyên vẹn, đầy đủ bao bì, hộp, mút xốp, tài liệu hướng dẫn sử dụng (nếu có).</li>
+                                <li>Thông báo xác nhận đặt hàng, hóa đơn VAT (nếu có).</li>
+                                <li>Tình trạng sản phẩm không bị trầy xước, nứt vỡ, ẩm ướt, dính hóa chất, can thiệp sửa chữa.</li>
+                                <li>Sản phẩm chưa có dấu hiệu sử dụng (đối với trường hợp giao sai sản phẩm).</li>
+                            </ul>
+                        </div>
+
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
+
+
