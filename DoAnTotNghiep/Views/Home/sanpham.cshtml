@@ -1,0 +1,190 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sản phẩm</title>
+    <link rel="stylesheet" href="@Url.Content("~/Content/sanpham.css")" />
+</head>
+<body>
+
+    <!-- Banner -->
+    <div class="banner">
+         <img src="~/AnhWeb/anhdan.jpg"  alt="Banner Sản phẩm" class="banner-img">
+
+        <div class="banner-content">
+            <h1>Sản phẩm</h1>
+            <div class="breadcrumb">Bộ sưu tập Sản phẩm</div>
+        </div>
+    </div>
+    <!-- Main Content --> 
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h3>Danh Mục Sản Phẩm</h3>
+            <ul>
+                <li><label><input type="checkbox"> Bàn</label> <span>(2)</span></li>
+                <li><label><input type="checkbox"> Ghế ăn</label> <span>(6)</span></li>
+                <li><label><input type="checkbox"> Nội thất</label> <span>(9)</span></li>
+                <li><label><input type="checkbox"> Phòng ăn</label> <span>(3)</span></li>
+                <li><label><input type="checkbox"> Phòng ngủ</label> <span>(1)</span></li>
+                <li><label><input type="checkbox"> Phòng tắm</label> <span>(3)</span></li>
+                <li><label><input type="checkbox"> Sofas</label> <span>(8)</span></li>
+                <li><label><input type="checkbox"> Trang trí</label> <span>(3)</span></li>
+                <li><label><input type="checkbox"> Sản phẩm khác</label> <span>(0)</span></li>
+            </ul>
+
+            <h3 style="margin-top: 30px;">Thương Hiệu</h3>
+            <ul>
+                <li><label><input type="checkbox"> Barcelona</label> <span>(1)</span></li>
+                <li><label><input type="checkbox"> Harris</label> <span>(1)</span></li>
+                <li><label><input type="checkbox"> KENNY</label> <span>(2)</span></li>
+            </ul>
+
+            <!-- MÀU SẮC -->
+            <h3 style="margin-top: 30px;">Màu Sắc</h3>
+            <div class="color-options" id="colorOptions">
+                <div class="color-box" style="background:#4ECDC4;" data-color="turquoise"></div>
+                <div class="color-box" style="background:#2C7BE5;" data-color="blue"></div>
+                <div class="color-box" style="background:#9E9E9E;" data-color="gray"></div>
+                <div class="color-box" style="background:#00A8E8;" data-color="cyan"></div>
+                <div class="color-box" style="background:#FF9800;" data-color="orange"></div>
+            </div>
+
+            <!-- LỌC GIÁ -->
+            <!-- LỌC GIÁ - CHỈ 1 THANH -->
+            <h3 style="margin-top: 25px;">Lọc Theo Giá</h3>
+            <div class="price-range">
+                <input type="range" class="price-slider" id="priceRange" min="0" max="30000000" value="15000000" step="100000">
+                <div class="price-values" id="priceValues">
+                    Giá: 0 đ — <span id="maxPriceDisplay">15.000.000</span> đ
+                </div>
+            </div>
+
+            <button class="filter-btn">Lọc</button>
+        </div>
+
+        <!-- Nội dung sản phẩm -->
+        <div class="content">
+            <div class="header">
+                <h2>Sản phẩm nổi bật</h2>
+                <button class="sort-btn">Sắp xếp mặc định ▼</button>
+            </div>
+
+            <div class="product-grid">
+                <!-- Các sản phẩm của bạn -->
+                <div class="product-card">
+                    <div class="img-box">
+                        <img src="https://picsum.photos/id/1015/600/400" alt="Ghế băng">
+                    </div>
+                    <div class="product-info">
+                        <div class="stars">★★★★★</div>
+                        <div class="product-name">Ghế Băng Gỗ Cao Su KENNY</div>
+                        <div class="price">
+                            <span>2.860.000 đ</span>
+                        </div>
+                        <button class="add-cart">Thêm Vào Giỏ Hàng</button>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="img-box">
+                        <img src="https://picsum.photos/id/201/600/400" alt="Ghế băng">
+                    </div>
+                    <div class="product-info">
+                        <div class="stars">★★★★★</div>
+                        <div class="product-name">Ghế Băng Gỗ Cao Su KENNY</div>
+                        <div class="price">
+                            <span>2.860.000 đ</span>
+                        </div>
+                        <button class="add-cart">Thêm Vào Giỏ Hàng</button>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="img-box">
+                        <img src="https://picsum.photos/id/301/600/400" alt="Ghế ăn">
+                        <div class="sale-tag">Sale</div>
+                    </div>
+                    <div class="product-info">
+                        <div class="stars">★★★★★</div>
+                        <div class="product-name">Ghế Ăn Gỗ Cao Su KENNY</div>
+                        <div class="price">
+                            <del>16.300.000 đ</del>
+                            <span>14.200.000 đ</span>
+                        </div>
+                        <button class="add-cart">Thêm Vào Giỏ Hàng</button>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="img-box">
+                        <img src="https://picsum.photos/id/401/600/400" alt="Kệ">
+                    </div>
+                    <div class="product-info">
+                        <div class="stars">★★★★★</div>
+                        <div class="product-name">Kệ Trang Trí</div>
+                        <div class="price"><span>4.100.000 đ</span></div>
+                        <button class="add-cart">Thêm Vào Giỏ Hàng</button>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="img-box">
+                        <img src="https://picsum.photos/id/501/600/400" alt="Đèn">
+                    </div>
+                    <div class="product-info">
+                        <div class="stars">★★★★★</div>
+                        <div class="product-name">Đèn Trang Trí</div>
+                        <div class="price"><span>1.200.000 đ</span></div>
+                        <button class="add-cart">Thêm Vào Giỏ Hàng</button>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="img-box">
+                        <img src="https://picsum.photos/id/601/600/400" alt="Tủ">
+                    </div>
+                    <div class="product-info">
+                        <div class="stars">★★★★★</div>
+                        <div class="product-name">Tủ Gỗ Mini</div>
+                        <div class="price"><span>5.600.000 đ</span></div>
+                        <button class="add-cart">Thêm Vào Giỏ Hàng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Phần chuyển trang -->
+    <div class="pagination" id="pagination">
+        <div class="page-item arrow" onclick="prevPage()">‹</div>
+        <div class="page-item active" onclick="goToPage(1)">1</div>
+        <div class="page-item" onclick="goToPage(2)">2</div>
+        <div class="page-item" onclick="goToPage(3)">3</div>
+        <div class="page-item" onclick="goToPage(4)">4</div>
+        <div class="page-item arrow" onclick="nextPage()">›</div>
+    </div>
+
+    <script>
+        // Chọn màu
+        document.querySelectorAll('.color-box').forEach(box => {
+            box.addEventListener('click', () => {
+                box.classList.toggle('active');
+            });
+        });
+
+        // Thanh lọc giá đơn
+        const priceSlider = document.getElementById('priceRange');
+        const maxPriceDisplay = document.getElementById('maxPriceDisplay');
+
+        function updatePrice() {
+            const value = parseInt(priceSlider.value);
+            maxPriceDisplay.textContent = value.toLocaleString('vi-VN');
+        }
+
+        priceSlider.addEventListener('input', updatePrice);
+        updatePrice(); // Khởi tạo ban đầu
+      
+    </script>
+</body>
+</html>

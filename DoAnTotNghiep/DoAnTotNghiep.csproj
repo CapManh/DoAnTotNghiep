@@ -1399,6 +1399,7 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="Content\sanpham.css" />
     <Content Include="Content\GioiThieu.css" />
     <Content Include="Content\LienHe.css" />
     <Content Include="Content\TrangChu.css" />
@@ -1438,7 +1439,7 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\TrangChu.cshtml" />
     <Content Include="Views\Home\GioiThieu.cshtml" />
-    <Content Include="Views\Home\demo.cshtml" />
+    <Content Include="Views\Home\sanpham.cshtml" />
     <Content Include="Views\Home\CSMH.cshtml" />
     <Content Include="Views\Home\CSTT.cshtml" />
     <Content Include="Views\Home\CSGH.cshtml" />
@@ -1448,6 +1449,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Content\NewFolder1\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

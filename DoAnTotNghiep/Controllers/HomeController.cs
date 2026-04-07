@@ -16,7 +16,7 @@ namespace DoAnTotNghiep.Controllers
         {
             return View();
         }
-        public ActionResult demo()
+        public ActionResult sanpham()
         {
             return View();
         }
@@ -44,5 +44,6 @@ namespace DoAnTotNghiep.Controllers
         {
             return View();
         }
+      
     }
 }
