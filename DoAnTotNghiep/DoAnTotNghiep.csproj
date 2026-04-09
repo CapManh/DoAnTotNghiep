@@ -1406,6 +1406,7 @@
     <Content Include="Content\GioiThieu.css" />
     <Content Include="Content\LienHe.css" />
     <Content Include="Content\TrangChu.css" />
+    <Content Include="Database\database.sql" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
