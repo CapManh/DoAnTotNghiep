@@ -155,6 +155,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="AnhWeb\tin-tuc-1.jpg" />
     <Content Include="AnhWeb\1524.jpg" />
     <Content Include="AnhWeb\1528.jpg" />
     <Content Include="AnhWeb\773_5-18471.jpg" />
@@ -165,7 +166,9 @@
     <Content Include="AnhWeb\close-up-still-life-hard-exams-scaled-1-400x400.jpg" />
     <Content Include="AnhWeb\Gemini_Generated_Image_ao0jw6ao0jw6ao0j.png" />
     <Content Include="AnhWeb\Gemini_Generated_Image_ql6ry4ql6ry4ql6r.png" />
+    <Content Include="AnhWeb\tin-tuc-2.jpg" />
     <Content Include="AnhWeb\Group-8051.jpg" />
+    <Content Include="AnhWeb\tin-tuc-3.jpg" />
     <Content Include="AnhWeb\Group-8052.jpg" />
     <Content Include="AnhWeb\Group-8066 %281%29.jpg" />
     <Content Include="AnhWeb\Group-8067.jpg" />
@@ -1446,6 +1449,8 @@
     <Content Include="Views\Home\CSDT.cshtml" />
     <Content Include="Views\Home\CSQRT.cshtml" />
     <Content Include="Views\Home\LienHe.cshtml" />
+    <Content Include="Views\Home\TinTuc.cshtml" />
+    <Content Include="Views\Home\GioHang.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
