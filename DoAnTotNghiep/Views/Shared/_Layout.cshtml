@@ -55,7 +55,7 @@
                 <ul class="navbar-nav me-auto" id="main-menu">
                     <li class="nav-item"><a class="nav-link" href="/">Trang Chủ</a></li>
                     <li class="nav-item"><a class="nav-link" href="/Home/GioiThieu">Giới Thiệu</a></li>
-                    @using DoAnTotNghiep.Models
+                    @using DoAnTotNghiep.Moldes
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle nav-product-link" href="/Home/sanpham" id="navbarDropdown" role="button" aria-expanded="false">
                             Sản Phẩm
@@ -81,7 +81,9 @@
 
             <div class="right-actions d-flex align-items-center position-relative">
                 <div id="default-actions" class="d-flex align-items-center gap-3">
-                    <a href="#" class="action-item"><i class="bi bi-box-arrow-in-right"></i> Đăng Nhập</a>
+                    <a href="#" class="action-item" data-bs-toggle="modal" data-bs-target="#authModal">
+                        <i class="bi bi-box-arrow-in-right"></i> Đăng Nhập
+                    </a>
                     <span class="sep-dark">|</span>
                     <button onclick="toggleSearch()" class="btn d-flex align-items-center border-0 p-0 action-item">
                         <i class="bi bi-search me-1"></i>Tìm Kiếm
@@ -115,7 +117,200 @@
             </div>
         </div>
     </nav>
+    <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+            <div class="modal-content border-0 shadow-2xl rounded-3xl overflow-hidden">
 
+                <!-- Tab header -->
+                <div class="modal-header border-0 p-0">
+                    <ul class="nav nav-tabs w-100 border-0" id="authTabs" role="tablist">
+                        <li class="nav-item flex-fill" role="presentation">
+                            <button class="nav-link active py-4 fw-semibold fs-5"
+                                    id="login-tab-btn"
+                                    data-bs-toggle="tab"
+                                    data-bs-target="#login-tab"
+                                    type="button">
+                                Đăng nhập
+                            </button>
+                        </li>
+                        <li class="nav-item flex-fill" role="presentation">
+                            <button class="nav-link py-4 fw-semibold fs-5"
+                                    id="register-tab-btn"
+                                    data-bs-toggle="tab"
+                                    data-bs-target="#register-tab"
+                                    type="button">
+                                Đăng ký
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="modal-body p-5 pt-4">
+
+                    <div class="tab-content">
+
+                        <!-- ==================== TAB ĐĂNG NHẬP ==================== -->
+                        <div class="tab-pane fade show active" id="login-tab" role="tabpanel">
+                            <h1 class="text-center fw-bold mb-1" style="font-size: 32px; letter-spacing: -1px;">Login</h1>
+                            <p class="text-center text-muted mb-5">để tiếp tục vào tài khoản</p>
+
+                            <!-- Username -->
+                            <div class="mb-4">
+                                <label class="small fw-bold text-muted mb-2">Username</label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-white border-end-0 rounded-start-3" style="border-color: #dadce0;">
+                                        <i class="bi bi-person fs-4 text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control auth-input" placeholder="Type your username" style="border-left: none; border-radius: 0 12px 12px 0;">
+                                </div>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="mb-3">
+                                <label class="small fw-bold text-muted mb-2">Password</label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-white border-end-0 rounded-start-3" style="border-color: #dadce0;">
+                                        <i class="bi bi-lock fs-4 text-muted"></i>
+                                    </span>
+                                    <input type="password" id="login-password" class="form-control auth-input" placeholder="Type your password" style="border-left: none; border-radius: 0 12px 12px 0;">
+                                    <span onclick="togglePassword('login-password')" class="input-group-text bg-white border-start-0 rounded-end-3 cursor-pointer" style="border-color: #dadce0;">
+                                        <i class="bi bi-eye toggle-password-icon"></i>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end mb-4">
+                                <a href="#" class="small fw-semibold" style="color: #9b00ff; text-decoration: none;">Forgot password?</a>
+                            </div>
+
+                            <!-- Nút gradient LOGIN -->
+                            <button onclick="handleLogin()"
+                                    class="btn w-100 py-3 text-white fw-semibold fs-5 rounded-3xl"
+                                    style="background: linear-gradient(to right, #00d4ff, #9b00ff); border: none; height: 56px;">
+                                LOGIN
+                            </button>
+
+                            <!-- Divider -->
+                            <div class="d-flex align-items-center my-5">
+                                <hr class="flex-grow-1" style="border-color: #dadce0;">
+                                <span class="px-4 text-muted small fw-medium">Or Sign Up Using</span>
+                                <hr class="flex-grow-1" style="border-color: #dadce0;">
+                            </div>
+
+                            <!-- Social buttons -->
+                            <div class="d-flex justify-content-center gap-4">
+                                <button onclick="socialLogin('facebook')"
+                                        class="btn rounded-3xl d-flex align-items-center justify-content-center"
+                                        style="width: 56px; height: 56px; background: #1877f2; border: none; color: white;">
+                                    <i class="bi bi-facebook fs-3"></i>
+                                </button>
+                                <button onclick="socialLogin('twitter')"
+                                        class="btn rounded-3xl d-flex align-items-center justify-content-center"
+                                        style="width: 56px; height: 56px; background: #1da1f2; border: none; color: white;">
+                                    <i class="bi bi-twitter fs-3"></i>
+                                </button>
+                                <button onclick="socialLogin('google')"
+                                        class="btn rounded-3xl d-flex align-items-center justify-content-center text-white fw-bold fs-3"
+                                        style="width: 56px; height: 56px; background: #ea4335; border: none;">
+                                    G
+                                </button>
+                            </div>
+
+                            <div class="text-center mt-5 small text-muted">
+                                Or Sign Up Using
+                                <a href="#" onclick="switchToRegisterTab()" class="fw-bold" style="color:#9b00ff;">SIGN UP</a>
+                            </div>
+                        </div>
+
+                        <!-- ==================== TAB ĐĂNG KÝ ==================== -->
+                        <div class="tab-pane fade" id="register-tab" role="tabpanel">
+                            <h1 class="text-center fw-bold mb-1" style="font-size: 32px; letter-spacing: -1px;">Sign Up</h1>
+                            <p class="text-center text-muted mb-5">Tham gia ngay để nhận ưu đãi</p>
+
+                            <!-- Username -->
+                            <div class="mb-4">
+                                <label class="small fw-bold text-muted mb-2">Username</label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-white border-end-0 rounded-start-3" style="border-color: #dadce0;">
+                                        <i class="bi bi-person fs-4 text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control auth-input" placeholder="Type your username" style="border-left: none; border-radius: 0 12px 12px 0;">
+                                </div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="mb-4">
+                                <label class="small fw-bold text-muted mb-2">Email</label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-white border-end-0 rounded-start-3" style="border-color: #dadce0;">
+                                        <i class="bi bi-envelope fs-4 text-muted"></i>
+                                    </span>
+                                    <input type="email" class="form-control auth-input" placeholder="Type your email" style="border-left: none; border-radius: 0 12px 12px 0;">
+                                </div>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="mb-4">
+                                <label class="small fw-bold text-muted mb-2">Password</label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-white border-end-0 rounded-start-3" style="border-color: #dadce0;">
+                                        <i class="bi bi-lock fs-4 text-muted"></i>
+                                    </span>
+                                    <input type="password" id="register-password" class="form-control auth-input" placeholder="Type your password" style="border-left: none; border-radius: 0 12px 12px 0;">
+                                    <span onclick="togglePassword('register-password')" class="input-group-text bg-white border-start-0 rounded-end-3 cursor-pointer" style="border-color: #dadce0;">
+                                        <i class="bi bi-eye toggle-password-icon"></i>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Nút gradient SIGN UP -->
+                            <button onclick="handleRegister()"
+                                    class="btn w-100 py-3 text-white fw-semibold fs-5 rounded-3xl"
+                                    style="background: linear-gradient(to right, #00d4ff, #9b00ff); border: none; height: 56px;">
+                                SIGN UP
+                            </button>
+
+                            <!-- Divider -->
+                            <div class="d-flex align-items-center my-5">
+                                <hr class="flex-grow-1" style="border-color: #dadce0;">
+                                <span class="px-4 text-muted small fw-medium">Or Sign In Using</span>
+                                <hr class="flex-grow-1" style="border-color: #dadce0;">
+                            </div>
+
+                            <!-- Social buttons -->
+                            <div class="d-flex justify-content-center gap-4">
+                                <button onclick="socialLogin('facebook')"
+                                        class="btn rounded-3xl d-flex align-items-center justify-content-center"
+                                        style="width: 56px; height: 56px; background: #1877f2; border: none; color: white;">
+                                    <i class="bi bi-facebook fs-3"></i>
+                                </button>
+                                <button onclick="socialLogin('twitter')"
+                                        class="btn rounded-3xl d-flex align-items-center justify-content-center"
+                                        style="width: 56px; height: 56px; background: #1da1f2; border: none; color: white;">
+                                    <i class="bi bi-twitter fs-3"></i>
+                                </button>
+                                <button onclick="socialLogin('google')"
+                                        class="btn rounded-3xl d-flex align-items-center justify-content-center text-white fw-bold fs-3"
+                                        style="width: 56px; height: 56px; background: #ea4335; border: none;">
+                                    G
+                                </button>
+                            </div>
+
+                            <div class="text-center mt-5 small text-muted">
+                                Or Sign In Using
+                                <a href="#" onclick="switchToLoginTab()" class="fw-bold" style="color:#9b00ff;">LOGIN</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nút đóng modal -->
+                <button type="button" class="btn-close position-absolute top-4 end-4"
+                        data-bs-dismiss="modal" aria-label="Close"
+                        style="z-index: 10;"></button>
+            </div>
+        </div>
+    </div>
     <main class="container">
         @RenderBody()
     </main>
@@ -270,13 +465,34 @@
                 if (currentPath === linkPath || (currentPath === "/" && linkPath === "/")) {
                     link.classList.add('active');
                     link.classList.add('fw-bold');
-                    link.style.color = "#000"; 
+                    link.style.color = "#000";
                 } else {
                     link.classList.remove('active');
                     link.classList.remove('fw-bold');
                 }
             });
         });
+        function togglePassword(id) {
+            const input = document.getElementById(id);
+            const icon = input.parentElement.querySelector('.toggle-password-icon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('bi-eye', 'bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('bi-eye-slash', 'bi-eye');
+            }
+        }
+
+        function switchToRegisterTab() {
+            const registerTab = document.getElementById('register-tab-btn');
+            if (registerTab) registerTab.click();
+        }
+
+        function switchToLoginTab() {
+            const loginTab = document.getElementById('login-tab-btn');
+            if (loginTab) loginTab.click();
+        }
     </script>
 
     @RenderSection("Scripts", required: false)
