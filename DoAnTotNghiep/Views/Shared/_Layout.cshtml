@@ -8,6 +8,8 @@
     <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
     <link href="~/bootstrap-icons-1.2.2/bootstrap-icons-1.2.2/font/bootstrap-icons.css" rel="stylesheet" />
     <link href="~/Content/Site.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @RenderSection("PageCss", required: false)
 </head>
 <body>
@@ -81,9 +83,18 @@
 
             <div class="right-actions d-flex align-items-center position-relative">
                 <div id="default-actions" class="d-flex align-items-center gap-3">
-                    <a href="#" class="action-item" data-bs-toggle="modal" data-bs-target="#authModal">
-                        <i class="bi bi-box-arrow-in-right"></i> Đăng Nhập
-                    </a>
+                    @if (Session["MaNguoiDung"] != null)
+                    {
+                        <a href="#" class="action-item">
+                            <i class="bi bi-person-circle"></i> @Session["TenNguoiDung"]
+                        </a>
+                    }
+                    else
+                    {
+                        <a href="#" class="action-item" data-bs-toggle="modal" data-bs-target="#authModal">
+                            <i class="bi bi-box-arrow-in-right"></i> Đăng Nhập
+                        </a>
+                    }
                     <span class="sep-dark">|</span>
                     <button onclick="toggleSearch()" class="btn d-flex align-items-center border-0 p-0 action-item">
                         <i class="bi bi-search me-1"></i>Tìm Kiếm
@@ -121,193 +132,124 @@
         <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
             <div class="modal-content border-0 shadow-2xl rounded-3xl overflow-hidden">
 
-                <!-- Tab header -->
-                <div class="modal-header border-0 p-0">
-                    <ul class="nav nav-tabs w-100 border-0" id="authTabs" role="tablist">
-                        <li class="nav-item flex-fill" role="presentation">
-                            <button class="nav-link active py-4 fw-semibold fs-5"
-                                    id="login-tab-btn"
-                                    data-bs-toggle="tab"
-                                    data-bs-target="#login-tab"
-                                    type="button">
-                                Đăng nhập
-                            </button>
-                        </li>
-                        <li class="nav-item flex-fill" role="presentation">
-                            <button class="nav-link py-4 fw-semibold fs-5"
-                                    id="register-tab-btn"
-                                    data-bs-toggle="tab"
-                                    data-bs-target="#register-tab"
-                                    type="button">
-                                Đăng ký
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-
                 <div class="modal-body p-5 pt-4">
+                    <div id="login-content">
+                        <h1 class="text-center fw-bold mb-1" style="font-size: 32px; letter-spacing: -1px;">Đăng nhập</h1>
+                        <p class="text-center text-muted mb-5">để tiếp tục vào tài khoản</p>
 
-                    <div class="tab-content">
-
-                        <!-- ==================== TAB ĐĂNG NHẬP ==================== -->
-                        <div class="tab-pane fade show active" id="login-tab" role="tabpanel">
-                            <h1 class="text-center fw-bold mb-1" style="font-size: 32px; letter-spacing: -1px;">Login</h1>
-                            <p class="text-center text-muted mb-5">để tiếp tục vào tài khoản</p>
-
-                            <!-- Username -->
-                            <div class="mb-4">
-                                <label class="small fw-bold text-muted mb-2">Username</label>
-                                <div class="input-group input-group-lg">
-                                    <span class="input-group-text bg-white border-end-0 rounded-start-3" style="border-color: #dadce0;">
-                                        <i class="bi bi-person fs-4 text-muted"></i>
-                                    </span>
-                                    <input type="text" class="form-control auth-input" placeholder="Type your username" style="border-left: none; border-radius: 0 12px 12px 0;">
-                                </div>
-                            </div>
-
-                            <!-- Password -->
-                            <div class="mb-3">
-                                <label class="small fw-bold text-muted mb-2">Password</label>
-                                <div class="input-group input-group-lg">
-                                    <span class="input-group-text bg-white border-end-0 rounded-start-3" style="border-color: #dadce0;">
-                                        <i class="bi bi-lock fs-4 text-muted"></i>
-                                    </span>
-                                    <input type="password" id="login-password" class="form-control auth-input" placeholder="Type your password" style="border-left: none; border-radius: 0 12px 12px 0;">
-                                    <span onclick="togglePassword('login-password')" class="input-group-text bg-white border-start-0 rounded-end-3 cursor-pointer" style="border-color: #dadce0;">
-                                        <i class="bi bi-eye toggle-password-icon"></i>
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-end mb-4">
-                                <a href="#" class="small fw-semibold" style="color: #9b00ff; text-decoration: none;">Forgot password?</a>
-                            </div>
-
-                            <!-- Nút gradient LOGIN -->
-                            <button onclick="handleLogin()"
-                                    class="btn w-100 py-3 text-white fw-semibold fs-5 rounded-3xl"
-                                    style="background: linear-gradient(to right, #00d4ff, #9b00ff); border: none; height: 56px;">
-                                LOGIN
-                            </button>
-
-                            <!-- Divider -->
-                            <div class="d-flex align-items-center my-5">
-                                <hr class="flex-grow-1" style="border-color: #dadce0;">
-                                <span class="px-4 text-muted small fw-medium">Or Sign Up Using</span>
-                                <hr class="flex-grow-1" style="border-color: #dadce0;">
-                            </div>
-
-                            <!-- Social buttons -->
-                            <div class="d-flex justify-content-center gap-4">
-                                <button onclick="socialLogin('facebook')"
-                                        class="btn rounded-3xl d-flex align-items-center justify-content-center"
-                                        style="width: 56px; height: 56px; background: #1877f2; border: none; color: white;">
-                                    <i class="bi bi-facebook fs-3"></i>
-                                </button>
-                                <button onclick="socialLogin('twitter')"
-                                        class="btn rounded-3xl d-flex align-items-center justify-content-center"
-                                        style="width: 56px; height: 56px; background: #1da1f2; border: none; color: white;">
-                                    <i class="bi bi-twitter fs-3"></i>
-                                </button>
-                                <button onclick="socialLogin('google')"
-                                        class="btn rounded-3xl d-flex align-items-center justify-content-center text-white fw-bold fs-3"
-                                        style="width: 56px; height: 56px; background: #ea4335; border: none;">
-                                    G
-                                </button>
-                            </div>
-
-                            <div class="text-center mt-5 small text-muted">
-                                Or Sign Up Using
-                                <a href="#" onclick="switchToRegisterTab()" class="fw-bold" style="color:#9b00ff;">SIGN UP</a>
+                        <div class="mb-4">
+                            <label class="small fw-bold text-muted mb-2">Tên đăng nhập</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-white border-end-0 rounded-start-3" style="border-color: #dadce0;">
+                                    <i class="bi bi-person fs-4 text-muted"></i>
+                                </span>
+                                <input type="text" id="login-ten" class="form-control auth-input" placeholder="Nhập tên đăng nhập của bạn" style="border-left: none; border-radius: 0 12px 12px 0;">
                             </div>
                         </div>
 
-                        <!-- ==================== TAB ĐĂNG KÝ ==================== -->
-                        <div class="tab-pane fade" id="register-tab" role="tabpanel">
-                            <h1 class="text-center fw-bold mb-1" style="font-size: 32px; letter-spacing: -1px;">Sign Up</h1>
-                            <p class="text-center text-muted mb-5">Tham gia ngay để nhận ưu đãi</p>
-
-                            <!-- Username -->
-                            <div class="mb-4">
-                                <label class="small fw-bold text-muted mb-2">Username</label>
-                                <div class="input-group input-group-lg">
-                                    <span class="input-group-text bg-white border-end-0 rounded-start-3" style="border-color: #dadce0;">
-                                        <i class="bi bi-person fs-4 text-muted"></i>
-                                    </span>
-                                    <input type="text" class="form-control auth-input" placeholder="Type your username" style="border-left: none; border-radius: 0 12px 12px 0;">
-                                </div>
+                        <div class="mb-3">
+                            <label class="small fw-bold text-muted mb-2">Mật khẩu</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-white border-end-0 rounded-start-3" style="border-color: #dadce0;">
+                                    <i class="bi bi-lock fs-4 text-muted"></i>
+                                </span>
+                                <input type="password" id="login-matkhau" class="form-control auth-input" placeholder="Nhập mật khẩu của bạn" style="border-left: none; border-radius: 0 12px 12px 0;">
+                                <span onclick="togglePassword('login-matkhau')" class="input-group-text bg-white border-start-0 rounded-end-3 cursor-pointer" style="border-color: #dadce0;">
+                                    <i class="bi bi-eye toggle-password-icon"></i>
+                                </span>
                             </div>
+                        </div>
 
-                            <!-- Email -->
-                            <div class="mb-4">
-                                <label class="small fw-bold text-muted mb-2">Email</label>
-                                <div class="input-group input-group-lg">
-                                    <span class="input-group-text bg-white border-end-0 rounded-start-3" style="border-color: #dadce0;">
-                                        <i class="bi bi-envelope fs-4 text-muted"></i>
-                                    </span>
-                                    <input type="email" class="form-control auth-input" placeholder="Type your email" style="border-left: none; border-radius: 0 12px 12px 0;">
-                                </div>
+                        <div class="d-flex justify-content-end mb-4">
+                            <a href="#" class="small fw-semibold" style="color: #9b00ff; text-decoration: none;">Quên mật khẩu?</a>
+                        </div>
+
+                        <button onclick="attemptLogin()" class="btn w-100 py-3 text-white fw-semibold fs-5 rounded-3xl"
+                                style="background: linear-gradient(to right, #00d4ff, #9b00ff); border: none; height: 56px;">
+                            ĐĂNG NHẬP
+                        </button>
+
+                        <div class="d-flex align-items-center my-5">
+                            <hr class="flex-grow-1" style="border-color: #dadce0;">
+                            <span class="px-4 text-muted small fw-medium">Hoặc đăng ký bằng</span>
+                            <hr class="flex-grow-1" style="border-color: #dadce0;">
+                        </div>
+
+                        <div class="d-flex justify-content-center gap-4">
+                            <button onclick="socialLogin('facebook')" class="btn rounded-3xl d-flex align-items-center justify-content-center" style="width:56px;height:56px;background:#1877f2;border:none;color:white;"><i class="bi bi-facebook fs-3"></i></button>
+                            <button onclick="socialLogin('twitter')" class="btn rounded-3xl d-flex align-items-center justify-content-center" style="width:56px;height:56px;background:#1da1f2;border:none;color:white;"><i class="bi bi-twitter fs-3"></i></button>
+                            <button onclick="socialLogin('google')" class="btn rounded-3xl d-flex align-items-center justify-content-center text-white fw-bold fs-3" style="width:56px;height:56px;background:#ea4335;border:none;">G</button>
+                        </div>
+
+                        <div class="text-center mt-5 small text-muted">
+                            Chưa có tài khoản?
+                            <a href="#" onclick="showRegisterContent()" class="fw-bold" style="color:#9b00ff;">Đăng ký ngay</a>
+                        </div>
+                    </div>
+
+                    <!-- FORM ĐĂNG KÝ -->
+                    <div id="register-content" class="d-none">
+                        <h1 class="text-center fw-bold mb-1" style="font-size: 32px; letter-spacing: -1px;">Đăng ký</h1>
+                        <p class="text-center text-muted mb-5">Tham gia ngay để nhận ưu đãi</p>
+
+                        <div class="mb-4">
+                            <label class="small fw-bold text-muted mb-2">Tên đăng nhập</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-white border-end-0 rounded-start-3" style="border-color: #dadce0;">
+                                    <i class="bi bi-person fs-4 text-muted"></i>
+                                </span>
+                                <input type="text" id="register-ten" class="form-control auth-input" placeholder="Nhập tên đăng nhập của bạn" style="border-left: none; border-radius: 0 12px 12px 0;">
                             </div>
+                        </div>
 
-                            <!-- Password -->
-                            <div class="mb-4">
-                                <label class="small fw-bold text-muted mb-2">Password</label>
-                                <div class="input-group input-group-lg">
-                                    <span class="input-group-text bg-white border-end-0 rounded-start-3" style="border-color: #dadce0;">
-                                        <i class="bi bi-lock fs-4 text-muted"></i>
-                                    </span>
-                                    <input type="password" id="register-password" class="form-control auth-input" placeholder="Type your password" style="border-left: none; border-radius: 0 12px 12px 0;">
-                                    <span onclick="togglePassword('register-password')" class="input-group-text bg-white border-start-0 rounded-end-3 cursor-pointer" style="border-color: #dadce0;">
-                                        <i class="bi bi-eye toggle-password-icon"></i>
-                                    </span>
-                                </div>
+                        <div class="mb-4">
+                            <label class="small fw-bold text-muted mb-2">Email</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-white border-end-0 rounded-start-3" style="border-color: #dadce0;">
+                                    <i class="bi bi-envelope fs-4 text-muted"></i>
+                                </span>
+                                <input type="email" id="register-email" class="form-control auth-input" placeholder="Nhập email của bạn" style="border-left: none; border-radius: 0 12px 12px 0;">
                             </div>
+                        </div>
 
-                            <!-- Nút gradient SIGN UP -->
-                            <button onclick="handleRegister()"
-                                    class="btn w-100 py-3 text-white fw-semibold fs-5 rounded-3xl"
-                                    style="background: linear-gradient(to right, #00d4ff, #9b00ff); border: none; height: 56px;">
-                                SIGN UP
-                            </button>
-
-                            <!-- Divider -->
-                            <div class="d-flex align-items-center my-5">
-                                <hr class="flex-grow-1" style="border-color: #dadce0;">
-                                <span class="px-4 text-muted small fw-medium">Or Sign In Using</span>
-                                <hr class="flex-grow-1" style="border-color: #dadce0;">
+                        <div class="mb-4">
+                            <label class="small fw-bold text-muted mb-2">Mật khẩu</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-white border-end-0 rounded-start-3" style="border-color: #dadce0;">
+                                    <i class="bi bi-lock fs-4 text-muted"></i>
+                                </span>
+                                <input type="password" id="register-matkhau" class="form-control auth-input" placeholder="Nhập mật khẩu của bạn" style="border-left: none; border-radius: 0 12px 12px 0;">
+                                <span onclick="togglePassword('register-matkhau')" class="input-group-text bg-white border-start-0 rounded-end-3 cursor-pointer" style="border-color: #dadce0;">
+                                    <i class="bi bi-eye toggle-password-icon"></i>
+                                </span>
                             </div>
+                        </div>
 
-                            <!-- Social buttons -->
-                            <div class="d-flex justify-content-center gap-4">
-                                <button onclick="socialLogin('facebook')"
-                                        class="btn rounded-3xl d-flex align-items-center justify-content-center"
-                                        style="width: 56px; height: 56px; background: #1877f2; border: none; color: white;">
-                                    <i class="bi bi-facebook fs-3"></i>
-                                </button>
-                                <button onclick="socialLogin('twitter')"
-                                        class="btn rounded-3xl d-flex align-items-center justify-content-center"
-                                        style="width: 56px; height: 56px; background: #1da1f2; border: none; color: white;">
-                                    <i class="bi bi-twitter fs-3"></i>
-                                </button>
-                                <button onclick="socialLogin('google')"
-                                        class="btn rounded-3xl d-flex align-items-center justify-content-center text-white fw-bold fs-3"
-                                        style="width: 56px; height: 56px; background: #ea4335; border: none;">
-                                    G
-                                </button>
-                            </div>
+                        <button onclick="attemptRegister()" class="btn w-100 py-3 text-white fw-semibold fs-5 rounded-3xl"
+                                style="background: linear-gradient(to right, #00d4ff, #9b00ff); border: none; height: 56px;">
+                            ĐĂNG KÝ
+                        </button>
 
-                            <div class="text-center mt-5 small text-muted">
-                                Or Sign In Using
-                                <a href="#" onclick="switchToLoginTab()" class="fw-bold" style="color:#9b00ff;">LOGIN</a>
-                            </div>
+                        <div class="d-flex align-items-center my-5">
+                            <hr class="flex-grow-1" style="border-color: #dadce0;">
+                            <span class="px-4 text-muted small fw-medium">Hoặc đăng nhập bằng</span>
+                            <hr class="flex-grow-1" style="border-color: #dadce0;">
+                        </div>
+
+                        <div class="d-flex justify-content-center gap-4">
+                            <button onclick="socialLogin('facebook')" class="btn rounded-3xl d-flex align-items-center justify-content-center" style="width:56px;height:56px;background:#1877f2;border:none;color:white;"><i class="bi bi-facebook fs-3"></i></button>
+                            <button onclick="socialLogin('twitter')" class="btn rounded-3xl d-flex align-items-center justify-content-center" style="width:56px;height:56px;background:#1da1f2;border:none;color:white;"><i class="bi bi-twitter fs-3"></i></button>
+                            <button onclick="socialLogin('google')" class="btn rounded-3xl d-flex align-items-center justify-content-center text-white fw-bold fs-3" style="width:56px;height:56px;background:#ea4335;border:none;">G</button>
+                        </div>
+
+                        <div class="text-center mt-5 small text-muted">
+                            Đã có tài khoản?
+                            <a href="#" onclick="showLoginContent()" class="fw-bold" style="color:#9b00ff;">Đăng nhập</a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Nút đóng modal -->
-                <button type="button" class="btn-close position-absolute top-4 end-4"
-                        data-bs-dismiss="modal" aria-label="Close"
-                        style="z-index: 10;"></button>
+                <button type="button" class="btn-close position-absolute top-4 end-4" data-bs-dismiss="modal" aria-label="Close" style="z-index:10;"></button>
             </div>
         </div>
     </div>
@@ -315,27 +257,27 @@
         @RenderBody()
     </main>
     <main class="container mt-4">
-        <div class="promo-banner-fluid">
-            <div class="container banner-content-wrapper">
-                <div class="row h-100 align-items-center">
-
-                    <div class="col-md-6"></div>
-
-                    <div class="col-md-6 d-flex justify-content-end">
-                        <div class="promo-box-white">
-                            <div class="promo-icon"><i class="bi bi-gift"></i></div>
-                            <h2>NHẬN 20K GIẢM GIÁ CHO ĐƠN HÀNG ĐẦU TIÊN CỦA BẠN?</h2>
-                            <p>Tham gia danh sách gửi thư của chúng tôi!</p>
-                            <div class="promo-form-group">
-                                <input type="email" placeholder="Nhập địa chỉ email của bạn" />
-                                <button type="submit">Đăng Ký</button>
+        @if (Session["MaNguoiDung"] == null)
+        {
+            <div class="promo-banner-fluid">
+                <div class="container banner-content-wrapper">
+                    <div class="row h-100 align-items-center">
+                        <div class="col-md-6"></div>
+                        <div class="col-md-6 d-flex justify-content-end">
+                            <div class="promo-box-white">
+                                <div class="promo-icon"><i class="bi bi-gift"></i></div>
+                                <h2>NHẬN 20K GIẢM GIÁ CHO ĐƠN HÀNG ĐẦU TIÊN CỦA BẠN?</h2>
+                                <p>Tham gia danh sách gửi thư của chúng tôi!</p>
+                                <div class="promo-form-group">
+                                    <input type="email" id="promo-email-input" placeholder="Nhập địa chỉ email của bạn" />
+                                    <button type="button" onclick="handlePromoRegister()">Đăng Ký</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
-        </div>
+        }
 
         <div class="features-section d-flex justify-content-between py-5 border-bottom">
             <div class="feature-item d-flex align-items-center gap-3">
@@ -472,26 +414,145 @@
                 }
             });
         });
-        function togglePassword(id) {
-            const input = document.getElementById(id);
+        function attemptLogin() {
+    var loginData = {
+        Ten: $('#login-ten').val() ? $('#login-ten').val().trim() : '',
+        MatKhau: $('#login-matkhau').val() ? $('#login-matkhau').val().trim() : ''
+    };
+    if (!loginData.Ten || !loginData.MatKhau) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Thông báo',
+            text: 'Mạnh Tuân ơi, vui lòng nhập đầy đủ Tên và Mật khẩu nhé!',
+            confirmButtonColor: '#9b00ff'
+        });
+        return;
+    }
+    Swal.fire({
+        title: 'Đang xác thực...',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+    });
+    $.ajax({
+        url: '@Url.Action("Login", "Home")',
+        type: 'POST',
+        data: loginData,
+        success: function (response) {
+            Swal.close();
+            if (response.success) {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true
+                });
+
+                Toast.fire({
+                    icon: 'success',
+                    title: response.message
+                }).then(() => {
+                    window.location.href = '@Url.Action("TrangChu", "Home")';
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Đăng nhập thất bại',
+                    text: response.message,
+                    confirmButtonColor: '#9b00ff'
+                });
+            }
+        },
+        error: function (xhr) {
+            Swal.close();
+            console.error("Lỗi Server: ", xhr.responseText);
+            Swal.fire('Lỗi', 'Không thể kết nối đến máy chủ. Mã lỗi: ' + xhr.status, 'error');
+        }
+    });
+}
+        function attemptRegister() {
+            var userData = {
+                Ten: $('#register-ten').val().trim(),
+                Email: $('#register-email').val().trim(),
+                MatKhau: $('#register-matkhau').val().trim()
+            };
+            if (!userData.Ten || !userData.Email || !userData.MatKhau) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Thiếu thông tin',
+                    text: 'Vui lòng điền đầy đủ các trường dữ liệu!',
+                    confirmButtonColor: '#9b00ff'
+                });
+                return;
+            }
+            Swal.fire({
+                title: 'Đang xử lý...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+            $.ajax({
+                url: '@Url.Action("Register", "Home")',
+                type: 'POST',
+                data: userData,
+                success: function (response) {
+                    Swal.close();
+
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Đăng ký thành công!',
+                            text: response.message,
+                            confirmButtonColor: '#00d4ff'
+                        }).then(() => {
+                            showLoginContent();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi đăng ký',
+                            text: response.message,
+                            confirmButtonColor: '#ea4335'
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    Swal.close();
+                    console.error(xhr.responseText);
+                    Swal.fire('Lỗi', 'Mã lỗi: ' + xhr.status + '. Kiểm tra Controller!', 'error');
+                }
+            });
+        }
+        function showRegisterContent() {
+            document.getElementById('login-content').classList.add('d-none');
+            document.getElementById('register-content').classList.remove('d-none');
+        }
+        function showLoginContent() {
+            document.getElementById('register-content').classList.add('d-none');
+            document.getElementById('login-content').classList.remove('d-none');
+        }
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
             const icon = input.parentElement.querySelector('.toggle-password-icon');
-            if (input.type === 'password') {
-                input.type = 'text';
+
+            if (input.type === "password") {
+                input.type = "text";
                 icon.classList.replace('bi-eye', 'bi-eye-slash');
             } else {
-                input.type = 'password';
+                input.type = "password";
                 icon.classList.replace('bi-eye-slash', 'bi-eye');
             }
         }
+        function handlePromoRegister() {
+            var emailValue = $('#promo-email-input').val().trim();
 
-        function switchToRegisterTab() {
-            const registerTab = document.getElementById('register-tab-btn');
-            if (registerTab) registerTab.click();
-        }
-
-        function switchToLoginTab() {
-            const loginTab = document.getElementById('login-tab-btn');
-            if (loginTab) loginTab.click();
+            if (emailValue === "") {
+                Swal.fire('Thông báo', 'Vui lòng nhập email để nhận ưu đãi!', 'info');
+                return;
+            }
+            $('#register-email').val(emailValue);
+            var authModal = new bootstrap.Modal(document.getElementById('authModal'));
+            authModal.show();
+            showRegisterContent();
         }
     </script>
 
