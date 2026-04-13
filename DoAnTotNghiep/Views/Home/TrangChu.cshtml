@@ -52,12 +52,8 @@
         </div>
 
     </div>
-    <!-- === BÊN TRÁI: NỘI THẤT HIỆN ĐẠI === -->
-    <!-- Bên trái: NỘI THẤT HIỆN ĐẠI -->
-    <!-- ===== PHẦN 2 BANNER ===== -->
     <div class="section-2img">
 
-        <!-- Trái -->
         <div class="box-img left">
             @if (ViewBag.BannerTopLeft != null)
             {
@@ -72,7 +68,6 @@
             }
         </div>
 
-        <!-- Phải -->
         <div class="box-img right">
             @if (ViewBag.BannerTopRight != null)
             {
@@ -334,7 +329,7 @@
 
     </div>
 
-    </div><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;800&display=swap" rel="stylesheet">
 
     <div class="grid-banner">
 
@@ -436,7 +431,6 @@
 
         </div>
     </div>
-    </div>
 
     <script>
         const track = document.querySelector(".np-track");
@@ -481,10 +475,7 @@
             bannerIndex = (bannerIndex + 1) % total;
             slides.style.transform = `translateX(-${bannerIndex * 100}%)`;
         }, 3000);
+
     </script>
-
-
-
-
 </body>
 </html>

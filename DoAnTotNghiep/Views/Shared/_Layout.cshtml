@@ -85,9 +85,81 @@
                 <div id="default-actions" class="d-flex align-items-center gap-3">
                     @if (Session["MaNguoiDung"] != null)
                     {
-                        <a href="#" class="action-item">
-                            <i class="bi bi-person-circle"></i> @Session["TenNguoiDung"]
-                        </a>
+                        <div class="dropdown d-inline-block">
+                            <a href="#" class="action-item dropdown-toggle" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle"></i> @Session["TenNguoiDung"]
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="userMenu" style="min-width: 280px; border-radius: 10px;">
+                                <li class="mb-2 d-flex justify-content-between align-items-center">
+                                    <h6 class="dropdown-header ps-0 text-dark fw-bold" style="font-size: 1.1rem;">Thông tin tài khoản</h6>
+                                    <button class="btn btn-sm btn-outline-primary border-0" onclick="toggleEditMode(event)" id="btnEditProfile">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                </li>
+
+                                <li class="text-muted small mb-2">
+                                    <i class="bi bi-person me-2"></i>Tên:
+                                    <span class="view-mode">@Session["TenNguoiDung"]</span>
+                                    <input type="text" class="form-control form-control-sm edit-mode d-none" id="inp-ten" value="@Session["TenNguoiDung"]">
+                                    <div class="text-danger extra-small d-none" id="err-ten">Tên quá ngắn!</div>
+                                </li>
+
+                                <li class="text-muted small mb-2">
+                                    <i class="bi bi-envelope me-2"></i>Email:
+                                    <span class="view-mode">@(Session["Email"] ?? "Chưa cập nhật")</span>
+                                    <input type="email" class="form-control form-control-sm edit-mode d-none" id="inp-email" value="@Session["Email"]">
+                                    <div class="text-danger extra-small d-none" id="err-email">Email không hợp lệ!</div>
+                                </li>
+
+                                <li class="text-muted small mb-2">
+                                    <i class="bi bi-telephone me-2"></i>SĐT:
+                                    <span class="view-mode">@(Session["SDT"] ?? "Chưa cập nhật")</span>
+                                    <input type="text" class="form-control form-control-sm edit-mode d-none" id="inp-sdt" value="@Session["SDT"]">
+                                </li>
+
+                                <li class="text-muted small mb-3">
+                                    <i class="bi bi-geo-alt me-2"></i>Địa chỉ:
+                                    <span class="view-mode">@(Session["DiaChi"] ?? "Chưa cập nhật")</span>
+                                    <input type="text" class="form-control form-control-sm edit-mode d-none" id="inp-diachi" value="@Session["DiaChi"]">
+                                </li>
+
+                                <li class="edit-mode d-none mb-2">
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-primary btn-sm w-100" onclick="saveProfileChanges(event)">Lưu</button>
+                                        <button class="btn btn-light btn-sm w-100" onclick="toggleEditMode(event)">Hủy</button>
+                                    </div>
+                                </li>
+
+                                <li><hr class="dropdown-divider"></li>
+
+                                <li class="view-mode"><a class="dropdown-item small" href="#"><i class="bi bi-bag-check me-2"></i>Đơn hàng</a></li>
+                                <li class="pass-mode d-none px-2">
+                                    <hr class="dropdown-divider">
+                                    <h6 class="dropdown-header ps-0 text-dark fw-bold"><i class="bi bi-key me-2"></i>Đổi mật khẩu</h6>
+
+                                    <div class="mb-2">
+                                        <input type="password" id="inp-pass-old" class="form-control form-control-sm" placeholder="Mật khẩu hiện tại">
+                                    </div>
+                                    <div class="mb-2">
+                                        <input type="password" id="inp-pass-new" class="form-control form-control-sm" placeholder="Mật khẩu mới">
+                                    </div>
+                                    <div class="mb-2">
+                                        <input type="password" id="inp-pass-confirm" class="form-control form-control-sm" placeholder="Xác nhận mật khẩu mới">
+                                    </div>
+
+                                    <div class="d-flex gap-2 mt-2 mb-2">
+                                        <button class="btn btn-warning btn-sm w-100 fw-bold" onclick="savePasswordChanges(event)">Cập nhật</button>
+                                        <button class="btn btn-light btn-sm w-100" onclick="togglePassMode(event)">Hủy</button>
+                                    </div>
+                                </li>
+                                <li class="view-mode">
+                                    <a class="dropdown-item small" href="javascript:void(0)" onclick="togglePassMode(event)">
+                                        <i class="bi bi-shield-lock me-2 text-warning"></i>Đổi mật khẩu
+                                    </a>
+                                </li>
+                                <li class="view-mode"><a class="dropdown-item small text-danger" href="@Url.Action("Logout", "Home")"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
+                            </ul>
+                        </div>
                     }
                     else
                     {
@@ -415,61 +487,61 @@
             });
         });
         function attemptLogin() {
-    var loginData = {
-        Ten: $('#login-ten').val() ? $('#login-ten').val().trim() : '',
-        MatKhau: $('#login-matkhau').val() ? $('#login-matkhau').val().trim() : ''
-    };
-    if (!loginData.Ten || !loginData.MatKhau) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Thông báo',
-            text: 'Mạnh Tuân ơi, vui lòng nhập đầy đủ Tên và Mật khẩu nhé!',
-            confirmButtonColor: '#9b00ff'
-        });
-        return;
-    }
-    Swal.fire({
-        title: 'Đang xác thực...',
-        allowOutsideClick: false,
-        didOpen: () => { Swal.showLoading(); }
-    });
-    $.ajax({
-        url: '@Url.Action("Login", "Home")',
-        type: 'POST',
-        data: loginData,
-        success: function (response) {
-            Swal.close();
-            if (response.success) {
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 1500,
-                    timerProgressBar: true
-                });
-
-                Toast.fire({
-                    icon: 'success',
-                    title: response.message
-                }).then(() => {
-                    window.location.href = '@Url.Action("TrangChu", "Home")';
-                });
-            } else {
+            var loginData = {
+                Ten: $('#login-ten').val() ? $('#login-ten').val().trim() : '',
+                MatKhau: $('#login-matkhau').val() ? $('#login-matkhau').val().trim() : ''
+            };
+            if (!loginData.Ten || !loginData.MatKhau) {
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Đăng nhập thất bại',
-                    text: response.message,
+                    icon: 'warning',
+                    title: 'Thông báo',
+                    text: 'Mạnh Tuân ơi, vui lòng nhập đầy đủ Tên và Mật khẩu nhé!',
                     confirmButtonColor: '#9b00ff'
                 });
+                return;
             }
-        },
-        error: function (xhr) {
-            Swal.close();
-            console.error("Lỗi Server: ", xhr.responseText);
-            Swal.fire('Lỗi', 'Không thể kết nối đến máy chủ. Mã lỗi: ' + xhr.status, 'error');
+            Swal.fire({
+                title: 'Đang xác thực...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+            $.ajax({
+                url: '@Url.Action("Login", "Home")',
+                type: 'POST',
+                data: loginData,
+                success: function (response) {
+                    Swal.close();
+                    if (response.success) {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            timerProgressBar: true
+                        });
+
+                        Toast.fire({
+                            icon: 'success',
+                            title: response.message
+                        }).then(() => {
+                            window.location.href = '@Url.Action("TrangChu", "Home")';
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Đăng nhập thất bại',
+                            text: response.message,
+                            confirmButtonColor: '#9b00ff'
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    Swal.close();
+                    console.error("Lỗi Server: ", xhr.responseText);
+                    Swal.fire('Lỗi', 'Không thể kết nối đến máy chủ. Mã lỗi: ' + xhr.status, 'error');
+                }
+            });
         }
-    });
-}
         function attemptRegister() {
             var userData = {
                 Ten: $('#register-ten').val().trim(),
@@ -553,6 +625,108 @@
             var authModal = new bootstrap.Modal(document.getElementById('authModal'));
             authModal.show();
             showRegisterContent();
+        }
+        function toggleEditMode(e) {
+            if (e) e.stopPropagation();
+            $('.view-mode').toggleClass('d-none');
+            $('.edit-mode').toggleClass('d-none');
+        }
+        function saveProfileChanges(e) {
+            if (e) e.stopPropagation();
+
+            var updateData = {
+                Ten: $('#inp-ten').val().trim(),
+                Email: $('#inp-email').val().trim(),
+                SoDienThoai: $('#inp-sdt').val().trim(),
+                DiaChi: $('#inp-diachi').val().trim()
+            };
+            if (updateData.Ten.length < 5) {
+                Swal.fire('Thông báo', 'Tên đăng nhập phải có ít nhất 5 ký tự!', 'warning');
+                return;
+            }
+            var emailPattern = "^[^\\s\\u0040]+\\u0040[^\\s\\u0040]+\\.[^\\s\\u0040]+$";
+            var emailRegex = new RegExp(emailPattern);
+            if (!emailRegex.test(updateData.Email)) {
+                Swal.fire('Thông báo', 'Email không đúng định dạng!', 'warning');
+                return;
+            }
+            if (updateData.SoDienThoai === "") {
+                Swal.fire('Thông báo', 'bạn chưa nhập Số điện thoại kìa!', 'warning');
+                return;
+            }
+            var sdtRegex = /^[0-9]{10,11}$/;
+            if (!sdtRegex.test(updateData.SoDienThoai)) {
+                Swal.fire('Thông báo', 'Số điện thoại phải là chữ số và có độ dài 10-11 số!', 'warning');
+                return;
+            }
+            if (updateData.DiaChi === "") {
+                Swal.fire('Thông báo', 'Vui lòng nhập địa chỉ để chúng mình giao hàng nhé!', 'warning');
+                return;
+            }
+            $.ajax({
+                url: '@Url.Action("UpdateProfile", "Home")',
+                type: 'POST',
+                data: updateData,
+                success: function (res) {
+                    if (res.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công',
+                            timer: 1000,
+                            showConfirmButton: false
+                        }).then(() => { location.reload(); });
+                    } else {
+                        Swal.fire('Thất bại', res.message, 'error');
+                    }
+                },
+                error: function (xhr) {
+                    Swal.fire('Lỗi', 'Không thể lưu. Nhấn F12 xem chi tiết lỗi server!', 'error');
+                }
+            });
+        }
+        function togglePassMode(e) {
+            if (e) e.stopPropagation();
+            $('.view-mode').toggleClass('d-none');
+            $('.pass-mode').toggleClass('d-none');
+            $('#inp-pass-old, #inp-pass-new, #inp-pass-confirm').val('');
+        }
+        function savePasswordChanges(e) {
+            if (e) e.stopPropagation();
+
+            var passOld = $('#inp-pass-old').val().trim();
+            var passNew = $('#inp-pass-new').val().trim();
+            var passConf = $('#inp-pass-confirm').val().trim();
+            if (!passOld || !passNew || !passConf) {
+                Swal.fire('Thông báo', 'Vui lòng nhập đầy đủ 3 ô mật khẩu!', 'warning');
+                return;
+            }
+            if (passNew.length < 6) {
+                Swal.fire('Thông báo', 'Mật khẩu mới phải có ít nhất 6 ký tự!', 'warning');
+                return;
+            }
+            if (passNew !== passConf) {
+                Swal.fire('Lỗi', 'Xác nhận mật khẩu mới không khớp!', 'error');
+                return;
+            }
+            $.ajax({
+                url: '@Url.Action("UpdatePassword", "Home")',
+                type: 'POST',
+                data: {
+                    OldPass: passOld,
+                    NewPass: passNew
+                },
+                success: function (res) {
+                    if (res.success) {
+                        Swal.fire('Thành công', 'Mật khẩu đã được thay đổi!', 'success')
+                            .then(() => { location.reload(); });
+                    } else {
+                        Swal.fire('Thất bại', res.message, 'error');
+                    }
+                },
+                error: function () {
+                    Swal.fire('Lỗi', 'Không thể kết nối đến hệ thống!', 'error');
+                }
+            });
         }
     </script>
 

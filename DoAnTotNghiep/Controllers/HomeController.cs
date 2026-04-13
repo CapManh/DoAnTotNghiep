@@ -5,8 +5,9 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
+using System.Web.Helpers;
 using System.Web.Mvc;
-
+using BCrypt.Net;
 namespace DoAnTotNghiep.Controllers
 {
     
@@ -22,24 +23,114 @@ namespace DoAnTotNghiep.Controllers
                 {
                     return Json(new { success = false, message = "Vui lòng nhập đầy đủ thông tin!" });
                 }
-                var user = db.NguoiDung.FirstOrDefault(x => x.Ten == Ten && x.MatKhau == MatKhau);
+                var user = db.NguoiDung.FirstOrDefault(x => x.Ten == Ten);
 
                 if (user != null)
                 {
-                    Session["MaNguoiDung"] = user.MaNguoiDung;
-                    Session["TenNguoiDung"] = user.Ten;
-                    Session["VaiTro"] = user.MaVaiTro;
+                    bool isPasswordCorrect = false;
 
-                    return Json(new { success = true, message = "Chào mừng " + user.Ten + " đã quay trở lại!" });
+                    try
+                    {
+                        isPasswordCorrect = BCrypt.Net.BCrypt.Verify(MatKhau, user.MatKhau);
+                    }
+                    catch
+                    {
+                        isPasswordCorrect = (user.MatKhau == MatKhau);
+                    }
+
+                    if (isPasswordCorrect)
+                    {
+                        Session["MaNguoiDung"] = user.MaNguoiDung;
+                        Session["TenNguoiDung"] = user.Ten;
+                        Session["VaiTro"] = user.MaVaiTro;
+                        Session["Email"] = user.Email;
+                        Session["SDT"] = user.SoDienThoai;
+                        Session["DiaChi"] = user.DiaChi;
+
+                        return Json(new { success = true, message = "Chào mừng " + user.Ten + " đã đến với Website của tôi!" });
+                    }
                 }
-                else
-                {
-                    return Json(new { success = false, message = "Tên đăng nhập hoặc mật khẩu không chính xác." });
-                }
+
+                return Json(new { success = false, message = "Tên đăng nhập hoặc mật khẩu không chính xác." });
             }
             catch (Exception ex)
             {
                 return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
+        }
+        [HttpPost]
+        public JsonResult UpdateProfile(string Ten, string Email, string SoDienThoai, string DiaChi)
+        {
+            try
+            {
+                if (Session["MaNguoiDung"] == null)
+                {
+                    return Json(new { success = false, message = "Vui lòng đăng nhập lại!" });
+                }
+
+                int maND = int.Parse(Session["MaNguoiDung"].ToString());
+                var user = db.NguoiDung.SingleOrDefault(x => x.MaNguoiDung == maND);
+
+                if (user != null)
+                {
+                    user.Ten = Ten;
+                    user.Email = Email;
+                    user.SoDienThoai = SoDienThoai;
+                    user.DiaChi = DiaChi;
+                    db.SaveChanges();
+
+                    Session["TenNguoiDung"] = Ten;
+                    Session["Email"] = Email;
+                    Session["SDT"] = SoDienThoai;
+                    Session["DiaChi"] = DiaChi;
+
+                    return Json(new { success = true });
+                }
+                return Json(new { success = false, message = "Không tìm thấy người dùng!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi: " + ex.Message });
+            }
+        }
+        [HttpPost]
+        public JsonResult UpdatePassword(string OldPass, string NewPass)
+        {
+            try
+            {
+                if (Session["MaNguoiDung"] == null)
+                    return Json(new { success = false, message = "Vui lòng đăng nhập!" });
+
+                int maND = int.Parse(Session["MaNguoiDung"].ToString());
+                var user = db.NguoiDung.Find(maND);
+
+                if (user != null)
+                {
+                    bool isOldPassCorrect = false;
+
+                    try
+                    {
+                        isOldPassCorrect = BCrypt.Net.BCrypt.Verify(OldPass, user.MatKhau);
+                    }
+                    catch
+                    {
+                        isOldPassCorrect = (user.MatKhau == OldPass);
+                    }
+
+                    if (!isOldPassCorrect)
+                    {
+                        return Json(new { success = false, message = "Mật khẩu hiện tại không đúng!" });
+                    }
+                    user.MatKhau = BCrypt.Net.BCrypt.HashPassword(NewPass);
+                    db.SaveChanges();
+
+                    return Json(new { success = true });
+                }
+                return Json(new { success = false, message = "Lỗi xác thực!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi: " + ex.Message });
             }
         }
         [HttpPost]
@@ -90,29 +181,16 @@ namespace DoAnTotNghiep.Controllers
                          && b.NgayKetThuc >= DateTime.Now)
                 .OrderBy(b => b.ThuTu)
                 .ToList();
-
-            // Banner trên
             ViewBag.BannerTopLeft = banners.FirstOrDefault(b => b.ThuTu == 1);
             ViewBag.BannerTopRight = banners.FirstOrDefault(b => b.ThuTu == 2);
-
-            // Banner dưới (promo)
             ViewBag.BannerBottomLeft = banners.FirstOrDefault(b => b.ThuTu == 3);
             ViewBag.BannerBottomRight = banners.FirstOrDefault(b => b.ThuTu == 4);
-
-
-            // ==================== SỬA PHẦN SẢN PHẨM (ĐÃ KHẮC PHỤC LỖI) ====================
-
-            // Tính ngày 30 ngày trước bên ngoài query
             DateTime ngay30NgayTruoc = DateTime.Now.AddDays(-30);
-
-            // Sản phẩm mới (Nổi bật hoặc mới trong 30 ngày)
             var sanPhamMoi = db.SanPham
      .Where(sp => sp.NoiBat == true || sp.NgayTao >= ngay30NgayTruoc)
      .OrderByDescending(sp => sp.NgayTao)
      .Take(8)
      .ToList();
-
-            // thêm sao vào ViewBag riêng
             ViewBag.SaoSanPham = db.DanhGia
                 .GroupBy(dg => dg.MaSanPham)
                 .ToDictionary(
@@ -121,9 +199,6 @@ namespace DoAnTotNghiep.Controllers
                 );
 
             ViewBag.SanPhamMoi = sanPhamMoi;
-
-
-            // Sản phẩm thịnh hành (theo số lượng đánh giá)
             var sanPhamThinhHanh = db.SanPham
                                      .OrderByDescending(sp => sp.DanhGia.Count())
                                      .Take(8)
@@ -135,11 +210,9 @@ namespace DoAnTotNghiep.Controllers
                    g => g.Average(x => x.SoSao)
                );
 
-
-            // Truyền dữ liệu xuống View
             ViewBag.SanPhamMoi = sanPhamMoi;
             ViewBag.SanPhamThinhHanh = sanPhamThinhHanh;
-
+            LoadMenu();
             return View(banners);
         }
         public ActionResult GioiThieu()
@@ -201,8 +274,6 @@ namespace DoAnTotNghiep.Controllers
             {
                 return HttpNotFound();
             }
-
-            // Tính đánh giá
             int reviewCount = 0;
             double averageRating = 0.0;
 
@@ -221,8 +292,6 @@ namespace DoAnTotNghiep.Controllers
             {
                 System.Diagnostics.Debug.WriteLine($"Lỗi AverageRating: {ex.Message}");
             }
-
-            // Tính số lượng đã bán
             int soldCount = 0;
             try
             {
@@ -241,15 +310,11 @@ namespace DoAnTotNghiep.Controllers
                 System.Diagnostics.Debug.WriteLine($"Lỗi SoldCount: {ex.Message}");
                 soldCount = 0;
             }
-
-            // Lấy chi tiết sản phẩm
             var chiTiet = db.ChiTietSanPham
                 .Include("ThuongHieu")
                 .Include("ChatLieu")
                 .Include("MauSac")
                 .FirstOrDefault(ct => ct.MaSanPham == id);
-
-            // Lấy danh sách đánh giá
             var danhGias = db.DanhGia
                 .Where(d => d.MaSanPham == id)
                 .OrderByDescending(d => d.NgayDanhGia)
@@ -260,11 +325,9 @@ namespace DoAnTotNghiep.Controllers
             ViewBag.ReviewCount = reviewCount;
             ViewBag.SoldCount = soldCount;
             ViewBag.DanhGias = danhGias;
-
+            LoadMenu();
             return View(sanPham);
         }
-
-        // ==================== ACTION NHẬN ĐÁNH GIÁ ====================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult GuiDanhGia(int MaSanPham, int SoSao, string NoiDung)
@@ -279,7 +342,7 @@ namespace DoAnTotNghiep.Controllers
 
             var danhGia = new DanhGia
             {
-                MaNguoiDung = 1,           // Tạm thời gán là 1 (bạn có thể cải tiến sau)
+                MaNguoiDung = 1,
                 MaSanPham = MaSanPham,
                 SoSao = SoSao,
                 NoiDung = NoiDung.Trim(),

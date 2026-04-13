@@ -484,7 +484,6 @@ body {
 }
 .nav-item.dropdown .nav-link.active + .custom-dropdown {
 }
-/* ====================== AUTH MODAL - GRADIENT MODERN ====================== */
 .auth-input {
     border: 1px solid #dadce0;
     border-radius: 12px;
@@ -493,53 +492,66 @@ body {
     padding-left: 16px;
 }
 
-    .auth-input:focus {
-        border-color: #00d4ff;
-        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
-        outline: none;
-    }
-
+.auth-input:focus {
+    border-color: #00d4ff;
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
+    outline: none;
+}
 .input-group-text {
     border-color: #dadce0;
     background: #fff;
 }
-
 .toggle-password-icon {
     color: #5f6368;
 }
-
-    .toggle-password-icon:hover {
-        color: #00d4ff;
-    }
-
-/* Gradient button hover */
+.toggle-password-icon:hover {
+    color: #00d4ff;
+}
 .btn[style*="linear-gradient(to right, #00d4ff, #9b00ff)"]:hover {
     transform: translateY(-2px);
     box-shadow: 0 15px 25px -8px rgba(155, 0, 255, 0.4);
     transition: all 0.3s ease;
 }
 
-/* Tab active underline gradient */
 .nav-tabs .nav-link.active {
     color: #202124;
     border: none;
     position: relative;
 }
-
-    .nav-tabs .nav-link.active:after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(to right, #00d4ff, #9b00ff);
-        border-radius: 9999px;
-    }
-
+.nav-tabs .nav-link.active:after {
+     content: '';
+     position: absolute;
+     bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(to right, #00d4ff, #9b00ff);
+    border-radius: 9999px;
+}
 .nav-tabs .nav-link {
     border: none;
     color: #6b7280;
+}
+.dropdown:hover .dropdown-menu {
+    display: block;
+    margin-top: 0;
+}
+
+.dropdown-menu {
+    transition: all 0.3s ease;
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 @media (max-width: 576px) {
     .modal-body {
