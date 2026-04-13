@@ -1,0 +1,132 @@
+﻿body {
+    background: #f8f9fa;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.container {
+    max-width: 1280px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.product-container {
+    padding: 50px 45px;
+}
+
+.main-image img {
+    width: 100%;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+.thumbnail img {
+    width: 85px;
+    height: 85px;
+    object-fit: cover;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.3s;
+}
+
+    .thumbnail img.active, .thumbnail img:hover {
+        border-color: #d32f2f;
+        box-shadow: 0 0 0 4px rgba(211,47,47,0.2);
+    }
+
+.product-title {
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.price {
+    font-size: 2.35rem;
+    font-weight: 700;
+    color: #d32f2f;
+}
+
+.sold-info {
+    color: #555;
+    font-size: 1.05rem;
+}
+
+.info-card {
+    background: #f8f9fa;
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 13px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+.quantity-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.quantity-btn {
+    width: 52px;
+    height: 52px;
+    border: 2px solid #ccc;
+    background: #fff;
+    border-radius: 12px;
+    font-size: 1.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+    .quantity-btn:hover {
+        border-color: #d32f2f;
+        color: #d32f2f;
+    }
+
+.quantity-input {
+    width: 85px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    border: 2px solid #ccc;
+    border-radius: 12px;
+}
+
+.btn-action {
+    padding: 16px 32px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border-radius: 12px;
+}
+
+.out-of-stock {
+    background: #fff2f2;
+    color: #d32f2f;
+    padding: 18px 25px;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.stars {
+    color: #ffc107;
+    font-size: 1.35rem;
+}

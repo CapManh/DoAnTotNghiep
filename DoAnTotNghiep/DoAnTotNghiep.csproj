@@ -1402,6 +1402,7 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="Content\chitietsanpham.css" />
     <Content Include="Content\sanpham.css" />
     <Content Include="Content\GioiThieu.css" />
     <Content Include="Content\LienHe.css" />
@@ -1452,6 +1453,7 @@
     <Content Include="Views\Home\LienHe.cshtml" />
     <Content Include="Views\Home\TinTuc.cshtml" />
     <Content Include="Views\Home\GioHang.cshtml" />
+    <Content Include="Views\Home\chitietsanpham.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

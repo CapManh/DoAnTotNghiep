@@ -1,6 +1,4 @@
-﻿
-
-@{
+﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section PageCss {
@@ -19,484 +17,471 @@
 
 <body>
 
-    <div class="banner">
+    @using System.Linq
+
+
+
+    <div class="banner-slider">
         <div class="slides" id="slides">
-            <div class="slide">
-                <img src="~/AnhWeb/anhdan.jpg" class="bg-img">
 
-                <div class="content">
-                    <p>MÙA XUÂN</p>
-                    <h1>BỘ SƯU TẬP</h1>
-                    <span>Chỉ từ <b>959.760 VND</b></span>
-                    <a href="@Url.Action("sanpham", "Home")" class="btn-buy">Mua Ngay</a>
-                </div>
-            </div>
-            <div class="slide">
-                <img src="~/AnhWeb/anhdan.jpg" class="bg-img">
+            @if (Model != null)
+            {
+                foreach (var banner in Model)
+                {
+                    <div class="slide">
+                        <img src="@Url.Content("~/AnhWeb/" + banner.HinhAnh)"
+                             class="bg-img"
+                             alt="@banner.TieuDe"
+                             loading="lazy">
 
-                <div class="content">
-                    <p>MÙA HÈ</p>
-                    <h1>NỘI THẤT MỚI</h1>
-                    <span>Giảm đến <b>30%</b></span>
-                     <a href="@Url.Action("sanpham", "Home")" class="btn-buy">Mua Ngay</a>
-                </div>
-            </div>
+                        <div class="content">
+                            <h2>@banner.TieuDe</h2>
 
+                            @if (string.IsNullOrEmpty(banner.Link))
+                            {
+                                <a href="@Url.Action("SanPham", "Home")" class="btn-buy">Mua Ngay</a>
+                            }
+                            else
+                            {
+                                <a href="@banner.Link" class="btn-buy">Mua Ngay</a>
+                            }
+                        </div>
+                    </div>
+                }
+            }
         </div>
+
     </div>
+    <!-- === BÊN TRÁI: NỘI THẤT HIỆN ĐẠI === -->
+    <!-- Bên trái: NỘI THẤT HIỆN ĐẠI -->
+    <!-- ===== PHẦN 2 BANNER ===== -->
     <div class="section-2img">
-        <div class="box-img left">
-            <img src="~/AnhWeb/Gemini_Generated_Image_ao0jw6ao0jw6ao0j.png" />
-            <div class="box-content">
-                <p>NỘI THẤT</p>
-                <h2>HIỆN ĐẠI</h2>
-                <div class="price">Chỉ từ <b>959.760 VND</b></div>
-                <a href="@Url.Action("sanpham", "Home")" class="btn-buy">Mua Ngay</a>
-            </div>
-        </div>
-        <div class="box-img right">
-            <img src="~/AnhWeb/Gemini_Generated_Image_ql6ry4ql6ry4ql6r.png" />
 
-            <div class="box-content">
-                <p>SẢN PHẨM MỚI</p>
-                <h2>ĐÈN</h2>
-                <div class="price">Chỉ từ <b>959.760 VND</b></div>
-                <a href="@Url.Action("sanpham", "Home")" class="btn-buy">Mua Ngay</a>
-            </div>
+        <!-- Trái -->
+        <div class="box-img left">
+            @if (ViewBag.BannerTopLeft != null)
+            {
+                <img src="@Url.Content("~/AnhWeb/" + ViewBag.BannerTopLeft.HinhAnh)" />
+
+                <div class="box-content">
+                    <h2>@ViewBag.BannerTopLeft.TieuDe</h2>
+                    <p>Giảm tới 20% toàn bộ nội thất tại cửa hàng</p>
+
+                    <a href="@ViewBag.BannerTopLeft.Link" class="btn-buy">Mua Ngay</a>
+                </div>
+            }
+        </div>
+
+        <!-- Phải -->
+        <div class="box-img right">
+            @if (ViewBag.BannerTopRight != null)
+            {
+                <img src="@Url.Content("~/AnhWeb/" + ViewBag.BannerTopRight.HinhAnh)" />
+
+                <div class="box-content">
+                    <h2>@ViewBag.BannerTopRight.TieuDe</h2>
+                    <p>Giảm tới 20% toàn bộ nội thất tại cửa hàng</p>
+
+                    <a href="@ViewBag.BannerTopRight.Link" class="btn-buy">Mua Ngay</a>
+                </div>
+            }
         </div>
 
     </div>
+
+    <!-- Bên phải -->
+    <!-- SẢN PHẨM MỚI -->
     <div class="new-products">
         <h2 class="title">SẢN PHẨM MỚI</h2>
         <p class="subtitle">Giảm giá toàn bộ sản phẩm mới & Tiết kiệm lên đến 25%</p>
+
         <div class="product-list">
-            <div class="product-card">
+            @if (ViewBag.SanPhamMoi != null)
+            {
+                foreach (var item in ViewBag.SanPhamMoi)
+                {
+                    <div class="product-card">
+                        <div class="img-box">
+                            @if (!string.IsNullOrEmpty(item.AnhChinh))
+                            {
+                                <img src="@Url.Content("~/AnhWeb/" + item.AnhChinh)" alt="@item.TenSanPham" />
+                            }
+                            else
+                            {
+                                <img src="https://via.placeholder.com/300x260" alt="No Image" />
+                            }
 
-                <div class="img-box">
-                    <img src="~/AnhWeb/Group-8069.jpg" />
-                    <a href="/SanPham/ChiTiet/2" class="view-btn">👁</a>
-                </div>
+                            <a href="@Url.Action("chitietsanpham", "Home", new { id = item.MaSanPham })" class="view-btn">👁</a>
 
-                <div class="stars">★★★★★</div>
-                <h3>Ghế Băng Gỗ Cao Su KENNY</h3>
+                            @if (item.NoiBat == true)
+                            {
+                                <span class="hot-label">Hot</span>
+                            }
+                        </div>
 
-                <div class="price-cart">
-                    <div class="price">
-                        <span>2.860.000 đ</span>
+                        <div class="stars">
+                            @{
+                                double sao = 0;
+
+                                if (ViewBag.SaoSanPham != null && ViewBag.SaoSanPham.ContainsKey(item.MaSanPham))
+                                {
+                                    sao = ViewBag.SaoSanPham[item.MaSanPham];
+                                }
+
+                                int fullStars = (int)Math.Round(sao);
+                            }
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                if (i <= fullStars)
+                                {
+                                    <span>★</span>
+                                }
+                                else
+                                {
+                                    <span>☆</span>
+                                }
+                            }
+                        </div>
+                        <h3>@item.TenSanPham</h3>
+                        <div class="price-cart">
+                            <div class="price">
+                                <span>@item.Gia.ToString("N0") đ</span>
+                            </div>
+                            <button class="add-cart" data-id="@item.MaSanPham">Thêm Vào Giỏ Hàng</button>
+                        </div>
                     </div>
-
-                    <button class="add-cart">Thêm Vào Giỏ Hàng</button>
-                </div>
-
-            </div>
-            <div class="product-card">
-
-                <div class="img-box">
-                    <img src="~/AnhWeb/Group-8070.jpg" />
-                    <a href="/SanPham/ChiTiet/2" class="view-btn">👁</a>
-                </div>
-
-                <div class="stars">★★★★★</div>
-                <h3>Ghế Băng Gỗ Cao Su KENNY</h3>
-
-                <div class="price">
-                    <span>2.860.000 đ</span>
-                </div>
-
-                <button class="add-cart">Thêm Vào Giỏ Hàng</button>
-            </div>
-            <div class="product-card">
-
-                <div class="img-box">
-                    <img src="~/AnhWeb/Group-8071-600x600.jpg" />
-                    <a href="/SanPham/ChiTiet/3" class="view-btn">👁</a>
-                    <div class="tag">Sale</div>
-                </div>
-
-                <div class="stars">★★★★★</div>
-                <h3>Ghế Ăn Gỗ Cao Su KENNY</h3>
-
-                <div class="price">
-                    <del>16.300.000 đ</del>
-                    <span>14.200.000 đ</span>
-                </div>
-
-                <button class="add-cart">Thêm Vào Giỏ Hàng</button>
-            </div>
-            <div class="product-card">
-
-                <div class="img-box">
-                    <img src="~/AnhWeb/Group_8049-600x600 (1).png" />
-                    <a href="/SanPham/ChiTiet/4" class="view-btn">👁</a>
-                </div>
-
-                <div class="stars">★★★★★</div>
-                <h3>Ghế Dài Thư Giãn CONNEMARA</h3>
-
-                <div class="price">
-                    <span>8.560.000 đ</span>
-                </div>
-
-                <button class="add-cart">Thêm Vào Giỏ Hàng</button>
-            </div>
-            <div class="product-card">
-
-                <div class="img-box">
-                    <img src="~/AnhWeb/Group-8074-400x400.jpg" />
-                    <a href="/SanPham/ChiTiet/5" class="view-btn">👁</a>
-                </div>
-
-                <div class="stars">★★★★★</div>
-                <h3>Bàn Cafe Gỗ</h3>
-
-                <div class="price">
-                    <span>3.200.000 đ</span>
-                </div>
-
-                <button class="add-cart">Thêm Vào Giỏ Hàng</button>
-            </div>
-            <div class="product-card">
-
-                <div class="img-box">
-                    <img src="~/AnhWeb/Group-8066 (1).jpg" />
-                    <a href="/SanPham/ChiTiet/6" class="view-btn">👁</a>
-                </div>
-
-                <div class="stars">★★★★★</div>
-                <h3>Kệ Trang Trí</h3>
-
-                <div class="price">
-                    <span>4.100.000 đ</span>
-                </div>
-
-                <button class="add-cart">Thêm Vào Giỏ Hàng</button>
-            </div>
-            <div class="product-card">
-
-                <div class="img-box">
-                    <img src="~/AnhWeb/Group-8067.jpg" />
-                    <a href="/SanPham/ChiTiet/7" class="view-btn">👁</a>
-                </div>
-
-                <div class="stars">★★★★★</div>
-                <h3>Đèn Trang Trí</h3>
-
-                <div class="price">
-                    <span>1.200.000 đ</span>
-                </div>
-
-                <button class="add-cart">Thêm Vào Giỏ Hàng</button>
-            </div>
-            <div class="product-card">
-
-                <div class="img-box">
-                    <img src="~/AnhWeb/close-up-still-life-hard-exams-scaled-1-400x400.jpg" />
-                    <a href="/SanPham/ChiTiet/8" class="view-btn">👁</a>
-                </div>
-
-                <div class="stars">★★★★★</div>
-                <h3>Tủ Gỗ Mini</h3>
-
-                <div class="price">
-                    <span>5.600.000 đ</span>
-                </div>
-
-                <button class="add-cart">Thêm Vào Giỏ Hàng</button>
-            </div>
-
-        </div>
-        <div class="main-container">
-            <div class="promo-wrap">
-                <div class="promo-item promo-big">
-                    <img src="~/AnhWeb/Group-8052.jpg" />
-                    <div class="promo-text">
-                        <h2>PHÒNG NGỦ</h2>
-                        <div class="promo-price">Giảm tới 20% toàn bộ nội thất tại cửa hàng </div>
-                        <a href="sanpham.html" class="btn-buy">Mua Ngay</a>
-                    </div>
-                </div>
-
-                <div class="promo-item promo-small">
-                    <img src="~/AnhWeb/Group-8051.jpg" />
-                    <div class="promo-text">
-                        <h2>ƯU ĐÃI PHÒNG ĂN</h2>
-                        <div class="promo-price">Giảm tới 20% toàn bộ nội thất tại cửa hàng</div>
-                        <a href="sanpham.html" class="btn-buy">Mua Ngay</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="np-section">
-
-            <div class="np-heading">
-                <h2>Sản phẩm thịnh hành</h2>
-                <p>Giảm giá đến 25%</p>
-            </div>
-
-            <div class="np-slider">
-
-                <button class="np-btn np-prev">&#10094;</button>
-
-                <div class="np-track-wrap">
-                    <div class="np-track">
-                        <div class="np-item">
-                            <div class="np-img">
-                                <img src="~/AnhWeb/Group-8051.jpg" />
-                                <a href="/SanPham/ChiTiet/5" class="view-btn">👁</a>
-                            </div>
-                            <div class="np-star">★★★★★</div>
-                            <h3>Ghế Ăn Gỗ</h3>
-                            <div class="np-price">
-                                <span>2.630.000 đ</span>
-                            </div>
-                            <button class="np-cart">Thêm Vào Giỏ</button>
-                        </div>
-                        <div class="np-item">
-                            <div class="np-img">
-                                <img src="~/AnhWeb/Group-8052.jpg" />
-                                <div class="np-sale">Sale</div>
-                                <a href="/SanPham/ChiTiet/5" class="view-btn">👁</a>
-                            </div>
-                            <div class="np-star">★★★★★</div>
-                            <h3>Sofa Tampa</h3>
-                            <div class="np-price">
-                                <del>28.000.000 đ</del>
-                                <span>23.600.000 đ</span>
-                            </div>
-                            <button class="np-cart">Thêm Vào Giỏ</button>
-                        </div>
-                        <div class="np-item">
-                            <div class="np-img">
-                                <img src="~/AnhWeb/Group-8069.jpg" />
-                                <a href="/SanPham/ChiTiet/5" class="view-btn">👁</a>
-                            </div>
-                            <div class="np-star">★★★★★</div>
-                            <h3>Đồng Hồ</h3>
-                            <div class="np-price">
-                                <span>139.300 đ</span>
-                            </div>
-                            <button class="np-cart">Thêm Vào Giỏ</button>
-                        </div>
-                        <div class="np-item">
-                            <div class="np-img">
-                                <img src="~/AnhWeb/Group-8070.jpg" />
-                                <a href="/SanPham/ChiTiet/5" class="view-btn">👁</a>
-                                <div class="np-sale">Sale</div>
-                            </div>
-                            <div class="np-star">★★★★★</div>
-                            <h3>Ghế Viking</h3>
-                            <div class="np-price">
-                                <del>5.600.000 đ</del>
-                                <span>4.670.000 đ</span>
-                            </div>
-                            <button class="np-cart">Thêm Vào Giỏ</button>
-                        </div>
-                        <div class="np-item">
-                            <div class="np-img">
-                                <img src="~/AnhWeb/Group-8071-600x600.jpg" />
-
-                                <a href="/SanPham/ChiTiet/5" class="view-btn">👁</a>
-                            </div>
-                            <div class="np-star">★★★★★</div>
-                            <h3>Ghế Ăn Gỗ</h3>
-                            <div class="np-price">
-                                <span>2.630.000 đ</span>
-                            </div>
-                            <button class="np-cart">Thêm Vào Giỏ</button>
-                        </div>
-                        <div class="np-item">
-                            <div class="np-img">
-                                <img src="~/AnhWeb/Group_8049-600x600 (1).png" />
-                                <div class="np-sale">Sale</div>
-                                <a href="/SanPham/ChiTiet/5" class="view-btn">👁</a>
-                            </div>
-                            <div class="np-star">★★★★★</div>
-                            <h3>Sofa Tampa</h3>
-                            <div class="np-price">
-                                <del>28.000.000 đ</del>
-                                <span>23.600.000 đ</span>
-                            </div>
-                            <button class="np-cart">Thêm Vào Giỏ</button>
-                        </div>
-                        <div class="np-item">
-                            <div class="np-img">
-                                <img src="~/AnhWeb/Gemini_Generated_Image_ao0jw6ao0jw6ao0j.png" />
-                                <a href="/SanPham/ChiTiet/5" class="view-btn">👁</a>
-                            </div>
-                            <div class="np-star">★★★★★</div>
-                            <h3>Đồng Hồ</h3>
-                            <div class="np-price">
-                                <span>139.300 đ</span>
-                            </div>
-                            <button class="np-cart">Thêm Vào Giỏ</button>
-                        </div>
-                        <div class="np-item">
-                            <div class="np-img">
-                                <img src="~/AnhWeb/Gemini_Generated_Image_ql6ry4ql6ry4ql6r.png" />
-                                <div class="np-sale">Sale</div>
-                                <a href="/SanPham/ChiTiet/5" class="view-btn">👁</a>
-                            </div>
-                            <div class="np-star">★★★★★</div>
-                            <h3>Ghế Viking</h3>
-                            <div class="np-price">
-                                <del>5.600.000 đ</del>
-                                <span>4.670.000 đ</span>
-                            </div>
-                            <button class="np-cart">Thêm Vào Giỏ</button>
-                        </div>
-
-
-                    </div>
-                </div>
-
-                <button class="np-btn np-next">&#10095;</button>
-
-            </div>
-
-            <div class="np-dots">
-                <span class="np-dot active"></span>
-                <span class="np-dot"></span>
-            </div>
-
-        </div>  <div class="section-2img">
-            <div class="box-img left">
-                <img src="~/AnhWeb/Group_8049-1.jpg" />
-                <div class="box-content">
-                    <p>Ưu đãi riêng hôm nay</p>
-                    <h2>GHẾ BÀNH SOFA</h2>
-                    <div class="price">Chỉ từ <b>6.000.000 VND</b></div>
-                    <a href="@Url.Action("sanpham", "Home")" class="btn-buy">Mua Ngay</a>
-                </div>
-            </div>
-            <div class="box-img right">
-                <img src="~/AnhWeb/Gemini_Generated_Image_ao0jw6ao0jw6ao0j.png" />
-
-                <div class="promo-text">
-                    <p> Dòng sản phẩm mới</p>
-                    <h2>PHÒNG LÀM VIỆC</h2>
-
-                    <a href="@Url.Action("sanpham", "Home")" class="btn-buy">Mua Ngay</a>
-                </div>
-            </div>
-
-        </div><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;800&display=swap" rel="stylesheet">
-
-        <div class="grid-banner">
-
-            <div class="card-a">
-                <img src="~/AnhWeb/1524.jpg" />
-                <div class="text-a white">
-                    <p class="mini-a">Dòng sản phẩm mới</p>
-                    <h2 class="title-a">SOFA<br>PHONG CÁCH<br>2023</h2>
-                    <a href="@Url.Action("sanpham", "Home")" class="btn-buy">Mua Ngay</a>
-                </div>
-            </div>
-
-            <div class="card-b">
-                <img src="~/AnhWeb/1528.jpg" />
-                <div class="text-a black">
-                    <p class="mini-a black">Dòng sản phẩm mới</p>
-                    <h2 class="title-a black">
-                        PHÙ HỢP HOÀN HẢO<br>
-                        CHO NGÔI NHÀ CỦA BẠN
-                    </h2>
-                    <a href="@Url.Action("sanpham", "Home")" class="btn-buy">Mua Ngay</a>
-                </div>
-            </div>
-
-            <div class="card-c">
-                <img src="~/AnhWeb/773_5-18471.jpg" />
-                <div class="text-a white">
-                    <p class="mini-a">Dòng sản phẩm mới</p>
-                    <h2 class="title-a">ƯU ĐÃI LÊN<br>ĐẾN 30%</h2>
-                    <a href="@Url.Action("sanpham", "Home")" class="btn-buy">Mua Ngay</a>
-                </div>
-            </div>
-
-        </div>
-        <div class="testimonial-section">
-            <h2 class="testimonial-title">PHẢN HỒI CỦA KHÁCH HÀNG</h2>
-            <p class="testimonial-subtitle">Mọi người nghĩ gì về dịch vụ của chúng tôi</p>
-
-            <div class="testimonial-cards">
-
-                <div class="testimonial-card">
-                    <div class="quote">“</div>
-                    <div class="name">Mr. Anh Khang</div>
-                    <div class="position">Trưởng Văn phòng đại diện AFamily HCM</div>
-                    <div class="feedback">
-                        Nội thất Mắt Bão luôn là sự lựa chọn hàng đầu của chúng tôi.
-                        Các sản phẩm đều đạt chất lượng rất cao về thẩm mỹ cũng như độ bền.
-                    </div>
-                </div>
-                <div class="testimonial-card">
-                    <div class="quote">“</div>
-                    <div class="name">Ms. Hoa Nguyễn</div>
-                    <div class="position">Trưởng phòng Marketing PNJ</div>
-                    <div class="feedback">
-                        Ghế làm việc tại Nội thất Mắt Bão đem lại sự thoải mái khi làm việc.
-                        Giúp chúng tôi cải thiện chất lượng và hiệu quả công việc.
-                    </div>
-                </div>
-
-                <div class="testimonial-card">
-                    <div class="quote">“</div>
-                    <div class="name">Mr. Minh Quân</div>
-                    <div class="position">Nhân viên văn phòng</div>
-                    <div class="feedback">
-                        Toàn bộ nội thất trong nhà tôi từ phòng khách, phòng ngủ hay phòng làm việc
-                        đều của Nội thất Mắt Bão cung cấp. Tôi cảm thấy rất hài lòng về chất lượng sản phẩm.
-                    </div>
-                </div>
-
-            </div>
+                }
+            }
+            else
+            {
+                <p class="text-center">Chưa có sản phẩm nào.</p>
+            }
         </div>
     </div>
- 
-        <script>
-            const track = document.querySelector(".np-track");
-            const items = document.querySelectorAll(".np-item");
 
-            const prevBtn = document.querySelector(".np-prev");
-            const nextBtn = document.querySelector(".np-next");
+    <div class="main-container">
+        <h2 class="title"></h2>
+        <div class="promo-wrap">
 
-            let npIndex = 0;
-            const itemsPerPage = 4;
+            <!-- Trái -->
+            <div class="promo-item promo-big">
+                @if (ViewBag.BannerBottomLeft != null)
+                {
+                    <img src="@Url.Content("~/AnhWeb/" + ViewBag.BannerBottomLeft.HinhAnh)" />
 
-            function moveSlide() {
-                const itemWidth = items[0].offsetWidth;
-                const moveX = itemWidth * itemsPerPage * npIndex;
-                track.style.transform = `translateX(-${moveX}px)`;
+                    <div class="promo-text">
+                        <h2>@ViewBag.BannerBottomLeft.TieuDe</h2>
+                        <div class="promo-price">
+                            Giảm tới 20% toàn bộ nội thất tại cửa hàng
+                        </div>
 
-                updateDots();
+                        <a href="@ViewBag.BannerBottomLeft.Link" class="btn-buy">
+                            Mua Ngay
+                        </a>
+                    </div>
+                }
+            </div>
+
+            <!-- Phải -->
+            <div class="promo-item promo-small">
+                @if (ViewBag.BannerBottomRight != null)
+                {
+                    <img src="@Url.Content("~/AnhWeb/" + ViewBag.BannerBottomRight.HinhAnh)" />
+
+                    <div class="promo-text">
+                        <h2>@ViewBag.BannerBottomRight.TieuDe</h2>
+                        <div class="promo-price">
+                            Giảm tới 20% toàn bộ nội thất tại cửa hàng
+                        </div>
+
+                        <a href="@ViewBag.BannerBottomRight.Link" class="btn-buy">
+                            Mua Ngay
+                        </a>
+                    </div>
+                }
+            </div>
+
+        </div>
+
+    </div>
+    <div class="np-section">
+        <div class="np-heading">
+            <h2>SẢN PHẨM THỊNH HÀNH</h2>
+            <p>Giảm giá đến 25%</p>
+        </div>
+
+        <div class="np-slider">
+            <button class="np-btn np-prev">❮</button>
+            <div class="np-track-wrap">
+                <div class="np-track">
+                    @if (ViewBag.SanPhamThinhHanh != null)
+                    {
+                        foreach (var item in ViewBag.SanPhamThinhHanh)
+                        {
+                            decimal giaGoc = item.Gia;
+                            decimal giaSale = Math.Round(giaGoc * 0.75M); // Giảm 25%
+                            bool coSale = giaGoc > 5000000; // Sản phẩm đắt mới có tag Sale
+
+                            <div class="np-item">
+                                <div class="np-img">
+                                    <img src="@Url.Content("~/AnhWeb/" + (string.IsNullOrEmpty(item.AnhChinh) ? "placeholder.jpg" : item.AnhChinh))"
+                                         alt="@item.TenSanPham" />
+
+                                    @if (coSale)
+                                    {
+                                        <div class="np-sale">Sale</div>
+                                    }
+
+                                    <a href="@Url.Action("ChiTiet", "SanPham", new { id = item.MaSanPham })"
+                                       class="view-btn">👁</a>
+                                </div>
+
+                                <div class="stars">
+                                    @{
+                                        double sao = 0;
+
+                                        if (ViewBag.SaoSanPham != null && ViewBag.SaoSanPham.ContainsKey(item.MaSanPham))
+                                        {
+                                            sao = ViewBag.SaoSanPham[item.MaSanPham];
+                                        }
+
+                                        int fullStars = (int)Math.Round(sao);
+                                    }
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        if (i <= fullStars)
+                                        {
+                                            <span>★</span>
+                                        }
+                                        else
+                                        {
+                                            <span>☆</span>
+                                        }
+                                    }
+                                </div>
+                                <h3>@item.TenSanPham</h3>
+
+                                <div class="np-price">
+                                    @if (coSale)
+                                    {
+                                        <del>@giaGoc.ToString("N0") đ</del>
+                                        <span>@giaSale.ToString("N0") đ</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@giaGoc.ToString("N0") đ</span>
+                                    }
+                                </div>
+
+                                <button class="np-cart" data-id="@item.MaSanPham">Thêm Vào Giỏ Hàng</button>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+            <button class="np-btn np-next">❯</button>
+        </div>
+    </div>
+
+    <div class="np-dots">
+        <span class="np-dot active"></span>
+        <span class="np-dot"></span>
+    </div>
+
+    <div class="main-container">
+        <h2 class="title"></h2>
+        <div class="promo-wrap">
+
+            <!-- Trái -->
+            <div class="promo-item promo-big">
+                @if (ViewBag.BannerBottomLeft != null)
+                {
+                    <img src="@Url.Content("~/AnhWeb/" + ViewBag.BannerBottomLeft.HinhAnh)" />
+
+                    <div class="promo-text">
+                        <h2>@ViewBag.BannerBottomLeft.TieuDe</h2>
+                        <div class="promo-price">
+                            Giảm tới 20% toàn bộ nội thất tại cửa hàng
+                        </div>
+
+                        <a href="@ViewBag.BannerBottomLeft.Link" class="btn-buy">
+                            Mua Ngay
+                        </a>
+                    </div>
+                }
+            </div>
+
+            <!-- Phải -->
+            <div class="promo-item promo-small">
+                @if (ViewBag.BannerBottomRight != null)
+                {
+                    <img src="@Url.Content("~/AnhWeb/" + ViewBag.BannerBottomRight.HinhAnh)" />
+
+                    <div class="promo-text">
+                        <h2>@ViewBag.BannerBottomRight.TieuDe</h2>
+                        <div class="promo-price">
+                            Giảm tới 20% toàn bộ nội thất tại cửa hàng
+                        </div>
+
+                        <a href="@ViewBag.BannerBottomRight.Link" class="btn-buy">
+                            Mua Ngay
+                        </a>
+                    </div>
+                }
+            </div>
+
+        </div>
+
+    </div>
+
+    </div><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;800&display=swap" rel="stylesheet">
+
+    <div class="grid-banner">
+
+        <!-- CARD A (trái lớn) -->
+        <div class="card-a">
+            @if (ViewBag.BannerBottomLeft != null)
+            {
+                <img src="@Url.Content("~/AnhWeb/" + ViewBag.BannerBottomLeft.HinhAnh)" />
+
+                <div class="text-a white">
+                    <p class="mini-a">Dòng sản phẩm mới</p>
+
+                    <h2 class="title-a">
+                        @Html.Raw(ViewBag.BannerBottomLeft.TieuDe.Replace("\n", "<br>"))
+                    </h2>
+
+                    <a href="@ViewBag.BannerBottomLeft.Link" class="btn-buy">
+                        Mua Ngay
+                    </a>
+                </div>
             }
+        </div>
 
-            const maxIndex = Math.ceil(items.length / itemsPerPage) - 1;
+        <!-- CARD B (phải trên) -->
+        <div class="card-b">
+            @if (ViewBag.BannerBottomRight != null)
+            {
+                <img src="@Url.Content("~/AnhWeb/" + ViewBag.BannerBottomRight.HinhAnh)" />
 
-            nextBtn.onclick = () => {
-                npIndex = (npIndex < maxIndex) ? npIndex + 1 : 0;
-                moveSlide();
-            };
+                <div class="text-a black">
+                    <p class="mini-a black">Dòng sản phẩm mới</p>
 
-            prevBtn.onclick = () => {
-                npIndex = (npIndex > 0) ? npIndex - 1 : maxIndex;
-                moveSlide();
-            };
-            const dots = document.querySelectorAll(".np-dot");
+                    <h2 class="title-a black">
+                        @Html.Raw(ViewBag.BannerBottomRight.TieuDe.Replace("\n", "<br>"))
+                    </h2>
 
-            function updateDots() {
-                dots.forEach(dot => dot.classList.remove("active"));
-                dots[npIndex].classList.add("active");
+                    <a href="@ViewBag.BannerBottomRight.Link" class="btn-buy">
+                        Mua Ngay
+                    </a>
+                </div>
             }
-            let bannerIndex = 0;
-            const slides = document.getElementById("slides");
-            const total = document.querySelectorAll(".slide").length;
+        </div>
 
-            setInterval(() => {
-                bannerIndex = (bannerIndex + 1) % total;
-                slides.style.transform = `translateX(-${bannerIndex * 100}%)`;
-            }, 3000);
-        </script>
+        <!-- CARD C (phải dưới) -->
+        <div class="card-c">
+            @if (ViewBag.BannerBottomThird != null)
+            {
+                <img src="@Url.Content("~/AnhWeb/" + ViewBag.BannerBottomThird.HinhAnh)" />
+
+                <div class="text-a white">
+                    <p class="mini-a">Dòng sản phẩm mới</p>
+
+                    <h2 class="title-a">
+                        @Html.Raw(ViewBag.BannerBottomThird.TieuDe.Replace("\n", "<br>"))
+                    </h2>
+
+                    <a href="@ViewBag.BannerBottomThird.Link" class="btn-buy">
+                        Mua Ngay
+                    </a>
+                </div>
+            }
+        </div>
+
+    </div>
+    <div class="testimonial-section">
+        <h2 class="testimonial-title">PHẢN HỒI CỦA KHÁCH HÀNG</h2>
+        <p class="testimonial-subtitle">Mọi người nghĩ gì về dịch vụ của chúng tôi</p>
+
+        <div class="testimonial-cards">
+
+            <div class="testimonial-card">
+                <div class="quote">“</div>
+                <div class="name">Mr. Anh Khang</div>
+                <div class="position">Trưởng Văn phòng đại diện AFamily HCM</div>
+                <div class="feedback">
+                    Nội thất Mắt Bão luôn là sự lựa chọn hàng đầu của chúng tôi.
+                    Các sản phẩm đều đạt chất lượng rất cao về thẩm mỹ cũng như độ bền.
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="quote">“</div>
+                <div class="name">Ms. Hoa Nguyễn</div>
+                <div class="position">Trưởng phòng Marketing PNJ</div>
+                <div class="feedback">
+                    Ghế làm việc tại Nội thất Mắt Bão đem lại sự thoải mái khi làm việc.
+                    Giúp chúng tôi cải thiện chất lượng và hiệu quả công việc.
+                </div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="quote">“</div>
+                <div class="name">Mr. Minh Quân</div>
+                <div class="position">Nhân viên văn phòng</div>
+                <div class="feedback">
+                    Toàn bộ nội thất trong nhà tôi từ phòng khách, phòng ngủ hay phòng làm việc
+                    đều của Nội thất Mắt Bão cung cấp. Tôi cảm thấy rất hài lòng về chất lượng sản phẩm.
+                </div>
+            </div>
+
+        </div>
+    </div>
+    </div>
+
+    <script>
+        const track = document.querySelector(".np-track");
+        const items = document.querySelectorAll(".np-item");
+
+        const prevBtn = document.querySelector(".np-prev");
+        const nextBtn = document.querySelector(".np-next");
+
+        let npIndex = 0;
+        const itemsPerPage = 4;
+
+        function moveSlide() {
+            const itemWidth = items[0].offsetWidth;
+            const moveX = itemWidth * itemsPerPage * npIndex;
+            track.style.transform = `translateX(-${moveX}px)`;
+
+            updateDots();
+        }
+
+        const maxIndex = Math.ceil(items.length / itemsPerPage) - 1;
+
+        nextBtn.onclick = () => {
+            npIndex = (npIndex < maxIndex) ? npIndex + 1 : 0;
+            moveSlide();
+        };
+
+        prevBtn.onclick = () => {
+            npIndex = (npIndex > 0) ? npIndex - 1 : maxIndex;
+            moveSlide();
+        };
+        const dots = document.querySelectorAll(".np-dot");
+
+        function updateDots() {
+            dots.forEach(dot => dot.classList.remove("active"));
+            dots[npIndex].classList.add("active");
+        }
+        let bannerIndex = 0;
+        const slides = document.getElementById("slides");
+        const total = document.querySelectorAll(".slide").length;
+
+        setInterval(() => {
+            bannerIndex = (bannerIndex + 1) % total;
+            slides.style.transform = `translateX(-${bannerIndex * 100}%)`;
+        }, 3000);
+    </script>
 
 
 

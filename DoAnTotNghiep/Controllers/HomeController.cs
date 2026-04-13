@@ -84,8 +84,63 @@ namespace DoAnTotNghiep.Controllers
         }
         public ActionResult TrangChu()
         {
-            LoadMenu();
-            return View();
+            var banners = db.Banner
+                .Where(b => b.TrangThai == true
+                         && b.NgayBatDau <= DateTime.Now
+                         && b.NgayKetThuc >= DateTime.Now)
+                .OrderBy(b => b.ThuTu)
+                .ToList();
+
+            // Banner trên
+            ViewBag.BannerTopLeft = banners.FirstOrDefault(b => b.ThuTu == 1);
+            ViewBag.BannerTopRight = banners.FirstOrDefault(b => b.ThuTu == 2);
+
+            // Banner dưới (promo)
+            ViewBag.BannerBottomLeft = banners.FirstOrDefault(b => b.ThuTu == 3);
+            ViewBag.BannerBottomRight = banners.FirstOrDefault(b => b.ThuTu == 4);
+
+
+            // ==================== SỬA PHẦN SẢN PHẨM (ĐÃ KHẮC PHỤC LỖI) ====================
+
+            // Tính ngày 30 ngày trước bên ngoài query
+            DateTime ngay30NgayTruoc = DateTime.Now.AddDays(-30);
+
+            // Sản phẩm mới (Nổi bật hoặc mới trong 30 ngày)
+            var sanPhamMoi = db.SanPham
+     .Where(sp => sp.NoiBat == true || sp.NgayTao >= ngay30NgayTruoc)
+     .OrderByDescending(sp => sp.NgayTao)
+     .Take(8)
+     .ToList();
+
+            // thêm sao vào ViewBag riêng
+            ViewBag.SaoSanPham = db.DanhGia
+                .GroupBy(dg => dg.MaSanPham)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Average(x => x.SoSao)
+                );
+
+            ViewBag.SanPhamMoi = sanPhamMoi;
+
+
+            // Sản phẩm thịnh hành (theo số lượng đánh giá)
+            var sanPhamThinhHanh = db.SanPham
+                                     .OrderByDescending(sp => sp.DanhGia.Count())
+                                     .Take(8)
+                                     .ToList();
+            ViewBag.SaoSanPham = db.DanhGia
+               .GroupBy(dg => dg.MaSanPham)
+               .ToDictionary(
+                   g => g.Key,
+                   g => g.Average(x => x.SoSao)
+               );
+
+
+            // Truyền dữ liệu xuống View
+            ViewBag.SanPhamMoi = sanPhamMoi;
+            ViewBag.SanPhamThinhHanh = sanPhamThinhHanh;
+
+            return View(banners);
         }
         public ActionResult GioiThieu()
         {
@@ -137,5 +192,106 @@ namespace DoAnTotNghiep.Controllers
             LoadMenu();
             return View();
         }
+        public ActionResult chitietsanpham(int id)
+        {
+            var sanPham = db.SanPham
+                .FirstOrDefault(sp => sp.MaSanPham == id);
+
+            if (sanPham == null)
+            {
+                return HttpNotFound();
+            }
+
+            // Tính đánh giá
+            int reviewCount = 0;
+            double averageRating = 0.0;
+
+            try
+            {
+                reviewCount = db.DanhGia.Count(r => r.MaSanPham == id);
+
+                if (reviewCount > 0)
+                {
+                    averageRating = db.DanhGia
+                        .Where(r => r.MaSanPham == id)
+                        .Average(r => (double)r.SoSao);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Lỗi AverageRating: {ex.Message}");
+            }
+
+            // Tính số lượng đã bán
+            int soldCount = 0;
+            try
+            {
+                var total = db.ChiTietDonHang
+                    .Join(db.ChiTietSanPham,
+                        cd => cd.MaChiTietSanPham,
+                        ct => ct.MaChiTiet,
+                        (cd, ct) => new { cd, ct })
+                    .Where(x => x.ct.MaSanPham == id)
+                    .Sum(x => (int?)x.cd.SoLuong);
+
+                soldCount = total ?? 0;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Lỗi SoldCount: {ex.Message}");
+                soldCount = 0;
+            }
+
+            // Lấy chi tiết sản phẩm
+            var chiTiet = db.ChiTietSanPham
+                .Include("ThuongHieu")
+                .Include("ChatLieu")
+                .Include("MauSac")
+                .FirstOrDefault(ct => ct.MaSanPham == id);
+
+            // Lấy danh sách đánh giá
+            var danhGias = db.DanhGia
+                .Where(d => d.MaSanPham == id)
+                .OrderByDescending(d => d.NgayDanhGia)
+                .ToList();
+
+            ViewBag.ChiTietSanPham = chiTiet;
+            ViewBag.AverageRating = averageRating;
+            ViewBag.ReviewCount = reviewCount;
+            ViewBag.SoldCount = soldCount;
+            ViewBag.DanhGias = danhGias;
+
+            return View(sanPham);
+        }
+
+        // ==================== ACTION NHẬN ĐÁNH GIÁ ====================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult GuiDanhGia(int MaSanPham, int SoSao, string NoiDung)
+        {
+            if (string.IsNullOrWhiteSpace(NoiDung))
+            {
+                TempData["Error"] = "Vui lòng nhập nội dung đánh giá!";
+                return RedirectToAction("ChiTietSanPham", new { id = MaSanPham });
+            }
+
+            if (SoSao < 1 || SoSao > 5) SoSao = 5;
+
+            var danhGia = new DanhGia
+            {
+                MaNguoiDung = 1,           // Tạm thời gán là 1 (bạn có thể cải tiến sau)
+                MaSanPham = MaSanPham,
+                SoSao = SoSao,
+                NoiDung = NoiDung.Trim(),
+                NgayDanhGia = DateTime.Now
+            };
+
+            db.DanhGia.Add(danhGia);
+            db.SaveChanges();
+
+            TempData["Success"] = "Cảm ơn bạn đã đánh giá sản phẩm!";
+            return RedirectToAction("ChiTietSanPham", new { id = MaSanPham });
+        }
     }
 }
+    
