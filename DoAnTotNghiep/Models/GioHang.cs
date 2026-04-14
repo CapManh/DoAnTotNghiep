@@ -1,4 +1,4 @@
-namespace DoAnTotNghiep.Moldes
+namespace DoAnTotNghiep.Models
 {
     using System;
     using System.Collections.Generic;
@@ -22,9 +22,15 @@ namespace DoAnTotNghiep.Moldes
 
         public DateTime? NgayTao { get; set; }
 
+        public int? MaSanPham { get; set; }
+
+        public int? SoLuong { get; set; }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ChiTietGioHang> ChiTietGioHang { get; set; }
 
         public virtual NguoiDung NguoiDung { get; set; }
+
+        public virtual SanPham SanPham { get; set; }
     }
 }

@@ -268,7 +268,7 @@
                                     }
                                 </div>
 
-                                <button class="np-cart" data-id="@item.MaSanPham">Thêm Vào Giỏ Hàng</button>
+                                <button class="add-cart" data-id="@item.MaSanPham">Thêm Vào Giỏ Hàng</button>
                             </div>
                         }
                     }
@@ -475,7 +475,50 @@
             bannerIndex = (bannerIndex + 1) % total;
             slides.style.transform = `translateX(-${bannerIndex * 100}%)`;
         }, 3000);
+        $(document).ready(function () {
+        $(document).off('click', '.add-cart').on('click', '.add-cart', function (e) {
+            e.preventDefault();
 
+            var spId = $(this).data('id');
+            var addCartUrl = '@Url.Action("ThemGioHang","Home")';
+
+            $.ajax({
+                url: addCartUrl,
+                type: 'POST',
+                data: { id: spId },
+                success: function (res) {
+                    if (res.success) {
+                        $('#cart-count').text(res.totalQuantity);
+                          
+                        if (typeof updateMiniCart === "function") {
+                            updateMiniCart(res.cartItems, res.totalAmount);
+                        }
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Đã thêm vào giỏ!',
+                            showConfirmButton: false,
+                            timer: 1000
+                        });
+                        $('.mini-cart-dropdown').addClass('active');
+                        setTimeout(function() {
+                            $('.mini-cart-dropdown').removeClass('active');
+                        }, 2500);
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Thông báo',
+                            text: res.message
+                        });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Lỗi chi tiết:", xhr.responseText);
+                    alert("Không tìm thấy đường dẫn xử lý (Lỗi 404). Mạnh hãy kiểm tra lại tên Controller!");
+                }
+            });
+        });
+    });
     </script>
 </body>
 </html>

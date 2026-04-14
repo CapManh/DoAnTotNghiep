@@ -1,4 +1,4 @@
-namespace DoAnTotNghiep.Moldes
+namespace DoAnTotNghiep.Models
 {
     using System;
     using System.Collections.Generic;
@@ -14,6 +14,7 @@ namespace DoAnTotNghiep.Moldes
         {
             ChiTietSanPham = new HashSet<ChiTietSanPham>();
             DanhGia = new HashSet<DanhGia>();
+            GioHang = new HashSet<GioHang>();
         }
 
         [Key]
@@ -51,5 +52,8 @@ namespace DoAnTotNghiep.Moldes
         public virtual ICollection<DanhGia> DanhGia { get; set; }
 
         public virtual DanhMuc DanhMuc { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GioHang> GioHang { get; set; }
     }
 }

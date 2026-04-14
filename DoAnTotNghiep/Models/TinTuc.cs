@@ -1,4 +1,4 @@
-namespace DoAnTotNghiep.Moldes
+namespace DoAnTotNghiep.Models
 {
     using System;
     using System.Collections.Generic;

@@ -1,4 +1,4 @@
-﻿using DoAnTotNghiep.Moldes;
+﻿using DoAnTotNghiep.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +8,8 @@ using System.Web;
 using System.Web.Helpers;
 using System.Web.Mvc;
 using BCrypt.Net;
+using System.Data.Entity;
+
 namespace DoAnTotNghiep.Controllers
 {
     
@@ -59,6 +61,96 @@ namespace DoAnTotNghiep.Controllers
             }
         }
         [HttpPost]
+        public JsonResult ThemGioHang(int id)
+        {
+            try
+            {
+                if (Session["MaNguoiDung"] == null)
+                    return Json(new { success = false, message = "Vui lòng đăng nhập!" });
+
+                int maND = Convert.ToInt32(Session["MaNguoiDung"]);
+
+                var item = db.GioHang
+                    .FirstOrDefault(x => x.MaNguoiDung == maND && x.MaSanPham == id);
+
+                if (item == null)
+                {
+                    db.GioHang.Add(new GioHang
+                    {
+                        MaNguoiDung = maND,
+                        MaSanPham = id,
+                        SoLuong = 1,
+                        NgayTao = DateTime.Now
+                    });
+                }
+                else
+                {
+                    item.SoLuong++;
+                }
+
+                db.SaveChanges();
+
+                db.Configuration.ProxyCreationEnabled = false;
+
+                var cart = db.GioHang
+                    .Include(x => x.SanPham)
+                    .Where(x => x.MaNguoiDung == maND)
+                    .Select(x => new
+                    {
+                        MaSP = x.MaSanPham,
+                        TenSP = x.SanPham.TenSanPham,
+                        Anh = "/AnhWeb/" + x.SanPham.AnhChinh,
+                        Gia = x.SanPham.Gia,
+                        SL = x.SoLuong,
+                        ThanhTien = x.SanPham.Gia * x.SoLuong
+                    }).ToList();
+
+                return Json(new
+                {
+                    success = true,
+                    totalQuantity = cart.Sum(x => x.SL),
+                    totalAmount = cart.Sum(x => x.ThanhTien),
+                    cartItems = cart
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+        [HttpGet]
+        public JsonResult LayGioHang()
+        {
+            if (Session["MaNguoiDung"] == null)
+                return Json(new { success = false }, JsonRequestBehavior.AllowGet);
+
+            int maND = Convert.ToInt32(Session["MaNguoiDung"]);
+
+            db.Configuration.ProxyCreationEnabled = false;
+
+            var cart = db.GioHang
+                .Include(x => x.SanPham)
+                .Where(x => x.MaNguoiDung == maND)
+                .Select(x => new
+                {
+                    MaSP = x.MaSanPham,
+                    TenSP = x.SanPham.TenSanPham,
+                    Anh = "/AnhWeb/" + x.SanPham.AnhChinh,
+                    Gia = x.SanPham.Gia,
+                    SL = x.SoLuong,
+                    Link = "/Home/chitietsanpham/" + x.MaSanPham,
+                    ThanhTien = x.SanPham.Gia * x.SoLuong
+                }).ToList();
+
+            return Json(new
+            {
+                success = true,
+                totalQuantity = cart.Sum(x => x.SL),
+                totalAmount = cart.Sum(x => x.ThanhTien),
+                cartItems = cart
+            }, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
         public JsonResult UpdateProfile(string Ten, string Email, string SoDienThoai, string DiaChi)
         {
             try
@@ -92,6 +184,44 @@ namespace DoAnTotNghiep.Controllers
             {
                 return Json(new { success = false, message = "Lỗi: " + ex.Message });
             }
+        }
+        [HttpPost]
+        public JsonResult XoaGioHang(int id)
+        {
+            if (Session["MaNguoiDung"] == null)
+                return Json(new { success = false });
+
+            int maND = Convert.ToInt32(Session["MaNguoiDung"]);
+
+            var item = db.GioHang
+                .FirstOrDefault(x => x.MaNguoiDung == maND && x.MaSanPham == id);
+
+            if (item != null)
+            {
+                db.GioHang.Remove(item);
+                db.SaveChanges();
+            }
+
+            var cart = db.GioHang
+                .Include(x => x.SanPham)
+                .Where(x => x.MaNguoiDung == maND)
+                .Select(x => new
+                {
+                    MaSP = x.MaSanPham,
+                    TenSP = x.SanPham.TenSanPham,
+                    Anh = "/AnhWeb/" + x.SanPham.AnhChinh,
+                    Gia = x.SanPham.Gia,
+                    SL = x.SoLuong,
+                    ThanhTien = x.SanPham.Gia * x.SoLuong
+                }).ToList();
+
+            return Json(new
+            {
+                success = true,
+                totalQuantity = cart.Sum(x => x.SL),
+                totalAmount = cart.Sum(x => x.ThanhTien),
+                cartItems = cart
+            });
         }
         [HttpPost]
         public JsonResult UpdatePassword(string OldPass, string NewPass)

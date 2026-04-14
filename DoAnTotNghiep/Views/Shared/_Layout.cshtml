@@ -57,7 +57,7 @@
                 <ul class="navbar-nav me-auto" id="main-menu">
                     <li class="nav-item"><a class="nav-link" href="/">Trang Chủ</a></li>
                     <li class="nav-item"><a class="nav-link" href="/Home/GioiThieu">Giới Thiệu</a></li>
-                    @using DoAnTotNghiep.Moldes
+                    @using DoAnTotNghiep.Models;
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle nav-product-link" href="/Home/sanpham" id="navbarDropdown" role="button" aria-expanded="false">
                             Sản Phẩm
@@ -172,17 +172,31 @@
                         <i class="bi bi-search me-1"></i>Tìm Kiếm
                     </button>
                     <span class="sep-dark">|</span>
-                    <div class="action-item cart-wrapper">
-                        <a href="/gio-hang" class="action-item d-flex align-items-center">
+                    <div class="action-item cart-wrapper position-relative">
+                        <a href="/GioHang/Index" class="action-item d-flex align-items-center">
                             <i class="bi bi-bag"></i> Giỏ Hàng
+                            <span class="badge rounded-pill bg-danger ms-1" id="cart-count">0</span>
                         </a>
 
-                        <div class="mini-cart-dropdown">
-                            <div class="cart-empty-content">
-                                <i class="bi bi-bag empty-cart-icon"></i>
+                        <div class="mini-cart-dropdown shadow p-3">
+                            <div id="cart-has-items" class="d-none">
+                                <div id="mini-cart-list" style="max-height: 300px; overflow-y: auto; overflow-x: hidden;">
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between mb-3">
+                                    <span class="text-muted">Tổng tiền:</span>
+                                    <span class="fw-bold text-danger" id="mini-cart-total">0 đ</span>
+                                </div>
+                                <div class="d-grid gap-2">
+                                    <a href="/GioHang/Index" class="btn btn-outline-dark btn-sm">Xem Giỏ Hàng</a>
+                                    <a href="/ThanhToan/Index" class="btn btn-warning btn-sm fw-bold">Thanh Toán</a>
+                                </div>
+                            </div>
 
-                                <p>Chưa có sản phẩm trong giỏ hàng.</p>
-                                <a href="/cua-hang" class="btn-return-shop">Quay Trở Lại Cửa Hàng</a>
+                            <div id="cart-empty-content" class="text-center py-4">
+                                <i class="bi bi-bag-x fs-1 text-muted"></i>
+                                <p class="mt-2 text-muted">Giỏ hàng của Mạnh đang trống.</p>
+                                <a href="/Home/CuaHang" class="btn btn-sm btn-primary">Mua sắm ngay</a>
                             </div>
                         </div>
                     </div>
@@ -725,6 +739,156 @@
                 },
                 error: function () {
                     Swal.fire('Lỗi', 'Không thể kết nối đến hệ thống!', 'error');
+                }
+            });
+        }
+        $(function () {
+
+            // ========================
+            // ADD CART
+            // ========================
+            $(document)
+                .off('click', '.add-cart')
+                .on('click', '.add-cart', function (e) {
+
+                    e.preventDefault();
+
+                    let spId = $(this).data('id');
+
+                    $.ajax({
+                        url: '@Url.Action("ThemGioHang","Home")',
+                        type: 'POST',
+                        data: { id: spId },
+
+                        success: function (res) {
+
+                            if (!res.success) {
+                                Swal.fire('Thông báo', res.message, 'warning');
+                                return;
+                            }
+
+                            $('#cart-count').text(res.totalQuantity);
+
+                            renderMiniCart(res.cartItems, res.totalAmount);
+
+                            $('.mini-cart-dropdown').stop(true,true).fadeIn(200);
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Đã thêm vào giỏ',
+                                timer: 1200,
+                                showConfirmButton: false
+                            });
+                        }
+                    });
+
+                });
+
+            // ========================
+            // REMOVE CART
+            // ========================
+            $(document)
+                .off('click', '.btn-remove-cart')
+                .on('click', '.btn-remove-cart', function () {
+
+                    let id = $(this).data('id');
+
+                    $.post('/Home/XoaGioHang', { id: id }, function (res) {
+
+                        if (res.success) {
+                            $('#cart-count').text(res.totalQuantity);
+                            renderMiniCart(res.cartItems, res.totalAmount);
+                        }
+                    });
+                });
+
+            // ========================
+            // HOVER MINI CART
+            // ========================
+            $('.cart-wrapper')
+                .off('mouseenter mouseleave')
+                .hover(
+                    function () {
+                        $('.mini-cart-dropdown').stop(true,true).fadeIn(200);
+                    },
+                    function () {
+                        $('.mini-cart-dropdown').stop(true,true).fadeOut(200);
+                    }
+                );
+
+            // ========================
+            // LOAD MINI CART
+            // ========================
+            loadMiniCart();
+
+        });
+        function renderMiniCart(items, total) {
+
+            const list = $('#mini-cart-list');
+            list.empty(); // ⭐ XÓA CŨ TRƯỚC
+
+            if (items && items.length > 0) {
+
+                $('#cart-has-items').removeClass('d-none');
+                $('#cart-empty-content').addClass('d-none');
+
+                items.forEach(item => {
+
+                    let ten = item.TenSP;
+                    let anh = item.Anh;
+                    let gia = item.Gia || 0;
+                    let sl = item.SL || 0;
+                    let link = item.Link;
+
+                    let html = `
+                    <div class="d-flex align-items-start mb-3 position-relative">
+
+                        <!-- ẢNH CLICK ĐƯỢC -->
+                        <a href="${link}">
+                            <img src="${anh}"
+                                 class="rounded border"
+                                 style="width:55px;height:55px;object-fit:cover;">
+                        </a>
+
+                        <div class="ms-3 flex-grow-1">
+
+                            <!-- TÊN CLICK ĐƯỢC -->
+                            <a href="${link}"
+                               class="fw-bold small text-dark text-decoration-none cart-name">
+                               ${ten}
+                            </a>
+
+                            <div class="text-danger fw-bold">
+                                ${gia.toLocaleString()} đ
+                            </div>
+
+                            <div class="small text-muted">
+                                SL: ${sl}
+                            </div>
+                            <button class="btn-remove-cart"
+                                data-id="${item.MaSP}"
+                                style="border:none;background:none;font-size:18px;color:#999;">
+                            ×
+                        </button>
+                        </div>
+
+                    </div>`;
+                    list.append(html);
+                });
+
+                $('#mini-cart-total')
+                    .text(total.toLocaleString() + ' đ');
+
+            } else {
+                $('#cart-has-items').addClass('d-none');
+                $('#cart-empty-content').removeClass('d-none');
+            }
+        }
+        function loadMiniCart() {
+            $.get('/Home/LayGioHang', function (res) {
+                if (res.success) {
+                    $('#cart-count').text(res.totalQuantity);
+                    renderMiniCart(res.cartItems, res.totalAmount);
                 }
             });
         }
