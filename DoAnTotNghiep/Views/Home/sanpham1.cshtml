@@ -1,0 +1,297 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sản phẩm</title>
+    <link rel="stylesheet" href="@Url.Content("~/Content/sanpham.css")" />
+    <style>
+        .color-box {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 6px 8px 6px 0;
+            cursor: pointer;
+            border: 2px solid #ddd;
+            transition: all 0.2s;
+        }
+
+            .color-box.active {
+                border: 3px solid #333;
+                transform: scale(1.15);
+            }
+
+        .filter-btn {
+            width: 100%;
+            padding: 12px;
+            background: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        .sidebar h3 {
+            margin: 25px 0 12px 0;
+            color: #333;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Banner/Header -->
+    <section class="policy-header">
+        <div class="container text-center text-white">
+            <h1 class="fw-bold">Sản phẩm</h1>
+            <p>
+                <a href="/" class="text-white text-decoration-none">Trang chủ</a>
+                / <span class="opacity-75">Sản phẩm</span>
+            </p>
+        </div>
+    </section>
+
+    <div class="main-container">
+
+        <!-- Sidebar Filter -->
+        <div class="sidebar">
+            <form id="filterForm" method="get">
+
+                <!-- Danh mục -->
+                <h3>Danh Mục Sản Phẩm</h3>
+                @foreach (var dm in ViewBag.DanhMucList)
+                {
+                    <label style="display:block; margin:8px 0;">
+                        <input type="checkbox" name="danhMuc" value="@dm.MaDanhMuc"
+                               @(ViewBag.SelectedDanhMuc == dm.MaDanhMuc ? "checked" : "") />
+                        @dm.TenDanhMuc
+                    </label>
+                }
+
+                <!-- Thương hiệu -->
+                <h3>Thương Hiệu</h3>
+                @foreach (var th in ViewBag.ThuongHieuList)
+                {
+                    bool isChecked = false;
+                    if (ViewBag.SelectedThuongHieu != null)
+                    {
+                        foreach (int id in (int[])ViewBag.SelectedThuongHieu)
+                        {
+                            if (id == th.MaThuongHieu)
+                            {
+                                isChecked = true;
+                                break;
+                            }
+                        }
+                    }
+                    <label style="display:block; margin:8px 0;">
+                        <input type="checkbox" name="thuongHieu" value="@th.MaThuongHieu"
+                               @(isChecked ? "checked" : "") />
+                        @th.TenThuongHieu
+                    </label>
+                }
+
+                <!-- Màu sắc -->
+                <!-- Màu sắc -->
+                <!-- Màu sắc -->
+                <h3>Màu Sắc</h3>
+                <div class="color-options">
+                    @foreach (var ms in ViewBag.MauSacList)
+                    {
+                        bool isChecked = false;
+                        if (ViewBag.SelectedMauSac != null)
+                        {
+                            foreach (int id in (int[])ViewBag.SelectedMauSac)
+                            {
+                                if (id == ms.MaMau)
+                                {
+                                    isChecked = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        string colorHex = "#ccc";
+                        switch (ms.MaMau)
+                        {
+                            case 1: colorHex = "#000000"; break;   // Đen
+                            case 2: colorHex = "#FFFFFF"; break;   // Trắng
+                            case 3: colorHex = "#9E9E9E"; break;   // Xám
+                            case 4: colorHex = "#D2A679"; break;   // Nâu
+                            case 5: colorHex = "#2196F3"; break;   // Xanh dương
+                            case 6: colorHex = "#F5C6CB"; break;   // Be
+                        }
+
+                        <label class="color-item">
+                            <input type="checkbox"
+                                   name="mauSac"
+                                   value="@ms.MaMau"
+                                   @(isChecked ? "checked" : "") />
+                            <span class="color-box" style="background:@colorHex"></span>
+
+                        </label>
+                    }
+                </div>
+                <!-- Lọc theo giá -->
+                <h3>Lọc Theo Giá</h3>
+                <div class="price-range">
+                    <input type="range" id="priceRange" name="giaDen"
+                           min="0" max="30000000"
+                           value="@(ViewBag.GiaDen ?? 15000000m)"
+                           oninput="updatePrice(this.value)">
+                    <div>Giá: 0 đ — <span id="maxPrice">@((ViewBag.GiaDen ?? 15000000m).ToString("N0")) đ</span></div>
+                </div>
+
+                <button type="submit" class="filter-btn">Áp dụng lọc</button>
+            </form>
+        </div>
+
+        <!-- Nội dung chính -->
+        <div class="content">
+            <div class="header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                <h2>Sản phẩm nổi bật</h2>
+
+                <select id="sortSelect" class="sort-btn" onchange="applySort(this.value)">
+                    <option value="mac-dinh" @(ViewBag.SortOrder == "mac-dinh" ? "selected" : "")>Sắp xếp mặc định</option>
+                    <option value="gia-asc" @(ViewBag.SortOrder == "gia-asc" ? "selected" : "")>Giá thấp đến cao</option>
+                    <option value="gia-desc" @(ViewBag.SortOrder == "gia-desc" ? "selected" : "")>Giá cao đến thấp</option>
+                </select>
+            </div>
+
+            <div class="product-grid">
+                @if (ViewBag.SanPhamMoi != null && ViewBag.SanPhamMoi.Count > 0)
+                {
+                    foreach (var item in ViewBag.SanPhamMoi)
+                    {
+                        <div class="product-card">
+                            <a href="@Url.Action("chitietsanpham", "Home", new { id = item.MaSanPham })" class="img-link">
+                                <div class="img-box">
+                                    @if (!string.IsNullOrEmpty(item.AnhChinh))
+                                    {
+                                        <img src="@Url.Content("~/AnhWeb/" + item.AnhChinh)" alt="@item.TenSanPham" />
+                                    }
+                                    else
+                                    {
+                                        <img src="https://via.placeholder.com/300x260" alt="No Image" />
+                                    }
+                                    @if (item.NoiBat == true)
+                                    {
+                                        <div class="sale-tag">Hot</div>
+                                    }
+                                </div>
+                            </a>
+
+                            <div class="product-info">
+                                <div class="stars">
+                                    @{
+                                        double sao = 0;
+                                        if (ViewBag.SaoSanPham != null && ViewBag.SaoSanPham.ContainsKey(item.MaSanPham))
+                                        {
+                                            sao = ViewBag.SaoSanPham[item.MaSanPham];
+                                        }
+                                        int fullStars = (int)Math.Round(sao);
+                                    }
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        if (i <= fullStars)
+                                        {<span>★</span> }
+                                        else
+                                        { <span>☆</span>}
+                                    }
+                                </div>
+                                <div class="product-name">@item.TenSanPham</div>
+                                <div class="price">
+                                    <span>@item.Gia.ToString("N0") đ</span>
+                                </div>
+                                <button class="add-cart" data-id="@item.MaSanPham">Thêm Vào Giỏ Hàng</button>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-center">Không tìm thấy sản phẩm nào phù hợp với bộ lọc.</p>
+                }
+            </div>
+        </div>
+    </div>
+    <!-- PHÂN TRANG KIỂU TRÒN -->
+    @if (ViewBag.TotalPages > 1)
+    {
+        <nav aria-label="Page navigation" class="mt-5 mb-5">
+            <ul class="pagination justify-content-center custom-circle-pagination">
+
+
+
+                <!-- Số trang kiểu tròn -->
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                        <a class="page-link circle" href="@Url.Action("sanpham1", new {
+                        page = i,
+                        sort = ViewBag.SortOrder,
+                        danhMuc = ViewBag.SelectedDanhMuc,
+                        thuongHieu = ViewBag.SelectedThuongHieu,
+                        mauSac = ViewBag.SelectedMauSac,
+                        giaDen = ViewBag.GiaDen })">@i</a>
+                    </li>
+                }
+
+
+            </ul>
+        </nav>
+    }
+    <script>function toggleColor(el) {
+            el.classList.toggle("active");
+
+            // tìm đúng checkbox trong cùng div
+            let checkbox = el.parentElement.querySelector(".mauSacInput");
+
+            checkbox.checked = !checkbox.checked;
+
+            console.log("Checked:", checkbox.checked); // debug
+        }
+
+        // ==================== CẬP NHẬT GIÁ ====================
+        function updatePrice(value) {
+            const maxPriceEl = document.getElementById('maxPrice');
+            if (maxPriceEl) {
+                maxPriceEl.textContent = parseInt(value).toLocaleString('vi-VN') + ' đ';
+            }
+        }
+
+        // ==================== XỬ LÝ SORT (giữ nguyên filter) ====================
+        function applySort(sortValue) {
+            const form = document.getElementById('filterForm');
+            if (!form) return;
+
+            const sortInput = document.createElement('input');
+            sortInput.type = 'hidden';
+            sortInput.name = 'sort';
+            sortInput.value = sortValue;
+            form.appendChild(sortInput);
+            form.submit();
+        }
+
+        // ==================== KHỞI TẠO KHI TRANG LOAD ====================
+        window.onload = function () {
+            // Khởi tạo thanh giá
+            const slider = document.getElementById('priceRange');
+            if (slider) {
+                updatePrice(slider.value);
+            }
+
+            // Gán sự kiện click cho tất cả color-box (an toàn hơn)
+            const colorBoxes = document.querySelectorAll('.color-box');
+            colorBoxes.forEach(function (box) {
+                box.addEventListener('click', function () {
+                    toggleColor(this);
+                });
+            });
+        };</script>
+</body>
+</html>

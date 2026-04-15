@@ -1470,6 +1470,7 @@
     <Content Include="Views\Home\TinTuc.cshtml" />
     <Content Include="Views\Home\GioHang.cshtml" />
     <Content Include="Views\Home\chitietsanpham.cshtml" />
+    <Content Include="Views\Home\sanpham1.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

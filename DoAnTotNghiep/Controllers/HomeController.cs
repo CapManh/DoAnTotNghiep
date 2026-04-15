@@ -350,9 +350,95 @@ namespace DoAnTotNghiep.Controllers
             LoadMenu();
             return View();
         }
-        public ActionResult sanpham()
+        public ActionResult sanpham1(
+      string sort = "mac-dinh",
+      int? danhMuc = null,
+      int[] thuongHieu = null,
+      int[] mauSac = null,
+      decimal? giaDen = null,
+      int? page = 1)
         {
-            LoadMenu();
+            int pageSize = 6;
+            int pageNumber = (page ?? 1);
+            var query = db.SanPham
+                          .Include("ChiTietSanPhams")
+                          .AsQueryable();
+
+            // Lọc theo Danh mục
+            if (danhMuc.HasValue && danhMuc.Value > 0)
+            {
+                query = query.Where(sp => sp.MaDanhMuc == danhMuc.Value);
+            }
+
+            // ==================== LỌC THƯƠNG HIỆU (sửa lỗi) ====================
+            if (thuongHieu != null && thuongHieu.Length > 0)
+            {
+                var thuongHieuList = thuongHieu.ToList();
+                query = query.Where(sp => sp.ChiTietSanPham
+                    .Any(ct => ct.MaThuongHieu.HasValue && thuongHieuList.Contains(ct.MaThuongHieu.Value)));
+            }
+
+            // ==================== LỌC MÀU SẮC (SỬA LẠI) ====================
+            if (mauSac != null && mauSac.Length > 0)
+            {
+                query = query.Where(sp => sp.ChiTietSanPham
+                    .Any(ct => ct.MaMau.HasValue && mauSac.Contains(ct.MaMau.Value)));
+            }
+            // Lọc theo Giá
+            if (giaDen.HasValue && giaDen.Value > 0)
+            {
+                query = query.Where(sp => sp.Gia <= giaDen.Value);
+            }
+
+            // Sắp xếp
+            switch (sort.ToLower())
+            {
+                case "gia-asc":
+                    query = query.OrderBy(sp => sp.Gia);
+                    ViewBag.SortOrder = "gia-asc";
+                    break;
+
+                case "gia-desc":
+                    query = query.OrderByDescending(sp => sp.Gia);
+                    ViewBag.SortOrder = "gia-desc";
+                    break;
+
+                default:
+                    query = query.OrderByDescending(sp => sp.NoiBat)
+                                 .ThenByDescending(sp => sp.NgayTao);
+                    ViewBag.SortOrder = "mac-dinh";
+                    break;
+            }
+
+            // Phân trang
+            int totalProducts = query.Count();
+            int totalPages = (int)Math.Ceiling((double)totalProducts / pageSize);
+
+            var sanPhamList = query
+                              .Skip((pageNumber - 1) * pageSize)
+                              .Take(pageSize)
+                              .ToList();
+            // Truyền dữ liệu xuống View
+            ViewBag.SaoSanPham = db.DanhGia
+                .GroupBy(dg => dg.MaSanPham)
+                .ToDictionary(g => g.Key, g => g.Average(x => x.SoSao));
+            ViewBag.SanPhamMoi = sanPhamList;
+            ViewBag.CurrentPage = pageNumber;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalItems = totalProducts;
+            ViewBag.PageSize = pageSize;
+
+            ViewBag.DanhMucList = db.DanhMuc.ToList();
+            ViewBag.ThuongHieuList = db.ThuongHieu.ToList();
+            ViewBag.MauSacList = db.MauSac.ToList();
+
+            ViewBag.SelectedDanhMuc = danhMuc;
+            ViewBag.SelectedThuongHieu = thuongHieu ?? new int[0];
+            ViewBag.SelectedMauSac = mauSac ?? new int[0];
+            ViewBag.GiaDen = giaDen ?? 15000000m;
+
+            ViewBag.SanPhamMoi = sanPhamList;
+
             return View();
         }
         public ActionResult CSTT()
