@@ -16,12 +16,10 @@
             border: 2px solid #ddd;
             transition: all 0.2s;
         }
-
-            .color-box.active {
-                border: 3px solid #333;
-                transform: scale(1.15);
-            }
-
+        .color-box.active {
+            border: 3px solid #333;
+            transform: scale(1.15);
+        }
         .filter-btn {
             width: 100%;
             padding: 12px;
@@ -34,7 +32,6 @@
             margin-top: 20px;
             cursor: pointer;
         }
-
         .sidebar h3 {
             margin: 25px 0 12px 0;
             color: #333;
@@ -44,7 +41,6 @@
 </head>
 <body>
 
-    <!-- Banner/Header -->
     <section class="policy-header">
         <div class="container text-center text-white">
             <h1 class="fw-bold">Sản phẩm</h1>
@@ -56,12 +52,8 @@
     </section>
 
     <div class="main-container">
-
-        <!-- Sidebar Filter -->
         <div class="sidebar">
             <form id="filterForm" method="get">
-
-                <!-- Danh mục -->
                 <h3>Danh Mục Sản Phẩm</h3>
                 @foreach (var dm in ViewBag.DanhMucList)
                 {
@@ -71,8 +63,6 @@
                         @dm.TenDanhMuc
                     </label>
                 }
-
-                <!-- Thương hiệu -->
                 <h3>Thương Hiệu</h3>
                 @foreach (var th in ViewBag.ThuongHieuList)
                 {
@@ -94,10 +84,6 @@
                         @th.TenThuongHieu
                     </label>
                 }
-
-                <!-- Màu sắc -->
-                <!-- Màu sắc -->
-                <!-- Màu sắc -->
                 <h3>Màu Sắc</h3>
                 <div class="color-options">
                     @foreach (var ms in ViewBag.MauSacList)
@@ -136,7 +122,6 @@
                         </label>
                     }
                 </div>
-                <!-- Lọc theo giá -->
                 <h3>Lọc Theo Giá</h3>
                 <div class="price-range">
                     <input type="range" id="priceRange" name="giaDen"
@@ -150,7 +135,6 @@
             </form>
         </div>
 
-        <!-- Nội dung chính -->
         <div class="content">
             <div class="header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
                 <h2>Sản phẩm nổi bật</h2>
@@ -203,7 +187,12 @@
                                         { <span>☆</span>}
                                     }
                                 </div>
-                                <div class="product-name">@item.TenSanPham</div>
+                                <div class="product-name">
+                                    <a href="@Url.Action("ChiTiet", "Home", new { id = item.MaSanPham })"
+                                       class="text-decoration-none text-dark">
+                                        @item.TenSanPham
+                                    </a>
+                                </div>
                                 <div class="price">
                                     <span>@item.Gia.ToString("N0") đ</span>
                                 </div>
@@ -219,15 +208,10 @@
             </div>
         </div>
     </div>
-    <!-- PHÂN TRANG KIỂU TRÒN -->
     @if (ViewBag.TotalPages > 1)
     {
         <nav aria-label="Page navigation" class="mt-5 mb-5">
             <ul class="pagination justify-content-center custom-circle-pagination">
-
-
-
-                <!-- Số trang kiểu tròn -->
                 @for (int i = 1; i <= ViewBag.TotalPages; i++)
                 {
                     <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
@@ -245,26 +229,22 @@
             </ul>
         </nav>
     }
-    <script>function toggleColor(el) {
+<script>
+function toggleColor(el) {
             el.classList.toggle("active");
 
-            // tìm đúng checkbox trong cùng div
             let checkbox = el.parentElement.querySelector(".mauSacInput");
 
             checkbox.checked = !checkbox.checked;
 
-            console.log("Checked:", checkbox.checked); // debug
+            console.log("Checked:", checkbox.checked);
         }
-
-        // ==================== CẬP NHẬT GIÁ ====================
         function updatePrice(value) {
             const maxPriceEl = document.getElementById('maxPrice');
             if (maxPriceEl) {
                 maxPriceEl.textContent = parseInt(value).toLocaleString('vi-VN') + ' đ';
             }
         }
-
-        // ==================== XỬ LÝ SORT (giữ nguyên filter) ====================
         function applySort(sortValue) {
             const form = document.getElementById('filterForm');
             if (!form) return;
@@ -276,22 +256,80 @@
             form.appendChild(sortInput);
             form.submit();
         }
-
-        // ==================== KHỞI TẠO KHI TRANG LOAD ====================
         window.onload = function () {
-            // Khởi tạo thanh giá
             const slider = document.getElementById('priceRange');
             if (slider) {
                 updatePrice(slider.value);
             }
-
-            // Gán sự kiện click cho tất cả color-box (an toàn hơn)
             const colorBoxes = document.querySelectorAll('.color-box');
             colorBoxes.forEach(function (box) {
                 box.addEventListener('click', function () {
                     toggleColor(this);
                 });
             });
-        };</script>
+        };
+        $(document).ready(function () {
+
+            $(document).off('click', '.add-cart').on('click', '.add-cart', function (e) {
+                e.preventDefault();
+
+                var spId = $(this).data('id');
+                var addCartUrl = '@Url.Action("ThemGioHang","Home")';
+
+                $.ajax({
+                    url: addCartUrl,
+                    type: 'POST',
+                    data: { id: spId },
+
+                    success: function (res) {
+                        if (res.needLogin) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Vui lòng đăng nhập',
+                                confirmButtonText: 'Đăng nhập'
+                            }).then(() => {
+                                window.location.href = '/Account/Login';
+                            });
+                            return;
+                        }
+                        if (res.success) {
+
+                            $('#cart-count').text(res.totalQuantity);
+
+                            if (typeof updateMiniCart === "function") {
+                                updateMiniCart(res.cartItems, res.totalAmount);
+                            }
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Đã thêm vào giỏ!',
+                                showConfirmButton: false,
+                                timer: 1000
+                            });
+
+                            $('.mini-cart-dropdown').addClass('active');
+
+                            setTimeout(function () {
+                                $('.mini-cart-dropdown').removeClass('active');
+                            }, 2500);
+                        }
+                        else {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Thông báo',
+                                text: res.message
+                            });
+                        }
+                    },
+
+                    error: function (xhr) {
+                        console.error(xhr.responseText);
+                    }
+                });
+
+            });
+
+        });
+</script>
 </body>
 </html>

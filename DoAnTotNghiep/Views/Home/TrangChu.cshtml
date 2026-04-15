@@ -84,8 +84,6 @@
 
     </div>
 
-    <!-- Bên phải -->
-    <!-- SẢN PHẨM MỚI -->
     <div class="new-products">
         <h2 class="title">SẢN PHẨM MỚI</h2>
         <p class="subtitle">Giảm giá toàn bộ sản phẩm mới & Tiết kiệm lên đến 25%</p>
@@ -137,7 +135,12 @@
                                 }
                             }
                         </div>
-                        <h3>@item.TenSanPham</h3>
+                        <div class="product-name">
+                            <a href="@Url.Action("ChiTiet", "Home", new { id = item.MaSanPham })"
+                               class="text-decoration-none text-dark">
+                                @item.TenSanPham
+                            </a>
+                        </div>
                         <div class="price-cart">
                             <div class="price">
                                 <span>@item.Gia.ToString("N0") đ</span>
@@ -214,8 +217,8 @@
                         foreach (var item in ViewBag.SanPhamThinhHanh)
                         {
                             decimal giaGoc = item.Gia;
-                            decimal giaSale = Math.Round(giaGoc * 0.75M); // Giảm 25%
-                            bool coSale = giaGoc > 5000000; // Sản phẩm đắt mới có tag Sale
+                            decimal giaSale = Math.Round(giaGoc * 0.75M);
+                            bool coSale = giaGoc > 5000000;
 
                             <div class="np-item">
                                 <div class="np-img">
@@ -254,7 +257,12 @@
                                         }
                                     }
                                 </div>
-                                <h3>@item.TenSanPham</h3>
+                                <div class="product-name">
+                                    <a href="@Url.Action("ChiTiet", "Home", new { id = item.MaSanPham })"
+                                       class="text-decoration-none text-dark">
+                                        @item.TenSanPham
+                                    </a>
+                                </div>
 
                                 <div class="np-price">
                                     @if (coSale)

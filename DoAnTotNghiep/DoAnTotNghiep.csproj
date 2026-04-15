@@ -1419,11 +1419,14 @@
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
     <Content Include="Content\chitietsanpham.css" />
+    <Content Include="Content\font-awesome.css" />
+    <Content Include="Content\font-awesome.min.css" />
     <Content Include="Content\sanpham.css" />
     <Content Include="Content\GioiThieu.css" />
     <Content Include="Content\LienHe.css" />
     <Content Include="Content\TrangChu.css" />
     <Content Include="favicon.ico" />
+    <Content Include="fonts\fontawesome-webfont.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\bootstrap.bundle.js" />
@@ -1435,6 +1438,11 @@
     <Content Include="bootstrap-icons-1.2.2\bootstrap-icons-1.2.2\font\bootstrap-icons.json" />
     <Content Include="bootstrap-icons-1.2.2\bootstrap-icons-1.2.2\font\fonts\bootstrap-icons.woff" />
     <Content Include="bootstrap-icons-1.2.2\bootstrap-icons-1.2.2\font\fonts\bootstrap-icons.woff2" />
+    <Content Include="fonts\FontAwesome.otf" />
+    <Content Include="fonts\fontawesome-webfont.woff2" />
+    <Content Include="fonts\fontawesome-webfont.woff" />
+    <Content Include="fonts\fontawesome-webfont.ttf" />
+    <Content Include="fonts\fontawesome-webfont.eot" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
@@ -1460,7 +1468,6 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\TrangChu.cshtml" />
     <Content Include="Views\Home\GioiThieu.cshtml" />
-    <Content Include="Views\Home\sanpham.cshtml" />
     <Content Include="Views\Home\CSMH.cshtml" />
     <Content Include="Views\Home\CSTT.cshtml" />
     <Content Include="Views\Home\CSGH.cshtml" />
@@ -1469,8 +1476,8 @@
     <Content Include="Views\Home\LienHe.cshtml" />
     <Content Include="Views\Home\TinTuc.cshtml" />
     <Content Include="Views\Home\GioHang.cshtml" />
-    <Content Include="Views\Home\chitietsanpham.cshtml" />
     <Content Include="Views\Home\sanpham1.cshtml" />
+    <Content Include="Views\Home\ChiTietSanPham.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

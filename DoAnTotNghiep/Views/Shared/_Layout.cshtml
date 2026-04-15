@@ -58,22 +58,34 @@
                     <li class="nav-item"><a class="nav-link" href="/">Trang Chủ</a></li>
                     <li class="nav-item"><a class="nav-link" href="/Home/GioiThieu">Giới Thiệu</a></li>
                     @using DoAnTotNghiep.Models;
+
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle nav-product-link" href="/Home/sanpham" id="navbarDropdown" role="button" aria-expanded="false">
-                            Sản Phẩm
+                        <a class="nav-link dropdown-toggle nav-product-link"
+                           href="@Url.Action("sanpham1","Home")"
+                           id="navbarDropdown"
+                           role="button">
+
+                            @(ViewBag.TenDanhMucDangChon ?? "Sản Phẩm")
+
                         </a>
-                        <ul class="dropdown-menu border-0 custom-dropdown" aria-labelledby="navbarDropdown">
+
+                        <ul class="dropdown-menu border-0 custom-dropdown">
+
                             @if (ViewBag.DanhMucMenu != null)
                             {
                                 foreach (var item in (List<DanhMuc>)ViewBag.DanhMucMenu)
                                 {
                                     <li>
-                                        <a class="dropdown-item" href="@Url.Action("SanPhamTheoDanhMuc", "Home", new { id = item.MaDanhMuc })">
+                                        <a class="dropdown-item"
+                                           href="@Url.Action("sanpham1","Home",
+                              new { danhMuc = item.MaDanhMuc })">
+
                                             @item.TenDanhMuc
                                         </a>
                                     </li>
                                 }
                             }
+
                         </ul>
                     </li>
                     <li class="nav-item"><a class="nav-link" href="/Home/TinTuc">Tin Tức</a></li>
@@ -196,19 +208,23 @@
                             <div id="cart-empty-content" class="text-center py-4">
                                 <i class="bi bi-bag-x fs-1 text-muted"></i>
                                 <p class="mt-2 text-muted">Giỏ hàng của Mạnh đang trống.</p>
-                                <a href="/Home/CuaHang" class="btn btn-sm btn-primary">Mua sắm ngay</a>
+                                <a href="/Home/sanpham1" class="btn btn-sm btn-primary">Mua sắm ngay</a>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div id="search-overlay" class="search-overlay-box">
-                    <div class="d-flex align-items-center w-100 gap-2">
-                        <div class="search-line-dynamic"></div> <i class="bi bi-search text-muted"></i>
-                        <input type="text" class="search-input-field" placeholder="Bạn tìm gì...">
+                    <div class="d-flex align-items-center w-100 gap-2 position-relative">
+
+                        <div class="search-line-dynamic"></div>
+                        <i class="bi bi-search text-muted"></i>
+                        <input type="text" id="searchBox" class="search-input-field" placeholder="Bạn tìm gì..." autocomplete="off">
+
                         <button onclick="toggleSearch()" class="btn-close-search">
                             <i class="bi bi-x-lg"></i>
                         </button>
+                        <div id="suggestBox" class="list-group"></div>
                     </div>
                 </div>
             </div>
@@ -272,8 +288,6 @@
                             <a href="#" onclick="showRegisterContent()" class="fw-bold" style="color:#9b00ff;">Đăng ký ngay</a>
                         </div>
                     </div>
-
-                    <!-- FORM ĐĂNG KÝ -->
                     <div id="register-content" class="d-none">
                         <h1 class="text-center fw-bold mb-1" style="font-size: 32px; letter-spacing: -1px;">Đăng ký</h1>
                         <p class="text-center text-muted mb-5">Tham gia ngay để nhận ưu đãi</p>
@@ -456,22 +470,19 @@
 
     <script>
         function toggleSearch() {
-            alert("✅ Tìm kiếm đã mở (bạn có thể thay bằng Bootstrap Modal sau)");
-        }
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
-        function toggleSearch() {
             const searchOverlay = document.getElementById('search-overlay');
+            const suggestBox = document.getElementById('suggestBox');
+
             const isOpening = !searchOverlay.classList.contains('active');
 
             searchOverlay.classList.toggle('active');
 
             if (isOpening) {
                 setTimeout(() => {
-                    searchOverlay.querySelector('input').focus();
+                    document.getElementById('searchBox').focus();
                 }, 300);
+            } else {
+                suggestBox.style.display = "none";
             }
         }
         document.addEventListener('click', function (event) {
@@ -502,30 +513,37 @@
         });
         function attemptLogin() {
             var loginData = {
-                Ten: $('#login-ten').val() ? $('#login-ten').val().trim() : '',
-                MatKhau: $('#login-matkhau').val() ? $('#login-matkhau').val().trim() : ''
+                Ten: $('#login-ten').val()?.trim() || '',
+                MatKhau: $('#login-matkhau').val()?.trim() || ''
             };
+
             if (!loginData.Ten || !loginData.MatKhau) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'Thông báo',
-                    text: 'Mạnh Tuân ơi, vui lòng nhập đầy đủ Tên và Mật khẩu nhé!',
+                    text: 'Vui lòng nhập đầy đủ Tên và Mật khẩu nhé!',
                     confirmButtonColor: '#9b00ff'
                 });
                 return;
             }
+
             Swal.fire({
                 title: 'Đang xác thực...',
                 allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading(); }
+                didOpen: () => Swal.showLoading()
             });
+
             $.ajax({
                 url: '@Url.Action("Login", "Home")',
                 type: 'POST',
                 data: loginData,
+
                 success: function (response) {
+
                     Swal.close();
+
                     if (response.success) {
+
                         const Toast = Swal.mixin({
                             toast: true,
                             position: 'top-end',
@@ -537,9 +555,13 @@
                         Toast.fire({
                             icon: 'success',
                             title: response.message
-                        }).then(() => {
-                            window.location.href = '@Url.Action("TrangChu", "Home")';
                         });
+
+                        // ✅ reload trang hiện tại
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1500);
+
                     } else {
                         Swal.fire({
                             icon: 'error',
@@ -549,10 +571,17 @@
                         });
                     }
                 },
+
                 error: function (xhr) {
                     Swal.close();
-                    console.error("Lỗi Server: ", xhr.responseText);
-                    Swal.fire('Lỗi', 'Không thể kết nối đến máy chủ. Mã lỗi: ' + xhr.status, 'error');
+
+                    console.error(xhr.responseText);
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi hệ thống',
+                        text: 'Không thể kết nối đến máy chủ'
+                    });
                 }
             });
         }
@@ -743,10 +772,6 @@
             });
         }
         $(function () {
-
-            // ========================
-            // ADD CART
-            // ========================
             $(document)
                 .off('click', '.add-cart')
                 .on('click', '.add-cart', function (e) {
@@ -783,10 +808,6 @@
                     });
 
                 });
-
-            // ========================
-            // REMOVE CART
-            // ========================
             $(document)
                 .off('click', '.btn-remove-cart')
                 .on('click', '.btn-remove-cart', function () {
@@ -801,10 +822,6 @@
                         }
                     });
                 });
-
-            // ========================
-            // HOVER MINI CART
-            // ========================
             $('.cart-wrapper')
                 .off('mouseenter mouseleave')
                 .hover(
@@ -815,17 +832,13 @@
                         $('.mini-cart-dropdown').stop(true,true).fadeOut(200);
                     }
                 );
-
-            // ========================
-            // LOAD MINI CART
-            // ========================
             loadMiniCart();
 
         });
         function renderMiniCart(items, total) {
 
             const list = $('#mini-cart-list');
-            list.empty(); // ⭐ XÓA CŨ TRƯỚC
+            list.empty();
 
             if (items && items.length > 0) {
 
@@ -892,6 +905,59 @@
                 }
             });
         }
+        let timeout = null;
+
+        document.getElementById("searchBox").addEventListener("keyup", function () {
+            clearTimeout(timeout);
+
+            let keyword = this.value;
+
+            timeout = setTimeout(() => {
+
+                if (keyword.trim() === "") {
+                    document.getElementById("suggestBox").style.display = "none";
+                    return;
+                }
+
+                fetch(`/SanPham/Suggest?keyword=${encodeURIComponent(keyword)}`)
+                    .then(res => res.json())
+                    .then(data => {
+
+                        let html = "";
+
+                        if (data.length === 0) {
+                            html = `<div class="list-group-item text-muted">Không có sản phẩm</div>`;
+                        } else {
+                            data.forEach(item => {
+                                html += `
+                            <a href="/SanPham/Detail/${item.MaSanPham}" 
+                               class="list-group-item list-group-item-action">
+                                
+                                <img src="${item.AnhChinh}" />
+                                <span>${item.TenSanPham}</span>
+                            </a>
+                        `;
+                            });
+                        }
+
+                        const box = document.getElementById("suggestBox");
+                        box.innerHTML = html;
+                        box.style.display = "block";
+                    });
+
+            }, 300);
+        });
+        document.getElementById("searchBox").addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+
+                let keyword = this.value.trim();
+
+                if (keyword !== "") {
+                    window.location.href = "/Home/sanpham1?keyword=" + encodeURIComponent(keyword);
+                }
+            }
+        });
     </script>
 
     @RenderSection("Scripts", required: false)

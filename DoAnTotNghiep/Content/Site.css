@@ -608,6 +608,30 @@ body {
         transform: translateY(0);
     }
 }
+#suggestBox {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: white;
+    z-index: 2000;
+    display: none;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+    #suggestBox .list-group-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #suggestBox img {
+        width: 45px;
+        height: 45px;
+        object-fit: cover;
+        border-radius: 6px;
+    }
 @media (max-width: 576px) {
     .modal-body {
         padding: 1.5rem !important;

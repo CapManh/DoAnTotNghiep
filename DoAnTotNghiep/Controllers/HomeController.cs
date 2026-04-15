@@ -60,8 +60,20 @@ namespace DoAnTotNghiep.Controllers
                 return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
             }
         }
+        public ActionResult SanPhamTheoDanhMuc(int id)
+        {
+            var danhMuc = db.DanhMuc.Find(id);
+
+            ViewBag.TenDanhMucDangChon = danhMuc?.TenDanhMuc;
+
+            var sanPhams = db.SanPham
+                             .Where(x => x.MaDanhMuc == id)
+                             .ToList();
+
+            return View(sanPhams);
+        }
         [HttpPost]
-        public JsonResult ThemGioHang(int id)
+        public JsonResult ThemGioHang(int id, int soLuong)
         {
             try
             {
@@ -79,13 +91,13 @@ namespace DoAnTotNghiep.Controllers
                     {
                         MaNguoiDung = maND,
                         MaSanPham = id,
-                        SoLuong = 1,
+                        SoLuong = soLuong,
                         NgayTao = DateTime.Now
                     });
                 }
                 else
                 {
-                    item.SoLuong++;
+                    item.SoLuong += soLuong;
                 }
 
                 db.SaveChanges();
@@ -118,6 +130,7 @@ namespace DoAnTotNghiep.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
         [HttpGet]
         public JsonResult LayGioHang()
         {
@@ -351,34 +364,30 @@ namespace DoAnTotNghiep.Controllers
             return View();
         }
         public ActionResult sanpham1(
-      string sort = "mac-dinh",
-      int? danhMuc = null,
-      int[] thuongHieu = null,
-      int[] mauSac = null,
-      decimal? giaDen = null,
-      int? page = 1)
+          string sort = "mac-dinh",
+          int? danhMuc = null,
+          int[] thuongHieu = null,
+          int[] mauSac = null,
+          decimal? giaDen = null,
+          int? page = 1,
+          string keyword = null)
         {
             int pageSize = 6;
             int pageNumber = (page ?? 1);
             var query = db.SanPham
-                          .Include("ChiTietSanPhams")
+                          .Include("ChiTietSanPham")
                           .AsQueryable();
 
-            // Lọc theo Danh mục
             if (danhMuc.HasValue && danhMuc.Value > 0)
             {
                 query = query.Where(sp => sp.MaDanhMuc == danhMuc.Value);
             }
-
-            // ==================== LỌC THƯƠNG HIỆU (sửa lỗi) ====================
             if (thuongHieu != null && thuongHieu.Length > 0)
             {
                 var thuongHieuList = thuongHieu.ToList();
                 query = query.Where(sp => sp.ChiTietSanPham
                     .Any(ct => ct.MaThuongHieu.HasValue && thuongHieuList.Contains(ct.MaThuongHieu.Value)));
             }
-
-            // ==================== LỌC MÀU SẮC (SỬA LẠI) ====================
             if (mauSac != null && mauSac.Length > 0)
             {
                 query = query.Where(sp => sp.ChiTietSanPham
@@ -389,8 +398,11 @@ namespace DoAnTotNghiep.Controllers
             {
                 query = query.Where(sp => sp.Gia <= giaDen.Value);
             }
-
-            // Sắp xếp
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                keyword = keyword.Trim().ToLower();
+                query = query.Where(sp => sp.TenSanPham.ToLower().Contains(keyword));
+            }
             switch (sort.ToLower())
             {
                 case "gia-asc":
@@ -410,7 +422,6 @@ namespace DoAnTotNghiep.Controllers
                     break;
             }
 
-            // Phân trang
             int totalProducts = query.Count();
             int totalPages = (int)Math.Ceiling((double)totalProducts / pageSize);
 
@@ -418,7 +429,6 @@ namespace DoAnTotNghiep.Controllers
                               .Skip((pageNumber - 1) * pageSize)
                               .Take(pageSize)
                               .ToList();
-            // Truyền dữ liệu xuống View
             ViewBag.SaoSanPham = db.DanhGia
                 .GroupBy(dg => dg.MaSanPham)
                 .ToDictionary(g => g.Key, g => g.Average(x => x.SoSao));
@@ -438,7 +448,7 @@ namespace DoAnTotNghiep.Controllers
             ViewBag.GiaDen = giaDen ?? 15000000m;
 
             ViewBag.SanPhamMoi = sanPhamList;
-
+            LoadMenu();
             return View();
         }
         public ActionResult CSTT()
@@ -526,15 +536,19 @@ namespace DoAnTotNghiep.Controllers
                 System.Diagnostics.Debug.WriteLine($"Lỗi SoldCount: {ex.Message}");
                 soldCount = 0;
             }
+
             var chiTiet = db.ChiTietSanPham
                 .Include("ThuongHieu")
                 .Include("ChatLieu")
                 .Include("MauSac")
                 .FirstOrDefault(ct => ct.MaSanPham == id);
             var danhGias = db.DanhGia
-                .Where(d => d.MaSanPham == id)
-                .OrderByDescending(d => d.NgayDanhGia)
+                .Include(x => x.NguoiDung)
+                .Where(x => x.MaSanPham == id)
+                .OrderByDescending(x => x.NgayDanhGia)
                 .ToList();
+
+            ViewBag.DanhGias = danhGias;
 
             ViewBag.ChiTietSanPham = chiTiet;
             ViewBag.AverageRating = averageRating;
@@ -546,30 +560,67 @@ namespace DoAnTotNghiep.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult GuiDanhGia(int MaSanPham, int SoSao, string NoiDung)
+        public JsonResult GuiDanhGia(int MaSanPham, int SoSao, string NoiDung)
         {
-            if (string.IsNullOrWhiteSpace(NoiDung))
-            {
-                TempData["Error"] = "Vui lòng nhập nội dung đánh giá!";
-                return RedirectToAction("ChiTietSanPham", new { id = MaSanPham });
-            }
+            if (Session["MaNguoiDung"] == null)
+                return Json(new { success = false, message = "Vui lòng đăng nhập!" });
 
-            if (SoSao < 1 || SoSao > 5) SoSao = 5;
+            if (SoSao <= 0)
+                return Json(new { success = false, message = "Vui lòng chọn sao!" });
 
-            var danhGia = new DanhGia
+            int maND = Convert.ToInt32(Session["MaNguoiDung"]);
+
+            var dg = new DanhGia()
             {
-                MaNguoiDung = 1,
+                MaNguoiDung = maND,
                 MaSanPham = MaSanPham,
                 SoSao = SoSao,
-                NoiDung = NoiDung.Trim(),
+                NoiDung = NoiDung,
                 NgayDanhGia = DateTime.Now
             };
 
-            db.DanhGia.Add(danhGia);
+            db.DanhGia.Add(dg);
             db.SaveChanges();
+            var user = db.NguoiDung.Find(maND);
+            var danhGias = db.DanhGia
+                .Where(x => x.MaSanPham == MaSanPham)
+                .ToList();
 
-            TempData["Success"] = "Cảm ơn bạn đã đánh giá sản phẩm!";
-            return RedirectToAction("ChiTietSanPham", new { id = MaSanPham });
+            double avgStar = danhGias.Average(x => x.SoSao ?? 0);
+            int reviewCount = danhGias.Count;
+
+            return Json(new
+            {
+                success = true,
+                tenNguoiDung = user.Ten,
+                soSao = SoSao,
+                noiDung = NoiDung,
+                ngay = DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                avgStar,
+                reviewCount
+            });
+        }
+        public JsonResult Suggest(string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                return Json(new List<object>(), JsonRequestBehavior.AllowGet);
+
+            keyword = keyword.Trim().ToLower();
+
+            var data = db.SanPham
+                .AsEnumerable()
+                .Where(p => !string.IsNullOrEmpty(p.TenSanPham) &&
+                            p.TenSanPham.ToLower().Contains(keyword))
+                .Take(3)
+                .Select(p => new
+                {
+                    p.MaSanPham,
+                    p.TenSanPham,
+                    AnhChinh = p.AnhChinh
+                })
+                .ToList();
+
+            return Json(data, JsonRequestBehavior.AllowGet);
         }
     }
 }
