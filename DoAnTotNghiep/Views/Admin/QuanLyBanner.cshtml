@@ -114,10 +114,10 @@
                             <td>
                                 @if (!string.IsNullOrEmpty(item.HinhAnh))
                                 {
-                                    <img src="~/AnhWeb/@item.HinhAnh"
+                                    <img src="@Url.Content(item.HinhAnh)"
                                          class="banner-img"
                                          alt="@item.TieuDe"
-                                         onerror="this.src='~/AnhWeb/no-image.jpg'; this.onerror=null;" />
+                                         onerror="this.src='/AnhWeb/no-image.jpg'; this.onerror=null;" />
                                 }
                                 else
                                 {
@@ -196,8 +196,11 @@
     </div>
 </div>
 
-<script>function confirmDelete(id) {
+<script>
+    function confirmDelete(id) {
         if (confirm("Bạn có chắc chắn muốn xóa banner này?")) {
             document.getElementById('deleteForm_' + id).submit();
         }
-    }</script>
+    }
+
+    </script>

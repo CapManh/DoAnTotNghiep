@@ -85,7 +85,8 @@
                 <div class="alert alert-danger">@ViewBag.Error</div>
             }
 
-            @using (Html.BeginForm())
+            @using (Html.BeginForm("ChinhSuaBanner", "Admin", FormMethod.Post,
+                new { enctype = "multipart/form-data" }))
             {
                 @Html.AntiForgeryToken()
                 @Html.HiddenFor(m => m.MaBanner)
@@ -103,18 +104,13 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Link</label>
-                            @Html.TextBoxFor(m => m.Link, new { @class = "form-control" })
-                        </div>
-
-                        <div class="mb-3">
                             <label class="form-label">Vị trí</label>
                             @Html.TextBoxFor(m => m.ViTri, new { @class = "form-control" })
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Thứ tự</label>
-                            @Html.TextBoxFor(m => m.ThuTu, new { @class = "form-control", type = "number" })
+                            @Html.TextBoxFor(m => m.ThuTu, new { @class = "form-control" })
                         </div>
 
                     </div>
@@ -126,20 +122,16 @@
 
                         <div class="mb-3">
                             <label class="form-label">Ảnh banner</label>
-                            @Html.TextBoxFor(m => m.HinhAnh, new
-                            {
-                                @class = "form-control",
-                                id = "imgInput"
-                            })
+                            <input type="file" name="fileUpload" id="imgInput" class="form-control" accept="image/*" />
                         </div>
 
                         <!-- PREVIEW -->
-                        <div class="mb-3">
-                            <img id="preview"
-                                 src="@Model.HinhAnh"
-                                 class="banner-preview"
-                                 onerror="this.src='https://via.placeholder.com/400x200?text=No+Image'" />
-                        </div>
+                        <img id="preview"
+                             src="@(string.IsNullOrEmpty(Model.HinhAnh)
+                                ? "/AnhWeb/anhdan.png"
+                                : Url.Content(Model.HinhAnh))"
+                             class="banner-preview"
+                             onerror="this.src='https://via.placeholder.com/400x200?text=No+Image'" />
 
                         <!-- STATUS -->
                         <div class="mb-3 radio-group">
@@ -189,8 +181,11 @@
 </div>
 
 <script>
-    // Preview ảnh realtime
-    document.getElementById("imgInput").addEventListener("input", function () {
-        document.getElementById("preview").src = this.value;
+    document.getElementById("imgInput").addEventListener("change", function (e) {
+        const file = e.target.files[0];
+        if (file) {
+            const url = URL.createObjectURL(file);
+            document.getElementById("preview").src = url;
+        }
     });
 </script>

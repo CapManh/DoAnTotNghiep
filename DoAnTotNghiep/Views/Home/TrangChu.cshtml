@@ -29,7 +29,7 @@
                 foreach (var banner in Model)
                 {
                     <div class="slide">
-                        <img src="@Url.Content("~/AnhWeb/" + banner.HinhAnh)"
+                        <img src="@Url.Content(banner.HinhAnh)"
                              class="bg-img"
                              alt="@banner.TieuDe"
                              loading="lazy">
@@ -57,11 +57,11 @@
         <div class="box-img left">
             @if (ViewBag.BannerTopLeft != null)
             {
-                <img src="@Url.Content("~/AnhWeb/" + ViewBag.BannerTopLeft.HinhAnh)" />
+                <img src="@Url.Content(ViewBag.BannerTopLeft.HinhAnh)" />
 
                 <div class="box-content">
-                    <h2>@ViewBag.BannerTopLeft.TieuDe</h2>
-                    <p>Giảm tới 20% toàn bộ nội thất tại cửa hàng</p>
+                    <h2 class="text-white">@ViewBag.BannerTopLeft.TieuDe</h2>
+                    <p class="text-white">Giảm tới 20% toàn bộ nội thất tại cửa hàng</p>
 
                     <a href="@ViewBag.BannerTopLeft.Link" class="btn-buy">Mua Ngay</a>
                 </div>
@@ -71,11 +71,11 @@
         <div class="box-img right">
             @if (ViewBag.BannerTopRight != null)
             {
-                <img src="@Url.Content("~/AnhWeb/" + ViewBag.BannerTopRight.HinhAnh)" />
+                <img src="@Url.Content(ViewBag.BannerTopRight.HinhAnh)" />
 
                 <div class="box-content">
-                    <h2>@ViewBag.BannerTopRight.TieuDe</h2>
-                    <p>Giảm tới 20% toàn bộ nội thất tại cửa hàng</p>
+                    <h2 class="text-white">@ViewBag.BannerTopRight.TieuDe</h2>
+                    <p class="text-white">Giảm tới 20% toàn bộ nội thất tại cửa hàng</p>
 
                     <a href="@ViewBag.BannerTopRight.Link" class="btn-buy">Mua Ngay</a>
                 </div>

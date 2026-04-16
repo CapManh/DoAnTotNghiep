@@ -131,14 +131,12 @@
 .box-content p {
     font-size: 13px;
     letter-spacing: 3px;
-    color: #777; /* xám nhẹ */
     margin-bottom: 10px;
 }
 
 .box-content h2 {
     font-size: 46px;
     font-weight: 700;
-    color: #222; /* đen nhẹ */
     margin: 5px 0 10px;
 }
 

@@ -30,11 +30,12 @@ namespace DoAnTotNghiep.Models
         public string DiaChiGiao { get; set; }
 
         public DateTime? NgayDat { get; set; }
-        public DateTime? NgayGiaoHang { get; set; }
 
         public int? MaPhuongThuc { get; set; }
 
         public int? MaKhuyenMai { get; set; }
+
+        public DateTime? NgayGiaoHang { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ChiTietDonHang> ChiTietDonHang { get; set; }
