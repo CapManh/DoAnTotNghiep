@@ -1,0 +1,55 @@
+﻿@{
+    ViewBag.Title = "Thanh Toán";
+    Layout = null;
+}
+
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<link href="~/bootstrap-icons-1.2.2/bootstrap-icons-1.2.2/font/bootstrap-icons.css" rel="stylesheet" />
+<link href="~/Content/Site.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-3.7.0.min.js"></script>
+<script src="~/Scripts/sweetalert2.all.min.js"></script>
+<div class="container text-center mt-5">
+
+    <h3>Quét QR để thanh toán</h3>
+
+    @if (ViewBag.QR1 != null)
+    {
+        <img src="@ViewBag.QR1" width="300" />
+    }
+    <p>
+        Nội dung chuyển khoản:
+        <b>@ViewBag.NoiDung</b>
+    </p>
+
+    <div class="mt-4 d-flex justify-content-center gap-3">
+
+        <button id="btnConfirm" class="btn btn-success">
+            ✅ Tôi đã chuyển khoản
+        </button>
+
+        <a href="/Home/ThanhToan" class="btn btn-danger">
+            ❌ Huỷ
+        </a>
+
+    </div>
+
+</div>
+<script src="~/Scripts/bootstrap.bundle.min.js"></script>
+<script>
+$('#btnConfirm').click(function () {
+
+    $.post('/ThanhToan/XacNhanChuyenKhoan',
+        function (res) {
+
+            if (res.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đặt hàng thành công'
+                }).then(()=>{
+                    window.location = '/Home/DonHangCuaToi';
+                });
+            }
+        });
+});
+
+</script>

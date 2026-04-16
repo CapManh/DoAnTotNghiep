@@ -1,5 +1,338 @@
-﻿@{
+﻿@model IEnumerable<DoAnTotNghiep.Models.GioHang>
+@{
+    ViewBag.Title = "Giỏ hàng của tôi";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<link rel="stylesheet" href="@Url.Content("~/Content/GioHang.css")" />
 
+<section class="policy-header">
+    <div class="container text-center text-white">
+        <h1 class="fw-bold">Giỏ hàng</h1>
+        <p>
+            <a href="/" class="text-white text-decoration-none opacity-100 hover-opacity-75">Trang chủ</a>
+            / <span class="opacity-75">Giỏ hàng</span>
+        </p>
+    </div>
+</section>
+
+<div class="container my-5">
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0 p-3">
+                    <table class="table align-middle" id="cartTable">
+                        <thead>
+                            <tr class="text-muted small">
+                                <th><input type="checkbox" id="selectAll" class="form-check-input"></th>
+                                <th>SẢN PHẨM</th>
+                                <th>GIÁ</th>
+                                <th>SỐ LƯỢNG</th>
+                                <th>TỔNG</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                var thanhTien = (item.SanPham.Gia ?? 0) * item.SoLuong;
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" class="item-checkbox"
+                                               data-price="@item.SanPham.Gia"
+                                               data-qty="@item.SoLuong"
+                                               value="@item.MaSanPham">
+                                    </td>
+                                    <td>
+                                        <a href="@Url.Action("chitietsanpham", "Home", new { id = item.MaSanPham })"
+                                           class="text-decoration-none text-dark">
+
+                                            <div class="d-flex align-items-center">
+
+                                                <img src="/AnhWeb/@item.SanPham.AnhChinh"
+                                                     class="rounded"
+                                                     style="width:60px; height:60px; object-fit:cover;">
+
+                                                <div class="ms-3">
+                                                    <h6 class="mb-1 fw-bold">@item.SanPham.TenSanPham</h6>
+
+                                                    <div class="small text-muted">
+                                                        Thương hiệu: @(item.SanPham.ChiTietSanPham.FirstOrDefault()?.ThuongHieu?.TenThuongHieu ?? "N/A")
+                                                    </div>
+
+                                                    <div class="small text-muted">
+                                                        Màu: @(item.SanPham.ChiTietSanPham.FirstOrDefault()?.MauSac?.TenMau ?? "N/A")
+                                                    </div>
+                                                    <div class="small text-muted">
+                                                        Chất liệu: @(item.SanPham.ChiTietSanPham.FirstOrDefault()?.ChatLieu?.TenChatLieu ?? "N/A")
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </a>
+                                    </td>
+                                    <td class="text-secondary">@string.Format("{0:N0}", item.SanPham.Gia)đ</td>
+                                    <td>
+                                        <div class="qty-wrapper">
+
+                                            <div class="view-mode">
+                                                <span class="fw-bold qty-view">@item.SoLuong</span>
+                                            </div>
+                                            <div class="edit-mode d-none">
+                                                <div class="qty-input">
+                                                    <button onclick="updateQty(this, -1)" data-id="@item.MaSanPham">-</button>
+                                                    <input type="text" value="@item.SoLuong" class="qty">
+                                                    <button onclick="updateQty(this, 1)" data-id="@item.MaSanPham">+</button>
+
+                                                </div>
+
+                                                <button class="btn btn-success btn-sm mt-1"
+                                                        onclick="saveQty(this)"
+                                                        data-id="@item.MaSanPham">
+                                                    Lưu
+                                                </button>
+                                            </div>
+
+                                        </div>
+                                    </td>
+                                    <td class="price" data-price="@item.SanPham.Gia">
+                                        @string.Format("{0:N0}", item.SanPham.Gia) đ
+                                    </td>
+                                    <td>
+                                        <button onclick="toggleEdit(this)"
+                                                class="btn btn-sm text-primary border-0">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+
+                                        <button onclick="deleteItem(@item.MaSanPham)"
+                                                class="btn btn-sm text-danger border-0">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 p-4 sticky-top" style="top: 20px;">
+                    <h5 class="fw-bold mb-4">Tóm tắt đơn hàng</h5>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Đã chọn:</span>
+                        <span id="selectedCount" class="fw-bold">0</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-top pt-3 mb-4">
+                        <span class="h5">Tổng tiền:</span>
+                        <span id="totalAmount" class="h5 fw-bold text-danger">0 đ</span>
+                    </div>
+                    <button onclick="processCheckout()" class="btn btn-orange w-100 py-3 fw-bold">
+                        THANH TOÁN NGAY
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <h4 class="mt-4 text-muted">Giỏ hàng của bạn đang trống</h4>
+            <a href="@Url.Action("sanpham1", "Home")" class="btn btn-orange px-4 mt-2">Mua sắm ngay</a>
+        </div>
+    }
+</div>
+
+<script>
+    function toggleEdit(el) {
+        let row = $(el).closest('tr');
+
+        row.find('.view-mode').toggleClass('d-none');
+        row.find('.edit-mode').toggleClass('d-none');
+    }
+    const checkboxes = document.querySelectorAll('.item-checkbox');
+    const selectAll = document.getElementById('selectAll');
+
+    function calculateTotal() {
+        let total = 0;
+        let count = 0;
+
+        document.querySelectorAll('.item-checkbox').forEach(cb => {
+            if (cb.checked) {
+
+                let row = cb.closest('tr');
+
+                let price = parseFloat(cb.dataset.price) || 0;
+                let qtyInput = row.querySelector('.qty');
+                let qtyView = row.querySelector('.qty-view');
+
+                let qty = 0;
+
+                if (qtyInput) {
+                    qty = parseInt(qtyInput.value) || 0;
+                } else if (qtyView) {
+                    qty = parseInt(qtyView.innerText) || 0;
+                }
+
+                total += price * qty;
+                count++;
+            }
+        });
+
+        document.getElementById('totalAmount').innerText =
+            total.toLocaleString('vi-VN') + ' đ';
+
+        document.getElementById('selectedCount').innerText = count;
+    }
+
+    checkboxes.forEach(cb => cb.addEventListener('change', calculateTotal));
+
+    selectAll?.addEventListener('change', function () {
+        checkboxes.forEach(cb => cb.checked = this.checked);
+        calculateTotal();
+    });
+    function processCheckout() {
+        const selected = document.querySelectorAll('.item-checkbox:checked');
+
+        if (selected.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Chưa chọn sản phẩm',
+                text: 'Vui lòng chọn ít nhất một sản phẩm để thanh toán!',
+                confirmButtonColor: '#ff4d4f'
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: 'Đang chuyển đến trang thanh toán...',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        setTimeout(() => {
+            const ids = Array.from(selected)
+                .map(checkbox => checkbox.value)
+                .join(',');
+            window.location.href = '/Home/ThanhToan?ids=' + encodeURIComponent(ids);
+        }, 500);
+    }
+
+    function deleteItem(id) {
+        Swal.fire({
+            title: 'Xóa sản phẩm?',
+            text: 'Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng không?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ff4d4f',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Xóa ngay',
+            cancelButtonText: 'Hủy',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Đang xóa...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                $.post('/Home/XoaGioHang', { id: id }, function (res) {
+
+                    Swal.close();
+
+                    if (res.success) {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            timerProgressBar: true
+                        });
+
+                        Toast.fire({
+                            icon: 'success',
+                            title: 'Đã xóa sản phẩm khỏi giỏ'
+                        });
+                        setTimeout(() => {
+                            location.reload();
+                        }, 800);
+
+                    } else {
+                        Swal.fire('Lỗi', 'Không thể xóa sản phẩm!', 'error');
+                    }
+                });
+            }
+        });
+    }
+    function updateQty(btn, delta) {
+        let id = $(btn).data('id');
+        let input = $(btn).siblings('input');
+
+        let current = parseInt(input.val()) || 1;
+        current += delta;
+
+        if (current < 1) current = 1;
+
+        input.val(current);
+    }
+    function saveQty(btn) {
+        let row = btn.closest('tr');
+        let id = $(btn).data('id');           // lấy MaSanPham
+        let newQty = parseInt(row.querySelector('.qty').value);
+
+        if (newQty < 1) newQty = 1;
+
+        Swal.fire({
+            title: 'Đang cập nhật...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        $.post('/Home/CapNhatSoLuong', {
+            id: id,
+            soLuong: newQty
+        }, function (res) {
+            Swal.close();
+
+            if (res.success) {
+                let view = row.querySelector('.qty-view');
+                let checkbox = row.querySelector('.item-checkbox');
+
+                view.innerText = newQty;
+                checkbox.setAttribute('data-qty', newQty);
+
+                row.querySelector('.view-mode').classList.remove('d-none');
+                row.querySelector('.edit-mode').classList.add('d-none');
+                calculateTotal();
+
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true
+                });
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Cập nhật số lượng thành công'
+                });
+                location.reload();
+            } else {
+                Swal.fire('Lỗi', res.message || 'Không thể cập nhật số lượng!', 'error');
+            }
+        }).fail(function () {
+            Swal.close();
+            Swal.fire('Lỗi', 'Không kết nối được với server!', 'error');
+        });
+    }
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1800,
+        timerProgressBar: true
+    });
+</script>

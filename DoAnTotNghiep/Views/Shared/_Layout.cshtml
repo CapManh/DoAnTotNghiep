@@ -144,7 +144,7 @@
 
                                 <li><hr class="dropdown-divider"></li>
 
-                                <li class="view-mode"><a class="dropdown-item small" href="#"><i class="bi bi-bag-check me-2"></i>Đơn hàng</a></li>
+                                <li class="view-mode"><a class="dropdown-item small" href="/Home/DonHangCuaToi"><i class="bi bi-bag-check me-2"></i>Đơn hàng</a></li>
                                 <li class="pass-mode d-none px-2">
                                     <hr class="dropdown-divider">
                                     <h6 class="dropdown-header ps-0 text-dark fw-bold"><i class="bi bi-key me-2"></i>Đổi mật khẩu</h6>
@@ -185,7 +185,7 @@
                     </button>
                     <span class="sep-dark">|</span>
                     <div class="action-item cart-wrapper position-relative">
-                        <a href="/GioHang/Index" class="action-item d-flex align-items-center">
+                        <a href="/Home/GioHang" class="action-item d-flex align-items-center">
                             <i class="bi bi-bag"></i> Giỏ Hàng
                             <span class="badge rounded-pill bg-danger ms-1" id="cart-count">0</span>
                         </a>
@@ -200,8 +200,13 @@
                                     <span class="fw-bold text-danger" id="mini-cart-total">0 đ</span>
                                 </div>
                                 <div class="d-grid gap-2">
-                                    <a href="/GioHang/Index" class="btn btn-outline-dark btn-sm">Xem Giỏ Hàng</a>
-                                    <a href="/ThanhToan/Index" class="btn btn-warning btn-sm fw-bold">Thanh Toán</a>
+                                    <a href="/Home/GioHang" class="btn btn-outline-dark btn-sm">
+                                        Xem Giỏ Hàng
+                                    </a>
+                                    <a href="/Home/ThanhToan"
+                                       class="btn btn-warning btn-sm fw-bold">
+                                        Thanh Toán
+                                    </a>
                                 </div>
                             </div>
 
@@ -467,7 +472,6 @@
     </footer>
 
     <script src="~/Scripts/bootstrap.bundle.min.js"></script>
-
     <script>
         function toggleSearch() {
             const searchOverlay = document.getElementById('search-overlay');
@@ -556,8 +560,6 @@
                             icon: 'success',
                             title: response.message
                         });
-
-                        // ✅ reload trang hiện tại
                         setTimeout(function () {
                             location.reload();
                         }, 1500);
@@ -851,12 +853,11 @@
                     let anh = item.Anh;
                     let gia = item.Gia || 0;
                     let sl = item.SL || 0;
-                    let link = item.Link;
+                    let link = item.Link || "/Home/chitietsanpham/" + item.MaSP;
 
                     let html = `
                     <div class="d-flex align-items-start mb-3 position-relative">
 
-                        <!-- ẢNH CLICK ĐƯỢC -->
                         <a href="${link}">
                             <img src="${anh}"
                                  class="rounded border"
@@ -865,7 +866,6 @@
 
                         <div class="ms-3 flex-grow-1">
 
-                            <!-- TÊN CLICK ĐƯỢC -->
                             <a href="${link}"
                                class="fw-bold small text-dark text-decoration-none cart-name">
                                ${ten}
@@ -905,6 +905,7 @@
                 }
             });
         }
+
         let timeout = null;
 
         document.getElementById("searchBox").addEventListener("keyup", function () {
@@ -930,9 +931,9 @@
                         } else {
                             data.forEach(item => {
                                 html += `
-                            <a href="/SanPham/Detail/${item.MaSanPham}" 
+                            <a href="/SanPham/Detail/${item.MaSanPham}"
                                class="list-group-item list-group-item-action">
-                                
+
                                 <img src="${item.AnhChinh}" />
                                 <span>${item.TenSanPham}</span>
                             </a>
@@ -958,6 +959,46 @@
                 }
             }
         });
+        $('.mini-checkout').on('click', function () {
+
+            document.querySelectorAll('.item-checkbox')
+                .forEach(cb => cb.checked = true);
+
+            processCheckout();
+        });
+        function processCheckout() {
+
+            const selected =
+                document.querySelectorAll('.item-checkbox:checked');
+
+            if (selected.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa chọn sản phẩm',
+                    text: 'Vui lòng chọn ít nhất một sản phẩm để thanh toán!',
+                    confirmButtonColor: '#ff4d4f'
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Đang chuyển đến trang thanh toán...',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            setTimeout(() => {
+
+                const ids = Array.from(selected)
+                    .map(cb => cb.value)
+                    .join(',');
+
+                window.location.href =
+                    '/Home/ThanhToan?ids=' + encodeURIComponent(ids);
+
+            }, 500);
+        }
     </script>
 
     @RenderSection("Scripts", required: false)

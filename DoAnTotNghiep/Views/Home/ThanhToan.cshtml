@@ -1,0 +1,248 @@
+﻿@model List<DoAnTotNghiep.Models.GioHang>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var user = Session["TenNguoiDung"]?.ToString() ?? "";
+    var email = Session["Email"]?.ToString() ?? "";
+    var sdt = Session["SDT"]?.ToString() ?? "";
+    var diaChi = Session["DiaChi"]?.ToString() ?? "";
+
+    var tongTienGoc = Model.Sum(x => (x.SanPham.Gia ?? 0) * (x.SoLuong ?? 0));
+    var phiVanChuyen = 39000m;
+    var tongThanhToan = tongTienGoc + phiVanChuyen;
+}
+
+<div class="container my-5">
+
+    <form method="post" action="/Home/DatHang">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" name="ids" value="@ViewBag.Ids" />
+        <input type="hidden"
+               id="TongTienInput"
+               name="TongTien"
+               value="@tongThanhToan" />
+        <input type="hidden" id="MaKhuyenMaiHidden" name="MaKhuyenMai" />
+
+        <div class="row g-4">
+
+            <div class="col-lg-7">
+
+                <div class="card p-4 shadow-sm rounded-3 mb-4">
+                    <h5 class="mb-3">Thông tin nhận hàng</h5>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                            <input type="text" name="HoTen" class="form-control" value="@user" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                            <input type="text" name="SoDienThoai" class="form-control" value="@sdt" required />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="Email" class="form-control" value="@email" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Địa chỉ giao hàng <span class="text-danger">*</span></label>
+                            <input type="text" name="DiaChi" class="form-control" value="@diaChi" required />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-4 shadow-sm rounded-3">
+                    <h5 class="mb-3">Phương thức thanh toán</h5>
+
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="MaPhuongThuc" value="1" checked />
+                        <label class="form-check-label">COD (Thanh toán khi nhận hàng)</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="MaPhuongThuc" value="5" />
+                        <label class="form-check-label">Chuyển khoản ngân hàng</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+
+                <div class="card p-4 shadow-sm rounded-3 sticky-top" style="top: 20px;">
+
+                    <h4 class="mb-3">Đơn hàng của bạn</h4>
+
+                    @foreach (var item in Model)
+                    {
+                        <div class="d-flex justify-content-between border-bottom py-2">
+                            <div>
+                                <b>@item.SanPham.TenSanPham</b><br />
+                                <small>Số lượng: @item.SoLuong</small>
+                            </div>
+                            <div class="text-end">
+                                @(string.Format("{0:N0}", (item.SanPham.Gia ?? 0) * (item.SoLuong ?? 0))) ₫
+                            </div>
+                        </div>
+                    }
+
+                    <hr />
+
+                    <div class="d-flex justify-content-between">
+                        <span>Tổng tiền hàng</span>
+                        <b id="tongTienHang">@tongTienGoc.ToString("N0") ₫</b>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <span>Phí vận chuyển</span>
+                        <b>@phiVanChuyen.ToString("N0") ₫</b>
+                    </div>
+
+                    <hr />
+
+                    <div class="mb-4">
+                        <label class="fw-bold mb-2">Mã khuyến mãi</label>
+
+                        <div class="input-group">
+                            <input type="text"
+                                   id="MaGiamGiaInput"
+                                   class="form-control"
+                                   placeholder="Nhập mã giảm giá" />
+
+                            <button type="button"
+                                    id="btnApDungVoucher"
+                                    class="btn btn-dark">
+                                Áp dụng
+                            </button>
+                        </div>
+
+                        <small id="voucherMsg" class="text-success"></small>
+                        <small id="voucherError" class="text-danger"></small>
+
+                        <div class="modal fade" id="voucherModal" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Chọn mã giảm giá</h5>
+                                        <button type="button" class="btn-close"
+                                                data-bs-dismiss="modal"></button>
+                                    </div>
+
+                                    <div class="modal-body" id="voucherList">
+                                        Loading...
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="codDepositBox" class="alert alert-warning mt-3 d-none">
+                        <b>✅ Bạn chỉ cần đặt cọc 10%</b><br>
+
+                        Đặt cọc:
+                        <span id="tienDatCoc" class="fw-bold text-danger"></span><br>
+
+                        Còn lại khi nhận hàng:
+                        <span id="tienConLai" class="fw-bold"></span>
+                    </div>
+                    <div class="d-flex justify-content-between fs-4 fw-bold">
+                        <span>Tổng thanh toán</span>
+                        <span class="text-danger" id="TongTienText">@tongThanhToan.ToString("N0") ₫</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-dark w-100 mt-4 py-3 fs-5">
+                        ĐẶT HÀNG NGAY
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+@section Scripts{
+    <script>
+        let voucherApplied = false;
+
+        $('#btnApDungVoucher').click(function () {
+
+            const code = $('#MaGiamGiaInput').val().trim();
+
+            if (!code) {
+                $('#voucherError').text("Vui lòng nhập mã");
+                return;
+            }
+
+            const tongTienHang =
+                parseFloat($('#tongTienHang')
+                    .text()
+                    .replace(/[^0-9]/g, '')) || 0;
+
+            const phiShip = 39000;
+
+            $.post('/Home/ApDungVoucher',
+                {
+                    code: code,
+                    tongTien: tongTienHang
+                },
+                function (res) {
+
+                    if (res.success) {
+
+                        const giamTien =
+                            tongTienHang * res.giamGia / 100;
+
+                        const tongMoi =
+                            tongTienHang + phiShip - giamTien;
+
+                        $('#TongTienText')
+                            .text(tongMoi.toLocaleString('vi-VN') + ' ₫');
+                        $('#TongTienInput').val(tongMoi);
+                        $('#MaKhuyenMaiHidden').val(res.maKhuyenMai);
+
+                        $('#voucherMsg').text(res.message);
+                        $('#voucherError').text("");
+
+                        voucherApplied = true;
+                        updatePayment();
+                    } else {
+
+                        $('#voucherMsg').text("");
+                        $('#voucherError').text(res.message);
+                    }
+                });
+        });
+        function formatMoney(n) {
+            return n.toLocaleString('vi-VN') + ' ₫';
+        }
+        function updatePayment() {
+
+            const method =
+                document.querySelector('input[name="MaPhuongThuc"]:checked').value;
+
+            const tongTien =
+                parseFloat($('#TongTienText').text().replace(/[^0-9]/g, ''));
+
+            if (!tongTien) return;
+
+            const depositBox = $('#codDepositBox');
+
+            if (method == "1") {
+
+                const datCoc = Math.round(tongTien * 0.1);
+                const conLai = tongTien - datCoc;
+
+                $('#tienDatCoc').text(formatMoney(datCoc));
+                $('#tienConLai').text(formatMoney(conLai));
+
+                depositBox.removeClass('d-none');
+            }
+            else {
+                depositBox.addClass('d-none');
+            }
+        }
+        $('input[name="MaPhuongThuc"]').change(updatePayment);
+
+        $(document).ready(function () {
+            updatePayment();
+        });
+    </script>
+}

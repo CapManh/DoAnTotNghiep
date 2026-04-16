@@ -1,0 +1,135 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model List<DoAnTotNghiep.Models.DonHang>
+
+<div class="container my-5">
+    <div class="row">
+
+        <div class="col-lg-3">
+            <div class="list-group shadow-sm">
+                <a href="?trangThai=all" class="list-group-item">Tất cả</a>
+                <a href="?trangThai=Chờ xác nhận" class="list-group-item">Chờ xác nhận</a>
+                <a href="?trangThai=Đã xác nhận" class="list-group-item">Đã xác nhận</a>
+                <a href="?trangThai=Đang giao hàng" class="list-group-item">Đang giao</a>
+                <a href="?trangThai=Đã giao hàng" class="list-group-item">Đã giao hàng</a>
+                <a href="?trangThai=Đã nhận hàng" class="list-group-item">Đã nhận</a>
+            </div>
+        </div>
+        <div class="col-lg-9">
+
+            @foreach (var dh in Model)
+            {
+                <div class="card mb-4 shadow-sm border-0">
+                    <div class="card-header d-flex justify-content-between">
+                        <span>🧾 Mã đơn: <b>#@dh.MaDonHang</b></span>
+                        <span class="badge bg-warning text-dark">
+                            @dh.TrangThai
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var ct in dh.ChiTietDonHang)
+                        {
+                            <div class="d-flex align-items-center mb-3">
+
+                                <img src="/AnhWeb/@ct.ChiTietSanPham.SanPham.AnhChinh"
+                                     style="width:70px;height:70px;object-fit:cover;"
+                                     class="rounded border">
+
+                                <div class="ms-3 flex-grow-1">
+                                    <div class="fw-bold">
+                                        @ct.ChiTietSanPham.SanPham.TenSanPham
+                                    </div>
+
+                                    <div class="small text-muted">
+                                        SL: @ct.SoLuong
+                                    </div>
+                                </div>
+
+                                <div class="text-danger fw-bold">
+                                    @((ct.Gia * ct.SoLuong)?.ToString("N0")) đ
+                                </div>
+                            </div>
+                        }
+
+                        <div class="mt-3 small text-muted">
+                            📍 @dh.DiaChiGiao
+                        </div>
+
+                        <div class="text-end fw-bold text-danger mt-2">
+                            Tổng: @((dh.TongTien ?? 0).ToString("N0")) đ
+                        </div>
+                    </div>
+                    
+
+                    <div class="card-footer text-end">
+
+                        @if (dh.TrangThai == "Đã giao hàng")
+                        {
+                            <button class="btn btn-success btn-sm"
+                                    onclick="confirmReceived(@dh.MaDonHang)">
+                                ✅ Đã nhận hàng
+                            </button>
+                        }
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+<script>
+    function confirmReceived(id) {
+
+        Swal.fire({
+            title: "Xác nhận đã nhận hàng?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Đã nhận"
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                $.post('/DonHang/DaNhanHang', { id: id }, function (res) {
+
+                    if (res.success) {
+                        Swal.fire("Thành công!", "", "success")
+                            .then(() => location.reload());
+                    }
+
+                });
+
+            }
+        });
+    }
+    function confirmReceived(id) {
+
+        Swal.fire({
+            title: "Bạn đã nhận hàng?",
+            text: "Xác nhận để hoàn tất đơn",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Đã nhận",
+            cancelButtonText: "Chưa"
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                $.post('/DonHang/DaNhanHang', { id: id }, function (res) {
+
+                    if (res.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Hoàn tất đơn hàng 🎉',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => location.reload());
+                    }
+
+                });
+
+            }
+        });
+    }
+</script>

@@ -111,7 +111,10 @@
                                 data-id="@Model.MaSanPham">
                             <i class="fas fa-cart-plus"></i> Thêm vào giỏ hàng
                         </button>
-                        <button type="button" onclick="muaNgay()" class="btn btn-danger btn-action flex-fill">
+                        <button type="button"
+                                onclick="muaNgay(this)"
+                                data-id="@Model.MaSanPham"
+                                class="btn btn-danger btn-action flex-fill">
                             <i class="fas fa-bolt"></i> Mua ngay
                         </button>
                     </div>
@@ -239,8 +242,25 @@
         }
     }
 
-    function muaNgay() {
-        alert("Chức năng Mua ngay đang được triển khai. Bạn có thể thêm vào giỏ hàng trước!");
+    function muaNgay(btn) {
+
+        let id = $(btn).data("id");
+        let soLuong = $("#hiddenQuantity").val();
+
+        $.post('/Home/ThemGioHang', { id: id, soLuong: soLuong }, function (res) {
+
+            if (res.success) {
+
+                window.location.href = '/Home/ThanhToan';
+
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Lỗi',
+                    text: res.message
+                });
+            }
+        });
     }
     document.querySelectorAll('.star').forEach(star => {
         star.addEventListener('click', function () {
@@ -331,7 +351,7 @@
 
             });
 
-        }); 
+        });
         function updateQuantity(change) {
 
             let input = document.getElementById("quantity");

@@ -9,6 +9,13 @@ namespace DoAnTotNghiep.Models
     [Table("KhuyenMai")]
     public partial class KhuyenMai
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public KhuyenMai()
+        {
+            DonHang = new HashSet<DonHang>();
+            SanPham = new HashSet<SanPham>();
+        }
+
         [Key]
         public int MaKhuyenMai { get; set; }
 
@@ -20,5 +27,11 @@ namespace DoAnTotNghiep.Models
         public DateTime? NgayBatDau { get; set; }
 
         public DateTime? NgayKetThuc { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<DonHang> DonHang { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SanPham> SanPham { get; set; }
     }
 }

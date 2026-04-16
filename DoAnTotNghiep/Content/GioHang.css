@@ -1,0 +1,61 @@
+﻿body {
+}
+.policy-header {
+    height: 250px;
+    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/AnhWeb/PHÒNG KHÁCH.jpg') no-repeat center center;
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.policy-header h1 {
+    font-size: 2.8rem;
+    letter-spacing: -1px;
+}
+.text-orange {
+    color: #f97316;
+}
+
+.btn-orange {
+    background-color: #f97316;
+    color: white;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+    .btn-orange:hover {
+        background-color: #ea580c;
+        color: white;
+    }
+
+.qty-wrapper {
+    min-width: 120px;
+}
+
+.qty-input {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+    .qty-input button {
+        width: 30px;
+        height: 30px;
+        border: 1px solid #ddd;
+        background: #fff;
+    }
+
+    .qty-input input {
+        width: 40px;
+        text-align: center;
+        border: 1px solid #ddd;
+    }
+
+.btn-light:hover {
+    background: #f1f1f1;
+}
+
+.form-check-input:checked {
+    background-color: #f97316;
+    border-color: #f97316;
+}

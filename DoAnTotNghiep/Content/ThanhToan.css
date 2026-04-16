@@ -1,0 +1,44 @@
+﻿body {
+}
+.custom-input {
+    border-radius: 8px;
+    padding: 12px;
+    background-color: #fcfcfc;
+}
+.delivery-tabs .tab-item {
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: bold;
+    border-bottom: 2px solid transparent;
+}
+.delivery-tabs .tab-item.active {
+    border-bottom: 2px solid #000;
+    color: #000;
+}
+.variant-tag {
+    background: #f0f0f0;
+    padding: 2px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    display: inline-block;
+}
+.qty-btn-group {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+.qty-btn-group button {
+    border: none;
+    background: none;
+    padding: 0 8px;
+    color: #888;
+}
+.badge-blue {
+    background: #eef6ff;
+    color: #007bff;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+.rounded-4 {
+    border-radius: 1rem !important;
+}

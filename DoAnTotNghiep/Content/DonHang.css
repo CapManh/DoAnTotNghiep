@@ -1,0 +1,28 @@
+﻿.timeline {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin-top: 10px;
+}
+.timeline::before {
+    content: "";
+    position: absolute;
+    top: 12px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #ddd;
+    z-index: 0;
+}
+.step {
+    position: relative;
+    z-index: 1;
+    background: #ccc;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+}
+.step.active {
+    background: #28a745;
+    color: #fff;
+}

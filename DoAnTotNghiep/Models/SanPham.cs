@@ -45,6 +45,8 @@ namespace DoAnTotNghiep.Models
 
         public DateTime? NgayTao { get; set; }
 
+        public int? MaGiamGia { get; set; }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ChiTietSanPham> ChiTietSanPham { get; set; }
 
@@ -55,5 +57,7 @@ namespace DoAnTotNghiep.Models
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<GioHang> GioHang { get; set; }
+
+        public virtual KhuyenMai KhuyenMai { get; set; }
     }
 }

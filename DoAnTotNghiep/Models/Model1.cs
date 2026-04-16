@@ -42,6 +42,11 @@ namespace DoAnTotNghiep.Models
                 .HasMany(e => e.ChiTietGioHang)
                 .WithOptional(e => e.ChiTietSanPham)
                 .HasForeignKey(e => e.MaChiTietSanPham);
+
+            modelBuilder.Entity<KhuyenMai>()
+                .HasMany(e => e.SanPham)
+                .WithOptional(e => e.KhuyenMai)
+                .HasForeignKey(e => e.MaGiamGia);
         }
     }
 }
