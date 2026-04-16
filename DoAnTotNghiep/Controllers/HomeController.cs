@@ -16,50 +16,98 @@ namespace DoAnTotNghiep.Controllers
     public class HomeController : Controller
     {
         private Model1 db = new Model1();
-        [HttpPost]
-        public JsonResult Login(string Ten, string MatKhau)
+        public ActionResult Login()
         {
-            try
-            {
-                if (string.IsNullOrEmpty(Ten) || string.IsNullOrEmpty(MatKhau))
-                {
-                    return Json(new { success = false, message = "Vui lòng nhập đầy đủ thông tin!" });
-                }
-                var user = db.NguoiDung.FirstOrDefault(x => x.Ten == Ten);
-
-                if (user != null)
-                {
-                    bool isPasswordCorrect = false;
-
-                    try
-                    {
-                        isPasswordCorrect = BCrypt.Net.BCrypt.Verify(MatKhau, user.MatKhau);
-                    }
-                    catch
-                    {
-                        isPasswordCorrect = (user.MatKhau == MatKhau);
-                    }
-
-                    if (isPasswordCorrect)
-                    {
-                        Session["MaNguoiDung"] = user.MaNguoiDung;
-                        Session["TenNguoiDung"] = user.Ten;
-                        Session["VaiTro"] = user.MaVaiTro;
-                        Session["Email"] = user.Email;
-                        Session["SDT"] = user.SoDienThoai;
-                        Session["DiaChi"] = user.DiaChi;
-
-                        return Json(new { success = true, message = "Chào mừng " + user.Ten + " đã đến với Website của tôi!" });
-                    }
-                }
-
-                return Json(new { success = false, message = "Tên đăng nhập hoặc mật khẩu không chính xác." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
-            }
+            return View();
         }
+
+        [HttpPost]
+        public ActionResult Login(string email, string password)
+        {
+            // Nếu bạn có mã hóa thì dùng dòng này
+
+
+            var user = db.NguoiDungs
+                .FirstOrDefault(u => u.Email == email && u.MatKhau == password);
+
+            // ⚠️ Nếu bạn CHƯA mã hóa thì dùng dòng này:
+            // var user = db.NguoiDungs
+            //     .FirstOrDefault(u => u.Email == email && u.MatKhau == password);
+
+            if (user != null)
+            {
+                if (!user.IsActive)
+                {
+                    ViewBag.Error = "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.";
+                    return View();
+                }
+                // Lưu session
+                Session["UserId"] = user.MaNguoiDung;
+                Session["Email"] = user.Email;
+                Session["FullName"] = user.Ten;
+                Session["RoleId"] = user.MaVaiTro;
+
+                // Phân quyền theo VaiTro
+                switch (user.MaVaiTro)
+                {
+                    case 1: // Admin
+                        return RedirectToAction("admin", "Admin");
+
+                    case 3: // Nhân viên bán hàng
+                        return RedirectToAction("Staff", "Staff");
+
+                    default: // Khách
+                        return RedirectToAction("TrangChu", "Home");
+                }
+            }
+
+            ViewBag.Error = "Sai email hoặc mật khẩu!";
+            return View();
+        }
+        //[HttpPost]
+        //public JsonResult Login(string Ten, string MatKhau)
+        //{
+        //    try
+        //    {
+        //        if (string.IsNullOrEmpty(Ten) || string.IsNullOrEmpty(MatKhau))
+        //        {
+        //            return Json(new { success = false, message = "Vui lòng nhập đầy đủ thông tin!" });
+        //        }
+        //        var user = db.NguoiDung.FirstOrDefault(x => x.Ten == Ten);
+
+        //        if (user != null)
+        //        {
+        //            bool isPasswordCorrect = false;
+
+        //            try
+        //            {
+        //                isPasswordCorrect = BCrypt.Net.BCrypt.Verify(MatKhau, user.MatKhau);
+        //            }
+        //            catch
+        //            {
+        //                isPasswordCorrect = (user.MatKhau == MatKhau);
+        //            }
+
+        //            if (isPasswordCorrect)
+        //            {
+        //                Session["MaNguoiDung"] = user.MaNguoiDung;
+        //                Session["TenNguoiDung"] = user.Ten;
+        //                Session["VaiTro"] = user.MaVaiTro;
+        //                Session["Email"] = user.Email;
+        //                Session["SDT"] = user.SoDienThoai;
+        //                Session["DiaChi"] = user.DiaChi;
+
+        //                return Json(new { success = true, message = "Chào mừng " + user.Ten + " đã đến với Website của tôi!" });
+        //            }
+        //        }
+
+        //        return Json(new { success = false, message = "Tên đăng nhập hoặc mật khẩu không chính xác." });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+        //    }
+        //}
         public ActionResult SanPhamTheoDanhMuc(int id)
         {
             var danhMuc = db.DanhMuc.Find(id);

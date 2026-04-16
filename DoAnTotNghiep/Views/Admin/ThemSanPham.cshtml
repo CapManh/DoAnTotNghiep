@@ -1,0 +1,238 @@
+﻿@model DoAnTotNghiep.Models.SanPham
+
+@{
+    ViewBag.Title = "Thêm sản phẩm";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Thêm sản phẩm</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        body {
+            background: #eef2f7;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .container-box {
+            max-width: 1100px;
+            margin: 30px auto;
+        }
+
+        .card {
+            border: none;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .card-header {
+            background: linear-gradient(45deg, #4e73df, #224abe);
+            color: white;
+            font-weight: 600;
+            font-size: 20px;
+            border-radius: 18px 18px 0 0;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .btn-success {
+            background: #1cc88a;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+        }
+
+        .btn-secondary {
+            border-radius: 10px;
+            padding: 10px 20px;
+        }
+
+        .preview-img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+        }
+
+        .checkbox-box {
+            background: #f8f9fc;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        h5 {
+            margin-top: 20px;
+            font-weight: 600;
+            color: #4e73df;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container-box">
+        <div class="card">
+            <div class="card-header">
+                ➕ Thêm sản phẩm mới
+            </div>
+
+            <div class="card-body">
+
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger">@ViewBag.Error</div>
+                }
+
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+
+                    <div class="row">
+
+                        <!-- LEFT -->
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+                                <label>Tên sản phẩm</label>
+                                @Html.TextBoxFor(m => m.TenSanPham, new { @class = "form-control" })
+                            </div>
+
+                            <div class="form-group">
+                                <label>Giá (đ)</label>
+                                @Html.TextBoxFor(m => m.Gia, new { @class = "form-control", type = "number" })
+                            </div>
+
+                            <div class="form-group">
+                                <label>Danh mục</label>
+                                @Html.DropDownListFor(m => m.MaDanhMuc,
+                                         (SelectList)ViewBag.DanhMucList,
+                                         "-- Chọn danh mục --",
+                                         new { @class = "form-select" })
+                            </div>
+
+                            <div class="form-group checkbox-box">
+                                <input type="checkbox" name="NoiBat" value="true"
+                                       @(Model != null && Model.NoiBat == true ? "checked" : "") />
+                                <label> Sản phẩm nổi bật</label>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Số lượng tồn kho</label>
+                                <input type="number" name="SoLuongTon"
+                                       class="form-control" min="0" value="10" />
+                            </div>
+
+                        </div>
+
+                        <!-- RIGHT -->
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+                                <label>Thương hiệu</label>
+                                @Html.DropDownList("MaThuongHieu",
+                                         (SelectList)ViewBag.ThuongHieuList,
+                                         "-- Chọn thương hiệu --",
+                                         new { @class = "form-select" })
+                            </div>
+
+                            <div class="form-group">
+                                <label>Chất liệu</label>
+                                @Html.DropDownList("MaChatLieu",
+                                         (SelectList)ViewBag.ChatLieuList,
+                                         "-- Chọn chất liệu --",
+                                         new { @class = "form-select" })
+                            </div>
+
+                            <div class="form-group">
+                                <label>Màu sắc</label>
+                                @Html.DropDownList("MaMau",
+                                         (SelectList)ViewBag.MauSacList,
+                                         "-- Chọn màu sắc --",
+                                         new { @class = "form-select" })
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- DESCRIPTION -->
+                    <h5>Mô tả sản phẩm</h5>
+                    <div class="form-group">
+                        @Html.TextAreaFor(m => m.MoTa, new { @class = "form-control", rows = 4 })
+                    </div>
+
+                    <!-- IMAGE -->
+                    <h5>Hình ảnh</h5>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Ảnh chính</label>
+                            @Html.TextBoxFor(m => m.AnhChinh, new { @class = "form-control", id = "anhChinh" })
+                            <img id="previewMain" class="preview-img" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Ảnh phụ 1</label>
+                            @Html.TextBoxFor(m => m.AnhPhu1, new { @class = "form-control", id = "anh1" })
+                            <img id="preview1" class="preview-img" />
+                        </div>
+
+                        <div class="col-md-6 mt-3">
+                            <label>Ảnh phụ 2</label>
+                            @Html.TextBoxFor(m => m.AnhPhu2, new { @class = "form-control", id = "anh2" })
+                            <img id="preview2" class="preview-img" />
+                        </div>
+
+                        <div class="col-md-6 mt-3">
+                            <label>Ảnh phụ 3</label>
+                            @Html.TextBoxFor(m => m.AnhPhu3, new { @class = "form-control", id = "anh3" })
+                            <img id="preview3" class="preview-img" />
+                        </div>
+                    </div>
+
+                    <!-- BUTTON -->
+                    <div class="mt-4 text-end">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Lưu sản phẩm
+                        </button>
+                        <a href="@Url.Action("QuanLySanPham")" class="btn btn-secondary">
+                            Hủy
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <script>function preview(inputId, imgId) {
+            document.getElementById(inputId).addEventListener("input", function () {
+                document.getElementById(imgId).src = this.value;
+            });
+        }
+
+        preview("anhChinh", "previewMain");
+        preview("anh1", "preview1");
+        preview("anh2", "preview2");
+        preview("anh3", "preview3");</script>
+
+</body>
+</html>

@@ -1,0 +1,235 @@
+﻿@model IEnumerable<DoAnTotNghiep.Models.NguoiDung>
+@{
+    ViewBag.Title = "Quản lý Tài khoản";
+    Layout = null;
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+<style>
+    body {
+        background: #eef2f7;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    h2 {
+        font-weight: 700;
+        color: #2c3e50;
+    }
+
+    .card {
+        border: none;
+        border-radius: 18px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    }
+
+    .table thead {
+        background: linear-gradient(45deg, #36b9cc, #1cc88a);
+        color: white;
+    }
+
+    .table th, .table td {
+        text-align: center;
+        vertical-align: middle;
+        padding: 12px 8px;
+    }
+
+    .table tbody tr:hover {
+        background: #f4f8ff;
+    }
+
+    .badge {
+        border-radius: 20px;
+        padding: 7px 14px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .btn {
+        border-radius: 8px;
+        padding: 8px 12px;
+        margin: 0 3px;
+    }
+
+    .btn-sm {
+        padding: 6px 10px !important;
+    }
+
+    .search-box input {
+        border-radius: 10px;
+        padding: 10px;
+    }
+
+    .search-box button {
+        border-radius: 10px;
+        padding: 10px;
+    }
+
+    .action-btn {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-users"></i> Quản lý Tài khoản</h2>
+        <a href="@Url.Action("ThemTaiKhoan")" class="btn btn-success shadow">
+            <i class="fas fa-plus"></i> Thêm tài khoản
+        </a>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="card mb-4">
+        <div class="card-body search-box">
+            @using (Html.BeginForm("DanhSachTaiKhoan", "Admin", FormMethod.Get))
+            {
+                <div class="row">
+                    <div class="col-md-9">
+                        <input type="text" name="search" value="@ViewBag.Search"
+                               class="form-control" placeholder="🔍 Tìm kiếm theo tên, email..." />
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-primary w-100">
+                            <i class="fas fa-search"></i> Tìm kiếm
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>ID</th>
+                        <th>Tên</th>
+                        <th>Email</th>
+                        <th>SĐT</th>
+                        <th>Địa chỉ</th>           <!-- ← Đã thêm cột này -->
+                        <th>Vai trò</th>
+                        <th>Ngày tạo</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="10" class="text-center py-5 text-muted">
+                                <i class="fas fa-inbox fa-2x mb-2"></i><br />
+                                Không có dữ liệu
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        int stt = ((ViewBag.CurrentPage ?? 1) - 1) * 10 + 1;
+
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@stt</td>
+                                <td class="text-primary fw-bold">@item.MaNguoiDung</td>
+                                <td><strong>@item.Ten</strong></td>
+                                <td>
+                                    <a href="mailto:@item.Email">@item.Email</a>
+                                </td>
+                                <td>@(item.SoDienThoai ?? "—")</td>
+                                <td style="max-width: 220px; white-space: normal;">
+                                    @(item.DiaChi ?? "—")
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        @(item.VaiTro?.TenVaiTro ?? "—")
+                                    </span>
+                                </td>
+                                <td>@(item.NgayTao?.ToString("dd/MM/yyyy") ?? "—")</td>
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="badge bg-success">Hoạt động</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Đã khóa</span>
+                                    }
+                                </td>
+                                <td>
+                                    <!-- Nút Sửa -->
+                                    <a href="@Url.Action("ChinhSuaTaiKhoan", new { id = item.MaNguoiDung })"
+                                       class="btn btn-warning btn-sm action-btn" title="Sửa">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+
+                                    <!-- Nút Khóa / Mở khóa -->
+                                    @using (Html.BeginForm("ToggleKhoaTaiKhoan", "Admin", FormMethod.Post))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.MaNguoiDung" />
+                                        if (item.IsActive)
+                                        {
+                                            <button type="submit" class="btn btn-secondary btn-sm action-btn" title="Khóa tài khoản">
+                                                <i class="fas fa-lock"></i>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="btn btn-success btn-sm action-btn" title="Mở khóa">
+                                                <i class="fas fa-unlock"></i>
+                                            </button>
+                                        }
+                                    }
+
+                                    <!-- Nút Xóa -->
+                                    @using (Html.BeginForm("XoaTaiKhoan", "Admin", FormMethod.Post, new { id = "deleteForm_" + item.MaNguoiDung }))
+                                    {
+                                        <input type="hidden" name="id" value="@item.MaNguoiDung" />
+                                        <button type="button" class="btn btn-danger btn-sm action-btn"
+                                                onclick="confirmDelete(@item.MaNguoiDung, '@item.Ten.Replace("'", "\\'")')"
+                                                title="Xóa tài khoản">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                            stt++;
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- PAGINATION -->
+    @if (ViewBag.TotalPages > 1)
+    {
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == (ViewBag.CurrentPage ?? 1) ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("DanhSachTaiKhoan", new { page = i, search = ViewBag.Search })">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>
+
+<script>
+    function confirmDelete(id, name) {
+        if (confirm("Bạn có chắc chắn muốn xóa tài khoản: " + name + " ?")) {
+            document.getElementById('deleteForm_' + id).submit();
+        }
+    }
+</script>

@@ -151,6 +151,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ThanhToanController.cs" />
     <Compile Include="Global.asax.cs">
@@ -1492,6 +1493,17 @@
     <Content Include="Views\ThanhToan\QR.cshtml" />
     <Content Include="Views\ThanhToan\QR1.cshtml" />
     <Content Include="Views\Home\DonHangCuaToi.cshtml" />
+    <Content Include="Views\Admin\QuanLySanPham.cshtml" />
+    <Content Include="Views\Admin\ThemSanPham.cshtml" />
+    <Content Include="Views\Admin\ChinhSuaSanPham.cshtml" />
+    <Content Include="Views\Admin\QuanLyBanner.cshtml" />
+    <Content Include="Views\Admin\ThemBanner.cshtml" />
+    <Content Include="Views\Admin\ChinhSuaBanner.cshtml" />
+    <Content Include="Views\Admin\DanhSachTaiKhoan.cshtml" />
+    <Content Include="Views\Admin\ThemTaiKhoan.cshtml" />
+    <Content Include="Views\Admin\ChinhSuaTaiKhoan.cshtml" />
+    <Content Include="Views\Shared\Admin.cshtml" />
+    <Content Include="Views\Home\Login.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

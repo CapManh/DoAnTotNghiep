@@ -1,0 +1,203 @@
+﻿@model IEnumerable<DoAnTotNghiep.Models.Banner>
+@{
+    ViewBag.Title = "Quản lý Banner";
+    Layout = null;
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+<style>
+    body {
+        background: #eef2f7;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    h2 {
+        font-weight: 700;
+        color: #2c3e50;
+    }
+
+    .card {
+        border: none;
+        border-radius: 18px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    .table thead {
+        background: linear-gradient(45deg, #f6c23e, #f4b619);
+        color: white;
+    }
+
+    .table th, .table td {
+        vertical-align: middle;
+        text-align: center;
+        padding: 12px 10px;
+    }
+
+    .table tbody tr:hover {
+        background: #f8f9fc;
+    }
+
+    /* Ảnh Banner */
+    .banner-img {
+        width: 160px;
+        height: 90px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 2px solid #eee;
+        transition: all 0.3s;
+    }
+
+        .banner-img:hover {
+            transform: scale(1.08);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+    .badge {
+        padding: 7px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+    }
+
+    /* Nút hành động to hơn */
+    .action-btn {
+        width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 3px;
+        font-size: 16px;
+    }
+
+    .link-text {
+        max-width: 200px;
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-image"></i> Quản lý Banner</h2>
+        <a href="@Url.Action("ThemBanner")" class="btn btn-success shadow">
+            <i class="fas fa-plus"></i> Thêm Banner
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Ảnh</th>
+                        <th>Tiêu đề</th>
+                        <th>Link</th>
+                        <th>Vị trí</th>
+                        <th>Thứ tự</th>
+                        <th>Trạng thái</th>
+                        <th>Thời gian</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold text-primary">@item.MaBanner</td>
+
+                            <!-- Ảnh Banner - Đã sửa đường dẫn -->
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.HinhAnh))
+                                {
+                                    <img src="~/AnhWeb/@item.HinhAnh"
+                                         class="banner-img"
+                                         alt="@item.TieuDe"
+                                         onerror="this.src='~/AnhWeb/no-image.jpg'; this.onerror=null;" />
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Không có ảnh</span>
+                                }
+                            </td>
+
+                            <!-- Tiêu đề -->
+                            <td><strong>@item.TieuDe</strong></td>
+
+                            <!-- Link -->
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.Link))
+                                {
+                                    <a href="@item.Link" target="_blank" class="link-text text-primary">
+                                        @item.Link
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+
+                            <!-- Vị trí -->
+                            <td>
+                                <span class="badge bg-info">@(item.ViTri ?? "—")</span>
+                            </td>
+
+                            <!-- Thứ tự -->
+                            <td class="fw-bold">@item.ThuTu</td>
+
+                            <!-- Trạng thái -->
+                            <td>
+                                @if (item.TrangThai == true)
+                                {
+                                    <span class="badge bg-success">Hiển thị</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Ẩn</span>
+                                }
+                            </td>
+
+                            <!-- Thời gian -->
+                            <td style="font-size: 13px;">
+                                <div><strong>@(item.NgayBatDau?.ToString("dd/MM/yyyy") ?? "—")</strong></div>
+                                <div class="text-muted">→ @(item.NgayKetThuc?.ToString("dd/MM/yyyy") ?? "—")</div>
+                            </td>
+
+                            <!-- Hành động - Nút to hơn -->
+                            <td>
+                                <!-- Nút Sửa -->
+                                <a href="@Url.Action("ChinhSuaBanner", new { id = item.MaBanner })"
+                                   class="btn btn-warning action-btn" title="Sửa banner">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+
+                                <!-- Nút Xóa -->
+                                @using (Html.BeginForm("XoaBanner", "Admin", FormMethod.Post, new { id = "deleteForm_" + item.MaBanner }))
+                                {
+                                    <input type="hidden" name="id" value="@item.MaBanner" />
+                                    <button type="button"
+                                            class="btn btn-danger action-btn"
+                                            onclick="confirmDelete(@item.MaBanner)"
+                                            title="Xóa banner">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>function confirmDelete(id) {
+        if (confirm("Bạn có chắc chắn muốn xóa banner này?")) {
+            document.getElementById('deleteForm_' + id).submit();
+        }
+    }</script>
