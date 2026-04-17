@@ -849,8 +849,8 @@
                 items.forEach(item => {
 
                     let ten = item.TenSP;
-                    let anh = item.Anh;
                     let gia = item.Gia || 0;
+                    let anh = item.AnhChinh || "/AnhWeb/default-product.png";
                     let sl = item.SL || 0;
                     let link = item.Link || "/Home/chitietsanpham/" + item.MaSP;
 
@@ -998,7 +998,7 @@
 
             }, 500);
         }
-        
+
     </script>
 
     @RenderSection("Scripts", required: false)

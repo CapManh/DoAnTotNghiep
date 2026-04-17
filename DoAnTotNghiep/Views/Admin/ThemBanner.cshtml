@@ -75,7 +75,8 @@
                 <div class="alert alert-danger">@ViewBag.Error</div>
             }
 
-            @using (Html.BeginForm("ThemBanner", "Admin", FormMethod.Post))
+            @using (Html.BeginForm("ThemBanner", "Admin", FormMethod.Post,
+                new { enctype = "multipart/form-data" }))
             {
                 @Html.AntiForgeryToken()
 
@@ -108,7 +109,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">Thứ tự</label>
-                            @Html.TextBoxFor(m => m.ThuTu, new { @class = "form-control", type = "number", value = "1" })
+                            @Html.TextBoxFor(m => m.ThuTu, new { @class = "form-control", type = "number" })
                         </div>
 
                     </div>
@@ -119,21 +120,18 @@
                         <div class="section-title">Hình ảnh & hiển thị</div>
 
                         <div class="mb-3">
-                            <label class="form-label">Link ảnh</label>
-                            @Html.TextBoxFor(m => m.HinhAnh, new
-                            {
-                                @class = "form-control",
-                                id = "imgInput",
-                                placeholder = "banner.jpg hoặc URL"
-                            })
+                            <label class="form-label">Ảnh banner</label>
+                            <input type="file" name="fileUpload" id="imgInput" class="form-control" accept="image/*" />
                         </div>
 
                         <!-- PREVIEW -->
-                        <div class="mb-3">
-                            <img id="preview"
-                                 class="banner-preview"
-                                 src="https://via.placeholder.com/400x200?text=Preview" />
-                        </div>
+                        <img id="preview"
+                             src="@(Model != null && !string.IsNullOrEmpty(Model.HinhAnh)
+                                ? Url.Content(Model.HinhAnh)
+                                : "/AnhWeb/anhdan.png")"
+                             class="banner-preview"
+                             onerror="this.src='https://via.placeholder.com/400x200?text=No+Image'" />
+
 
                         <div class="mb-3">
                             <label class="form-label">Trạng thái</label>
@@ -189,8 +187,12 @@
     </div>
 </div>
 
-<script>// Preview ảnh realtime
-    document.getElementById("imgInput").addEventListener("input", function () {
-        let val = this.value;
-        document.getElementById("preview").src = val;
-    });</script>
+<script>
+    document.getElementById("imgInput").addEventListener("change", function (e) {
+        const file = e.target.files[0];
+        if (file) {
+            const url = URL.createObjectURL(file);
+            document.getElementById("preview").src = url;
+        }
+    });
+    </script>

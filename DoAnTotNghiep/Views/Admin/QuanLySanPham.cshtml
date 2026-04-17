@@ -226,17 +226,24 @@
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        var chiTiet = item.ChiTietSanPhams?.FirstOrDefault();
+                        var chiTiet = item.ChiTietSanPham?.FirstOrDefault();
 
                         <tr>
                             <td><strong>@item.MaSanPham</strong></td>
 
                             <td>
                                 <!-- Ảnh chính -->
-                                <img src="~/AnhWeb/@item.AnhChinh"
-                                     class="img-main"
-                                     alt="@item.TenSanPham"
-                                     onerror="this.src='~/AnhWeb/no-image.jpg'; this.onerror = null;" />
+                                @if (!string.IsNullOrEmpty(item.AnhChinh))
+                                {
+                                    <img src="@Url.Content(item.AnhChinh)"
+                                         class="img-sub"
+                                         alt="@item.TenSanPham"
+                                         onerror="this.src='/AnhWeb/no-image.jpg'; this.onerror=null;" />
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Không có ảnh</span>
+                                }
 
                                 <!-- Các ảnh phụ -->
                                 <div class="mt-2 d-flex flex-wrap gap-1">
@@ -271,7 +278,7 @@
                             <td>@(chiTiet?.MauSac?.TenMau ?? "—")</td>
 
                             <td class="price">
-                                @string.Format("{0:N0} đ", item.Gia)
+                                <span>@string.Format("{0:N0}", item.Gia ?? 0) đ</span>
                             </td>
 
                             <td>

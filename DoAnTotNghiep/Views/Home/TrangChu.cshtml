@@ -89,19 +89,30 @@
         <p class="subtitle">Giảm giá toàn bộ sản phẩm mới & Tiết kiệm lên đến 25%</p>
 
         <div class="product-list">
-            @if (ViewBag.SanPhamMoi != null)
+            @{
+                var sanPhamMoi = ViewBag.SanPhamMoi as IEnumerable<DoAnTotNghiep.Models.SanPham>;
+            }
+
+            @if (sanPhamMoi != null && sanPhamMoi.Any())
             {
-                foreach (var item in ViewBag.SanPhamMoi)
+                var displayed = sanPhamMoi
+                    .OrderByDescending(x => x.NgayTao)
+                    .Take(6)  
+                    .ToList();
+
+                foreach (var item in displayed)
                 {
                     <div class="product-card">
                         <div class="img-box">
                             @if (!string.IsNullOrEmpty(item.AnhChinh))
                             {
-                                <img src="@Url.Content("~/AnhWeb/" + item.AnhChinh)" alt="@item.TenSanPham" />
+                                <img src="@Url.Content(item.AnhChinh)"
+                                     alt="@item.TenSanPham"
+                                     onerror="this.src='/AnhWeb/no-image.jpg'; this.onerror=null;" />
                             }
                             else
                             {
-                                <img src="https://via.placeholder.com/300x260" alt="No Image" />
+                                <span class="text-muted">Không có ảnh</span>
                             }
 
                             <a href="@Url.Action("chitietsanpham", "Home", new { id = item.MaSanPham })" class="view-btn">👁</a>
@@ -112,15 +123,13 @@
                             }
                         </div>
 
-                        <div class="stars">
+                        <div class="stars text-lg-center">
                             @{
                                 double sao = 0;
-
                                 if (ViewBag.SaoSanPham != null && ViewBag.SaoSanPham.ContainsKey(item.MaSanPham))
                                 {
                                     sao = ViewBag.SaoSanPham[item.MaSanPham];
                                 }
-
                                 int fullStars = (int)Math.Round(sao);
                             }
                             @for (int i = 1; i <= 5; i++)
@@ -135,15 +144,17 @@
                                 }
                             }
                         </div>
-                        <div class="product-name">
-                            <a href="@Url.Action("ChiTiet", "Home", new { id = item.MaSanPham })"
-                               class="text-decoration-none text-dark">
+
+                        <div class="product-name text-lg-center">
+                            <a href="@Url.Action("ChiTietSanPham", "Home", new { id = item.MaSanPham })"
+                               class="text-decoration-none text-dark fw-bold">
                                 @item.TenSanPham
                             </a>
                         </div>
-                        <div class="price-cart">
-                            <div class="price">
-                                <span>@item.Gia.ToString("N0") đ</span>
+
+                        <div class="price-cart ">
+                            <div class="price text-lg-center">
+                                <span>@string.Format("{0:N0}", item.Gia) đ</span>
                             </div>
                             <button class="add-cart" data-id="@item.MaSanPham">Thêm Vào Giỏ Hàng</button>
                         </div>
@@ -165,7 +176,7 @@
             <div class="promo-item promo-big">
                 @if (ViewBag.BannerBottomLeft != null)
                 {
-                    <img src="@Url.Content("~/AnhWeb/" + ViewBag.BannerBottomLeft.HinhAnh)" />
+                    <img src="@Url.Content(ViewBag.BannerBottomLeft.HinhAnh)" />
 
                     <div class="promo-text">
                         <h2>@ViewBag.BannerBottomLeft.TieuDe</h2>
@@ -184,7 +195,7 @@
             <div class="promo-item promo-small">
                 @if (ViewBag.BannerBottomRight != null)
                 {
-                    <img src="@Url.Content("~/AnhWeb/" + ViewBag.BannerBottomRight.HinhAnh)" />
+                    <img src="@Url.Content(ViewBag.BannerBottomRight.HinhAnh)" />
 
                     <div class="promo-text">
                         <h2>@ViewBag.BannerBottomRight.TieuDe</h2>
@@ -216,68 +227,77 @@
                     {
                         foreach (var item in ViewBag.SanPhamThinhHanh)
                         {
-                            decimal giaGoc = item.Gia;
-                            decimal giaSale = Math.Round(giaGoc * 0.75M);
-                            bool coSale = giaGoc > 5000000;
+                            if (item.NoiBat == true)   // ← ĐÃ SỬA: không còn @
+                            {
+                                decimal giaGoc = item.Gia ?? 0;
+                                decimal giaSale = Math.Round(giaGoc * 0.75M);
+                                bool coSale = giaGoc > 5000000;
 
-                            <div class="np-item">
-                                <div class="np-img">
-                                    <img src="@Url.Content("~/AnhWeb/" + (string.IsNullOrEmpty(item.AnhChinh) ? "placeholder.jpg" : item.AnhChinh))"
-                                         alt="@item.TenSanPham" />
-
-                                    @if (coSale)
-                                    {
-                                        <div class="np-sale">Sale</div>
-                                    }
-
-                                    <a href="@Url.Action("ChiTiet", "SanPham", new { id = item.MaSanPham })"
-                                       class="view-btn">👁</a>
-                                </div>
-
-                                <div class="stars">
-                                    @{
-                                        double sao = 0;
-
-                                        if (ViewBag.SaoSanPham != null && ViewBag.SaoSanPham.ContainsKey(item.MaSanPham))
+                                <div class="product-card">
+                                    <div class="img-box">
+                                        @if (!string.IsNullOrEmpty(item.AnhChinh))
                                         {
-                                            sao = ViewBag.SaoSanPham[item.MaSanPham];
-                                        }
-
-                                        int fullStars = (int)Math.Round(sao);
-                                    }
-                                    @for (int i = 1; i <= 5; i++)
-                                    {
-                                        if (i <= fullStars)
-                                        {
-                                            <span>★</span>
+                                            <img src="@Url.Content(item.AnhChinh)"
+                                                 alt="@item.TenSanPham"
+                                                 onerror="this.src='/AnhWeb/no-image.jpg'; this.onerror=null;" />
                                         }
                                         else
                                         {
-                                            <span>☆</span>
+                                            <span class="text-muted">Không có ảnh</span>
                                         }
-                                    }
-                                </div>
-                                <div class="product-name">
-                                    <a href="@Url.Action("ChiTiet", "Home", new { id = item.MaSanPham })"
-                                       class="text-decoration-none text-dark">
-                                        @item.TenSanPham
-                                    </a>
-                                </div>
 
-                                <div class="np-price">
-                                    @if (coSale)
-                                    {
-                                        <del>@giaGoc.ToString("N0") đ</del>
-                                        <span>@giaSale.ToString("N0") đ</span>
-                                    }
-                                    else
-                                    {
-                                        <span>@giaGoc.ToString("N0") đ</span>
-                                    }
-                                </div>
+                                        <a href="@Url.Action("chitietsanpham", "Home", new { id = item.MaSanPham })" class="view-btn">👁</a>
 
-                                <button class="add-cart" data-id="@item.MaSanPham">Thêm Vào Giỏ Hàng</button>
-                            </div>
+                                        @if (item.NoiBat == true)
+                                        {
+                                            <span class="hot-label">Hot</span>
+                                        }
+                                    </div>
+
+                                    <div class="stars text-lg-center">
+                                        @{
+                                            double sao = 0;
+                                            if (ViewBag.SaoSanPham != null && ViewBag.SaoSanPham.ContainsKey(item.MaSanPham))
+                                            {
+                                                sao = ViewBag.SaoSanPham[item.MaSanPham];
+                                            }
+                                            int fullStars = (int)Math.Round(sao);
+                                        }
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            if (i <= fullStars)
+                                            {
+                                                <span>★</span>
+                                            }
+                                            else
+                                            {
+                                                <span>☆</span>
+                                            }
+                                        }
+                                    </div>
+
+                                    <div class="product-name text-lg-center">
+                                        <a href="@Url.Action("ChiTietSanPham", "Home", new { id = item.MaSanPham })"
+                                           class="text-decoration-none text-dark fw-bold">
+                                            @item.TenSanPham
+                                        </a>
+                                    </div>
+                                    <div class="price-cart">
+                                        <div class="price text-lg-center">
+                                            @if (coSale)
+                                            {
+                                                <del>@string.Format("{0:N0}", giaGoc) đ</del>
+                                                <span>@string.Format("{0:N0}", giaSale) đ</span>
+                                            }
+                                            else
+                                            {
+                                                <span>@string.Format("{0:N0}", giaGoc) đ</span>
+                                            }
+                                        </div>
+                                        <button class="add-cart" data-id="@item.MaSanPham">Thêm Vào Giỏ Hàng</button>
+                                    </div>
+                                </div>
+                            }
                         }
                     }
                 </div>
@@ -299,7 +319,7 @@
             <div class="promo-item promo-big">
                 @if (ViewBag.BannerBottomLeft != null)
                 {
-                    <img src="@Url.Content("~/AnhWeb/" + ViewBag.BannerBottomLeft.HinhAnh)" />
+                    <img src="@Url.Content(ViewBag.BannerBottomLeft.HinhAnh)" />
 
                     <div class="promo-text">
                         <h2>@ViewBag.BannerBottomLeft.TieuDe</h2>
@@ -318,7 +338,7 @@
             <div class="promo-item promo-small">
                 @if (ViewBag.BannerBottomRight != null)
                 {
-                    <img src="@Url.Content("~/AnhWeb/" + ViewBag.BannerBottomRight.HinhAnh)" />
+                    <img src="@Url.Content(ViewBag.BannerBottomRight.HinhAnh)" />
 
                     <div class="promo-text">
                         <h2>@ViewBag.BannerBottomRight.TieuDe</h2>
@@ -345,7 +365,7 @@
         <div class="card-a">
             @if (ViewBag.BannerBottomLeft != null)
             {
-                <img src="@Url.Content("~/AnhWeb/" + ViewBag.BannerBottomLeft.HinhAnh)" />
+                <img src="@Url.Content(ViewBag.BannerBottomLeft.HinhAnh)" />
 
                 <div class="text-a white">
                     <p class="mini-a">Dòng sản phẩm mới</p>
@@ -365,7 +385,7 @@
         <div class="card-b">
             @if (ViewBag.BannerBottomRight != null)
             {
-                <img src="@Url.Content("~/AnhWeb/" + ViewBag.BannerBottomRight.HinhAnh)" />
+                <img src="@Url.Content(ViewBag.BannerBottomRight.HinhAnh)" />
 
                 <div class="text-a black">
                     <p class="mini-a black">Dòng sản phẩm mới</p>
@@ -385,7 +405,7 @@
         <div class="card-c">
             @if (ViewBag.BannerBottomThird != null)
             {
-                <img src="@Url.Content("~/AnhWeb/" + ViewBag.BannerBottomThird.HinhAnh)" />
+                <img src="@Url.Content(ViewBag.BannerBottomThird.HinhAnh)" />
 
                 <div class="text-a white">
                     <p class="mini-a">Dòng sản phẩm mới</p>
@@ -484,49 +504,58 @@
             slides.style.transform = `translateX(-${bannerIndex * 100}%)`;
         }, 3000);
         $(document).ready(function () {
-        $(document).off('click', '.add-cart').on('click', '.add-cart', function (e) {
-            e.preventDefault();
+            $(document).off('click', '.add-cart').on('click', '.add-cart', function (e) {
+                e.preventDefault();
 
-            var spId = $(this).data('id');
-            var addCartUrl = '@Url.Action("ThemGioHang","Home")';
+                var spId = $(this).data('id');
+                var quantity = parseInt($('#quantity').val() || 1);
 
-            $.ajax({
-                url: addCartUrl,
-                type: 'POST',
-                data: { id: spId },
-                success: function (res) {
-                    if (res.success) {
-                        $('#cart-count').text(res.totalQuantity);
-                          
-                        if (typeof updateMiniCart === "function") {
-                            updateMiniCart(res.cartItems, res.totalAmount);
+                var addCartUrl = '@Url.Action("ThemGioHang","Home")';
+
+                $.ajax({
+                    url: addCartUrl,
+                    type: 'POST',
+                    data: {
+                        id: spId,
+                        quantity: quantity
+                    },
+                    success: function (res) {
+                        if (res.success) {
+
+                            $('#cart-count').text(res.totalQuantity);
+
+                            if (typeof updateMiniCart === "function") {
+                                updateMiniCart(res.cartItems, res.totalAmount);
+                            }
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Đã thêm vào giỏ!',
+                                showConfirmButton: false,
+                                timer: 1000
+                            });
+
+                            $('.mini-cart-dropdown').addClass('active');
+
+                            setTimeout(function () {
+                                $('.mini-cart-dropdown').removeClass('active');
+                            }, 2500);
+
+                        } else {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Thông báo',
+                                text: res.message
+                            });
                         }
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Đã thêm vào giỏ!',
-                            showConfirmButton: false,
-                            timer: 1000
-                        });
-                        $('.mini-cart-dropdown').addClass('active');
-                        setTimeout(function() {
-                            $('.mini-cart-dropdown').removeClass('active');
-                        }, 2500);
-                    } else {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Thông báo',
-                            text: res.message
-                        });
+                    },
+                    error: function (xhr) {
+                        console.error(xhr.responseText);
+                        alert("Lỗi server!");
                     }
-                },
-                error: function (xhr, status, error) {
-                    console.error("Lỗi chi tiết:", xhr.responseText);
-                    alert("Không tìm thấy đường dẫn xử lý (Lỗi 404). Mạnh hãy kiểm tra lại tên Controller!");
-                }
+                });
             });
         });
-    });
     </script>
 </body>
 </html>

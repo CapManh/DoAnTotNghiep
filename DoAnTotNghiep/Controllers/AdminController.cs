@@ -107,12 +107,26 @@ namespace DoAnTotNghiep.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ThemSanPham(SanPham model, int MaThuongHieu, int MaChatLieu, int MaMau, int SoLuongTon = 10)
+        public ActionResult ThemSanPham(
+    SanPham model,
+    HttpPostedFileBase fileAnhChinh,
+    HttpPostedFileBase fileAnhPhu1,
+    HttpPostedFileBase fileAnhPhu2,
+    HttpPostedFileBase fileAnhPhu3,
+    int MaThuongHieu,
+    int MaChatLieu,
+    int MaMau,
+    int SoLuongTon = 10)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
+                    model.AnhChinh = SaveImage(fileAnhChinh);
+                    model.AnhPhu1 = SaveImage(fileAnhPhu1);
+                    model.AnhPhu2 = SaveImage(fileAnhPhu2);
+                    model.AnhPhu3 = SaveImage(fileAnhPhu3);
+
                     db.SanPham.Add(model);
                     db.SaveChanges();
 
@@ -134,6 +148,7 @@ namespace DoAnTotNghiep.Controllers
                 catch (Exception ex)
                 {
                     ViewBag.Error = "Lỗi khi thêm sản phẩm: " + ex.Message;
+
                     if (ex.InnerException != null)
                         ViewBag.Error += " - " + ex.InnerException.Message;
                 }
@@ -144,6 +159,25 @@ namespace DoAnTotNghiep.Controllers
             ViewBag.MauSacList = new SelectList(db.MauSac.ToList(), "MaMau", "TenMau");
 
             return View(model);
+        }
+        private string SaveImage(HttpPostedFileBase file)
+        {
+            if (file == null || file.ContentLength == 0)
+                return null;
+
+            string extension = Path.GetExtension(file.FileName);
+            string fileName = Guid.NewGuid() + extension;
+
+            string folder = Server.MapPath("~/AnhWeb");
+
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            string path = Path.Combine(folder, fileName);
+
+            file.SaveAs(path);
+
+            return "/AnhWeb/" + fileName;
         }
         public ActionResult ChinhSuaSanPham(int id)
         {
@@ -363,31 +397,12 @@ namespace DoAnTotNghiep.Controllers
         }
         public ActionResult ThemBanner()
         {
-            return View();
-        }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult ThemBanner(Banner model)
-        {
-            if (ModelState.IsValid)
+            Banner model = new Banner
             {
-                try
-                {
-                    model.NgayBatDau = model.NgayBatDau ?? DateTime.Now;
-                    model.NgayKetThuc = model.NgayKetThuc ?? DateTime.Now.AddMonths(1);
-                    model.TrangThai = model.TrangThai ?? true;
+                ThuTu = 1,
+                TrangThai = true
+            };
 
-                    db.Banner.Add(model);
-                    db.SaveChanges();
-
-                    TempData["Message"] = "Thêm banner thành công!";
-                    return RedirectToAction("QuanLyBanner");
-                }
-                catch (Exception ex)
-                {
-                    ViewBag.Error = "Lỗi khi thêm banner: " + ex.Message;
-                }
-            }
             return View(model);
         }
         public ActionResult ChinhSuaBanner(int id)
@@ -706,6 +721,7 @@ namespace DoAnTotNghiep.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult ThemBanner(Banner model, HttpPostedFileBase fileUpload)
         {
+
             if (ModelState.IsValid)
             {
                 try
@@ -725,7 +741,7 @@ namespace DoAnTotNghiep.Controllers
                         string path = Path.Combine(folder, fileName);
                         fileUpload.SaveAs(path);
 
-                        model.HinhAnh = "/AnhWeb/" + fileName; // ✅ đúng
+                        model.HinhAnh = "/AnhWeb/" + fileName;
                     }
 
                     db.Banner.Add(model);

@@ -85,7 +85,7 @@ namespace DoAnTotNghiep.Controllers
             return View(sanPhams);
         }
         [HttpPost]
-        public JsonResult ThemGioHang(int id, int soLuong = 1)
+        public JsonResult ThemGioHang(int id, int quantity = 1)
         {
             try
             {
@@ -103,13 +103,13 @@ namespace DoAnTotNghiep.Controllers
                     {
                         MaNguoiDung = maND,
                         MaSanPham = id,
-                        SoLuong = soLuong,
+                        SoLuong = quantity,
                         NgayTao = DateTime.Now
                     });
                 }
                 else
                 {
-                    item.SoLuong += soLuong;
+                    item.SoLuong += quantity;
                 }
 
                 db.SaveChanges();
@@ -164,7 +164,7 @@ namespace DoAnTotNghiep.Controllers
                 {
                     MaSP = x.MaSanPham,
                     TenSP = x.SanPham.TenSanPham,
-                    Anh = "/AnhWeb/" + x.SanPham.AnhChinh,
+                    Anh = x.SanPham.AnhChinh,
                     Gia = x.SanPham.Gia ?? 0,
                     SL = x.SoLuong ?? 0,
                     Link = "/Home/chitietsanpham/" + x.MaSanPham,

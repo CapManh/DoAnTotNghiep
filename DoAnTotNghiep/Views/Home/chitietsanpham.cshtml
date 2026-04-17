@@ -23,7 +23,7 @@
         <div class="col-lg-6">
             <div class="main-image mb-4">
                 <img id="mainImage"
-                     src="@Url.Content("~/AnhWeb/" + Model.AnhChinh)"
+                     src="@Url.Content(Model.AnhChinh)"
                      alt="@Model.TenSanPham"
                      onerror="this.src='~/AnhWeb/no-image.jpg';" />
             </div>
@@ -31,26 +31,26 @@
             <div class="d-flex gap-3 thumbnail">
                 @if (!string.IsNullOrEmpty(Model.AnhChinh))
                 {
-                    <img src="@Url.Content("~/AnhWeb/" + Model.AnhChinh)"
+                    <img src="@Url.Content(Model.AnhChinh)"
                          onclick="changeImage(this)"
                          class="active"
                          alt="Hình chính" />
                 }
                 @if (!string.IsNullOrEmpty(Model.AnhPhu1))
                 {
-                    <img src="@Url.Content("~/AnhWeb/" + Model.AnhPhu1)"
+                    <img src="@Url.Content(Model.AnhPhu1)"
                          onclick="changeImage(this)"
                          alt="Hình phụ 1" />
                 }
                 @if (!string.IsNullOrEmpty(Model.AnhPhu2))
                 {
-                    <img src="@Url.Content("~/AnhWeb/" + Model.AnhPhu2)"
+                    <img src="@Url.Content(Model.AnhPhu2)"
                          onclick="changeImage(this)"
                          alt="Hình phụ 2" />
                 }
                 @if (!string.IsNullOrEmpty(Model.AnhPhu3))
                 {
-                    <img src="@Url.Content("~/AnhWeb/" + Model.AnhPhu3)"
+                    <img src="@Url.Content(Model.AnhPhu3)"
                          onclick="changeImage(this)"
                          alt="Hình phụ 3" />
                 }
@@ -106,8 +106,8 @@
                     </div>
 
                     <div class="d-flex gap-3">
-                        <button id="btnAddCart"
-                                class="btn btn-danger px-4 py-2"
+                        <button
+                                class="add-cart btn btn-danger px-4 py-2"
                                 data-id="@Model.MaSanPham">
                             <i class="fas fa-cart-plus"></i> Thêm vào giỏ hàng
                         </button>
@@ -236,10 +236,10 @@
         let qty = parseInt(document.getElementById('quantity').value);
         let newQty = qty + change;
 
-        if (newQty >= 1) {
-            document.getElementById('quantity').value = newQty;
-            document.getElementById('hiddenQuantity').value = newQty;
-        }
+        if (newQty < 1) return;
+
+        document.getElementById('quantity').value = newQty;
+        document.getElementById('hiddenQuantity').value = newQty;
     }
 
     function muaNgay(btn) {
@@ -292,80 +292,50 @@
 
         return true;
     }
-    $(document).ready(function () {
-
-            $("#btnAddCart").click(function (e) {
-
+        $(document).ready(function () {
+            $(document).off('click', '.add-cart').on('click', '.add-cart', function (e) {
                 e.preventDefault();
 
-                var spId = $(this).data("id");
-                var quantity = $("#hiddenQuantity").val();
-
+                var spId = $(this).data('id');
                 var addCartUrl = '@Url.Action("ThemGioHang","Home")';
 
                 $.ajax({
                     url: addCartUrl,
-                    type: "POST",
-                    data: {
-                        id: spId,
-                        soLuong: quantity
-                    },
-
+                    type: 'POST',
+                    data: { id: spId },
                     success: function (res) {
-
                         if (res.success) {
+                            $('#cart-count').text(res.totalQuantity);
 
-                            $("#cart-count").text(res.totalQuantity);
-                            updateMiniCart(res)
                             if (typeof updateMiniCart === "function") {
                                 updateMiniCart(res.cartItems, res.totalAmount);
                             }
 
                             Swal.fire({
-                                icon: "success",
-                                title: "Đã thêm vào giỏ hàng!",
+                                icon: 'success',
+                                title: 'Đã thêm vào giỏ!',
                                 showConfirmButton: false,
-                                timer: 1200
+                                timer: 1000
                             });
-
+                            $('.mini-cart-dropdown').addClass('active');
+                            setTimeout(function() {
+                                $('.mini-cart-dropdown').removeClass('active');
+                            }, 2500);
                         } else {
-
                             Swal.fire({
-                                icon: "warning",
-                                title: "Thông báo",
+                                icon: 'warning',
+                                title: 'Thông báo',
                                 text: res.message
                             });
                         }
                     },
-
-                    error: function (xhr) {
-
-                        console.log(xhr.responseText);
-
-                        Swal.fire({
-                            icon: "error",
-                            title: "Lỗi hệ thống"
-                        });
+                    error: function (xhr, status, error) {
+                        console.error("Lỗi chi tiết:", xhr.responseText);
+                        alert("Không tìm thấy đường dẫn xử lý (Lỗi 404). Mạnh hãy kiểm tra lại tên Controller!");
                     }
                 });
-
             });
-
         });
-        function updateQuantity(change) {
-
-            let input = document.getElementById("quantity");
-            let hidden = document.getElementById("hiddenQuantity");
-
-            let qty = parseInt(input.value);
-
-            let newQty = qty + change;
-
-            if (newQty >= 1) {
-                input.value = newQty;
-                hidden.value = newQty;
-            }
-        }
 
 </script>
 

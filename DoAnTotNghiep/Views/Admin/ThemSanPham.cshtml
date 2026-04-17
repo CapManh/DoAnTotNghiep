@@ -102,7 +102,9 @@
                     <div class="alert alert-danger">@ViewBag.Error</div>
                 }
 
-                @using (Html.BeginForm())
+                @using (Html.BeginForm("ThemSanPham", "Admin",
+                    FormMethod.Post,
+                    new { enctype = "multipart/form-data" }))
                 {
                     @Html.AntiForgeryToken()
 
@@ -184,29 +186,31 @@
                     <h5>Hình ảnh</h5>
 
                     <div class="row">
+
                         <div class="col-md-6">
                             <label>Ảnh chính</label>
-                            @Html.TextBoxFor(m => m.AnhChinh, new { @class = "form-control", id = "anhChinh" })
-                            <img id="previewMain" class="preview-img" />
+                            <input type="file" name="fileAnhChinh" id="anhChinh" class="form-control" accept="image/*" />
+                            <img id="previewMain" class="preview-img mt-2" />
                         </div>
 
                         <div class="col-md-6">
                             <label>Ảnh phụ 1</label>
-                            @Html.TextBoxFor(m => m.AnhPhu1, new { @class = "form-control", id = "anh1" })
-                            <img id="preview1" class="preview-img" />
+                            <input type="file" name="fileAnhPhu1" id="anh1" class="form-control" accept="image/*" />
+                            <img id="preview1" class="preview-img mt-2" />
                         </div>
 
                         <div class="col-md-6 mt-3">
                             <label>Ảnh phụ 2</label>
-                            @Html.TextBoxFor(m => m.AnhPhu2, new { @class = "form-control", id = "anh2" })
-                            <img id="preview2" class="preview-img" />
+                            <input type="file" name="fileAnhPhu2" id="anh2" class="form-control" accept="image/*" />
+                            <img id="preview2" class="preview-img mt-2" />
                         </div>
 
                         <div class="col-md-6 mt-3">
                             <label>Ảnh phụ 3</label>
-                            @Html.TextBoxFor(m => m.AnhPhu3, new { @class = "form-control", id = "anh3" })
-                            <img id="preview3" class="preview-img" />
+                            <input type="file" name="fileAnhPhu3" id="anh3" class="form-control" accept="image/*" />
+                            <img id="preview3" class="preview-img mt-2" />
                         </div>
+
                     </div>
 
                     <!-- BUTTON -->
@@ -223,16 +227,21 @@
         </div>
     </div>
 
-    <script>function preview(inputId, imgId) {
-            document.getElementById(inputId).addEventListener("input", function () {
-                document.getElementById(imgId).src = this.value;
+    <script>
+        function previewImage(inputId, previewId) {
+            document.getElementById(inputId).addEventListener("change", function (e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const url = URL.createObjectURL(file);
+                    document.getElementById(previewId).src = url;
+                }
             });
         }
 
-        preview("anhChinh", "previewMain");
-        preview("anh1", "preview1");
-        preview("anh2", "preview2");
-        preview("anh3", "preview3");</script>
-
+        previewImage("anhChinh", "previewMain");
+        previewImage("anh1", "preview1");
+        previewImage("anh2", "preview2");
+        previewImage("anh3", "preview3");
+    </script>
 </body>
 </html>
