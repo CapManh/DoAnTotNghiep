@@ -8,29 +8,30 @@
     var sdt = Session["SDT"]?.ToString() ?? "";
     var diaChi = Session["DiaChi"]?.ToString() ?? "";
 
-    var tongTienGoc = Model.Sum(x => (x.SanPham.Gia ?? 0) * (x.SoLuong ?? 0));
+    var gioHang = Model ?? new List<DoAnTotNghiep.Models.GioHang>();
+
+    var tongTienGoc = gioHang.Sum(x => (x.SanPham?.Gia ?? 0) * (x.SoLuong ?? 0));
     var phiVanChuyen = 39000m;
     var tongThanhToan = tongTienGoc + phiVanChuyen;
 }
 
 <div class="container my-5">
 
-    <form method="post" action="/Home/DatHang">
+    @using (Html.BeginForm("DatHang", "Home", FormMethod.Post))
+    {
         @Html.AntiForgeryToken()
 
-        <input type="hidden" name="ids" value="@ViewBag.Ids" />
-        <input type="hidden"
-               id="TongTienInput"
-               name="TongTien"
-               value="@tongThanhToan" />
+        <input type="hidden" id="TongTienInput" name="TongTien" value="@tongThanhToan" />
         <input type="hidden" id="MaKhuyenMaiHidden" name="MaKhuyenMai" />
 
         <div class="row g-4">
 
+            <!-- LEFT -->
             <div class="col-lg-7">
 
-                <div class="card p-4 shadow-sm rounded-3 mb-4">
-                    <h5 class="mb-3">Thông tin nhận hàng</h5>
+                <div class="card p-4 mb-4">
+                    <h5>Thông tin nhận hàng</h5>
+
 
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -52,37 +53,63 @@
                     </div>
                 </div>
 
-                <div class="card p-4 shadow-sm rounded-3">
-                    <h5 class="mb-3">Phương thức thanh toán</h5>
+                <div class="card p-4">
+                    <h5>Phương thức thanh toán</h5>
 
-                    <div class="form-check mb-2">
-                        <input class="form-check-input" type="radio" name="MaPhuongThuc" value="1" checked />
-                        <label class="form-check-label">COD (Thanh toán khi nhận hàng)</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="MaPhuongThuc" value="2" checked />
+                        <label class="form-check-label">QR (Chuyển khoản)</label>
                     </div>
-                    <div class="form-check mb-2">
+
+                    <div class="form-check">
                         <input class="form-check-input" type="radio" name="MaPhuongThuc" value="5" />
-                        <label class="form-check-label">Chuyển khoản ngân hàng</label>
+                        <label class="form-check-label">COD (Thanh toán khi nhận)</label>
                     </div>
                 </div>
+
             </div>
 
+            <!-- RIGHT -->
             <div class="col-lg-5">
 
                 <div class="card p-4 shadow-sm rounded-3 sticky-top" style="top: 20px;">
 
                     <h4 class="mb-3">Đơn hàng của bạn</h4>
 
-                    @foreach (var item in Model)
+                    @if (gioHang.Any())
                     {
-                        <div class="d-flex justify-content-between border-bottom py-2">
-                            <div>
-                                <b>@item.SanPham.TenSanPham</b><br />
-                                <small>Số lượng: @item.SoLuong</small>
+                        foreach (var item in gioHang)
+                        {
+                            var gia = item.SanPham?.Gia ?? 0;
+                            var sl = item.SoLuong ?? 0;
+
+                            <div class="d-flex align-items-center justify-content-between border-bottom py-2">
+
+                                <div class="d-flex align-items-center">
+
+                                    <!-- ẢNH -->
+                                    <img src="~/AnhWeb/@(item.SanPham?.AnhChinh ?? "no-image.png")"
+                                         style="width:60px; height:60px; object-fit:cover; border-radius:8px; margin-right:10px;" />
+
+                                    <!-- TÊN -->
+                                    <div>
+                                        <b>@(item.SanPham?.TenSanPham ?? "SP lỗi")</b><br />
+                                        <small>Số lượng: @sl</small>
+                                    </div>
+
+                                </div>
+
+                                <!-- GIÁ -->
+                                <div class="text-end">
+                                    @(string.Format("{0:N0}", gia * sl)) ₫
+                                </div>
+
                             </div>
-                            <div class="text-end">
-                                @(string.Format("{0:N0}", (item.SanPham.Gia ?? 0) * (item.SoLuong ?? 0))) ₫
-                            </div>
-                        </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-danger">⚠ Không có sản phẩm</p>
                     }
 
                     <hr />
@@ -103,48 +130,22 @@
                         <label class="fw-bold mb-2">Mã khuyến mãi</label>
 
                         <div class="input-group">
-                            <input type="text"
-                                   id="MaGiamGiaInput"
-                                   class="form-control"
-                                   placeholder="Nhập mã giảm giá" />
-
-                            <button type="button"
-                                    id="btnApDungVoucher"
-                                    class="btn btn-dark">
+                            <input type="text" id="MaGiamGiaInput" class="form-control" placeholder="Nhập mã giảm giá" />
+                            <button type="button" id="btnApDungVoucher" class="btn btn-dark">
                                 Áp dụng
                             </button>
                         </div>
 
                         <small id="voucherMsg" class="text-success"></small>
                         <small id="voucherError" class="text-danger"></small>
-
-                        <div class="modal fade" id="voucherModal" tabindex="-1">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Chọn mã giảm giá</h5>
-                                        <button type="button" class="btn-close"
-                                                data-bs-dismiss="modal"></button>
-                                    </div>
-
-                                    <div class="modal-body" id="voucherList">
-                                        Loading...
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
                     </div>
+
                     <div id="codDepositBox" class="alert alert-warning mt-3 d-none">
                         <b>✅ Bạn chỉ cần đặt cọc 10%</b><br>
-
-                        Đặt cọc:
-                        <span id="tienDatCoc" class="fw-bold text-danger"></span><br>
-
-                        Còn lại khi nhận hàng:
-                        <span id="tienConLai" class="fw-bold"></span>
+                        Đặt cọc: <span id="tienDatCoc"></span><br>
+                        Còn lại: <span id="tienConLai"></span>
                     </div>
+
                     <div class="d-flex justify-content-between fs-4 fw-bold">
                         <span>Tổng thanh toán</span>
                         <span class="text-danger" id="TongTienText">@tongThanhToan.ToString("N0") ₫</span>
@@ -155,90 +156,38 @@
                     </button>
                 </div>
             </div>
+
         </div>
-    </form>
+    }
 </div>
+
 @section Scripts{
     <script>
-        let voucherApplied = false;
-
-        $('#btnApDungVoucher').click(function () {
-
-            const code = $('#MaGiamGiaInput').val().trim();
-
-            if (!code) {
-                $('#voucherError').text("Vui lòng nhập mã");
-                return;
-            }
-
-            const tongTienHang =
-                parseFloat($('#tongTienHang')
-                    .text()
-                    .replace(/[^0-9]/g, '')) || 0;
-
-            const phiShip = 39000;
-
-            $.post('/Home/ApDungVoucher',
-                {
-                    code: code,
-                    tongTien: tongTienHang
-                },
-                function (res) {
-
-                    if (res.success) {
-
-                        const giamTien =
-                            tongTienHang * res.giamGia / 100;
-
-                        const tongMoi =
-                            tongTienHang + phiShip - giamTien;
-
-                        $('#TongTienText')
-                            .text(tongMoi.toLocaleString('vi-VN') + ' ₫');
-                        $('#TongTienInput').val(tongMoi);
-                        $('#MaKhuyenMaiHidden').val(res.maKhuyenMai);
-
-                        $('#voucherMsg').text(res.message);
-                        $('#voucherError').text("");
-
-                        voucherApplied = true;
-                        updatePayment();
-                    } else {
-
-                        $('#voucherMsg').text("");
-                        $('#voucherError').text(res.message);
-                    }
-                });
-        });
         function formatMoney(n) {
             return n.toLocaleString('vi-VN') + ' ₫';
         }
+
         function updatePayment() {
-
-            const method =
-                document.querySelector('input[name="MaPhuongThuc"]:checked').value;
-
-            const tongTien =
-                parseFloat($('#TongTienText').text().replace(/[^0-9]/g, ''));
+            const method = document.querySelector('input[name="MaPhuongThuc"]:checked').value;
+            const tongTien = parseFloat($('#TongTienText').text().replace(/[^0-9]/g, ''));
 
             if (!tongTien) return;
 
-            const depositBox = $('#codDepositBox');
+            const box = $('#codDepositBox');
 
-            if (method == "1") {
-
+            if (method == "5") { // ✅ COD đúng
                 const datCoc = Math.round(tongTien * 0.1);
                 const conLai = tongTien - datCoc;
 
                 $('#tienDatCoc').text(formatMoney(datCoc));
                 $('#tienConLai').text(formatMoney(conLai));
 
-                depositBox.removeClass('d-none');
-            }
-            else {
-                depositBox.addClass('d-none');
+                box.removeClass('d-none');
+            } else {
+                box.addClass('d-none');
             }
         }
+
         $('input[name="MaPhuongThuc"]').change(updatePayment);
 
         $(document).ready(function () {

@@ -1,0 +1,164 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .qr-container {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+
+    .qr-card {
+        background: #fff;
+        padding: 40px;
+        border-radius: 20px;
+        text-align: center;
+        width: 420px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+        animation: fadeIn 0.6s ease;
+    }
+
+        .qr-card h2 {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+    .sub-text {
+        color: #666;
+        margin-bottom: 20px;
+    }
+
+    .qr-info {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+
+        .qr-info div {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+    .price {
+        color: #e60023;
+        font-size: 18px;
+    }
+
+    .code {
+        color: #007bff;
+        font-weight: bold;
+    }
+
+    .qr-box {
+        margin: 20px 0;
+    }
+
+        .qr-box img {
+            width: 220px;
+            height: 220px;
+            border-radius: 12px;
+            border: 5px solid #f1f1f1;
+            transition: 0.3s;
+        }
+
+            .qr-box img:hover {
+                transform: scale(1.05);
+            }
+
+    .btn-confirm {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: #fff;
+        font-size: 16px;
+        border-radius: 30px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+        .btn-confirm:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+    keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    }
+</style>
+
+<div class="qr-container">
+
+    <div class="qr-card">
+
+        <h2>Thanh toán chuyển khoản</h2>
+        <p class="sub-text">Vui lòng quét mã QR để thanh toán 💳</p>
+
+        <div class="qr-info">
+            <div>
+                <span>Mã đơn</span>
+                <b>#@ViewBag.MaDonHang</b>
+            </div>
+
+            <div>
+                <span>Tiền cọc</span>
+                <b class="price">@ViewBag.TienCoc.ToString("N0") ₫</b>
+            </div>
+
+            <div>
+                <span>Nội dung CK</span>
+                <b class="code">@ViewBag.NoiDung</b>
+            </div>
+        </div>
+
+        <div class="qr-box">
+            <img src="@ViewBag.QR" alt="QR Code" />
+        </div>
+
+        <button class="btn-confirm" onclick="xacNhan()">
+            ✅ Tôi đã chuyển khoản
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+function xacNhan() {
+    fetch('/Home/XacNhanChuyenKhoan', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ maDonHang: @ViewBag.MaDonHang })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("✅ Thanh toán thành công!");
+            window.location = "/Home/TrangChu";
+        } else {
+            alert("❌ Thanh toán thất bại!");
+        }
+    })
+    .catch(() => {
+        alert("⚠ Lỗi kết nối!");
+    });
+}
+</script>
