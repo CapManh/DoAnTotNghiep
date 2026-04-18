@@ -142,7 +142,6 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\ThanhToanController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -1474,8 +1473,6 @@
     <Content Include="Views\Home\sanpham1.cshtml" />
     <Content Include="Views\Home\ChiTietSanPham.cshtml" />
     <Content Include="Views\Home\ThanhToan.cshtml" />
-    <Content Include="Views\ThanhToan\QR.cshtml" />
-    <Content Include="Views\ThanhToan\QR1.cshtml" />
     <Content Include="Views\Home\DonHangCuaToi.cshtml" />
     <Content Include="Views\Admin\QuanLySanPham.cshtml" />
     <Content Include="Views\Admin\ThemSanPham.cshtml" />

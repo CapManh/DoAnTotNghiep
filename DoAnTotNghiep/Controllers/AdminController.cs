@@ -29,7 +29,7 @@ namespace DoAnTotNghiep.Controllers
             if (Session["VaiTro"] == null || (int)Session["VaiTro"] != 1)
                 return RedirectToAction("Login", "Home");
             {
-                var db = new Model1(); // hoặc DbContext của bạn
+                var db = new Model1();
 
                 ViewBag.SoSanPham = db.SanPham.Count();
                 ViewBag.SoNguoiDung = db.NguoiDung.Count();
@@ -44,41 +44,36 @@ namespace DoAnTotNghiep.Controllers
             var today = DateTime.Today;
             var tomorrow = today.AddDays(1);
             var firstDayOfMonth = new DateTime(today.Year, today.Month, 1);
+            var doanhThu = db.ChiTietDonHang.Sum(od => (decimal?)(od.Gia * od.SoLuong)) ?? 0;
+            var soLuongDonHang = db.DonHang.Count();
+            var soLuongKhachHang = db.NguoiDung.Count(u => u.MaVaiTro == 2);
+            var soLuongNhanVien = db.NguoiDung.Count(u => u.MaVaiTro == 3 || u.MaVaiTro == 4);
+            var soLuongSanPham = db.SanPham.Count();
+            var soLuongDanhMuc = db.DanhMuc.Count();
+            var tongDanhGia = db.DanhGia.Count();
+            var tongTonKho = db.ChiTietSanPham.Sum(ct => (int?)ct.SoLuongTon) ?? 0;
 
-            // === Tổng quan chính (KPI Cards) ===
-            var doanhThu = db.ChiTietDonHangs.Sum(od => (decimal?)(od.Gia * od.SoLuong)) ?? 0;
-            var soLuongDonHang = db.DonHangs.Count();
-            var soLuongKhachHang = db.NguoiDungs.Count(u => u.MaVaiTro == 2); // Khách hàng
-            var soLuongNhanVien = db.NguoiDungs.Count(u => u.MaVaiTro == 3 || u.MaVaiTro == 4); // Nhân viên + Quản lý
-            var soLuongSanPham = db.SanPhams.Count();
-            var soLuongDanhMuc = db.DanhMucs.Count();
-            var tongDanhGia = db.DanhGias.Count();
-            var tongTonKho = db.ChiTietSanPhams.Sum(ct => (int?)ct.SoLuongTon) ?? 0;
-
-            // Giá trị tồn kho (Stock Value)
-            var giaTriTonKho = db.ChiTietSanPhams
+            var giaTriTonKho = db.ChiTietSanPham
                 .Include(ct => ct.SanPham)
                 .Sum(ct => (decimal?)(ct.SoLuongTon * ct.SanPham.Gia)) ?? 0;
 
-            var donHangHomNay = db.DonHangs.Count(o => o.NgayDat >= today && o.NgayDat < tomorrow);
-            var sanPhamHetHang = db.ChiTietSanPhams.Count(ct => ct.SoLuongTon == 0);
-            var sanPhamSapHet = db.ChiTietSanPhams.Count(ct => ct.SoLuongTon > 0 && ct.SoLuongTon <= 5);
+            var donHangHomNay = db.DonHang.Count(o => o.NgayDat >= today && o.NgayDat < tomorrow);
+            var sanPhamHetHang = db.ChiTietSanPham.Count(ct => ct.SoLuongTon == 0);
+            var sanPhamSapHet = db.ChiTietSanPham.Count(ct => ct.SoLuongTon > 0 && ct.SoLuongTon <= 5);
 
-            var khachHangMoiThangNay = db.NguoiDungs
+            var khachHangMoiThangNay = db.NguoiDung
                 .Count(u => u.MaVaiTro == 2 && u.NgayTao >= firstDayOfMonth);
 
-            var donHangHuy = db.DonHangs.Count(o => o.TrangThai == "Đã hủy");
-            var donHangHoanThanh = db.DonHangs.Count(o => o.TrangThai == "Hoàn thành");
+            var donHangHuy = db.DonHang.Count(o => o.TrangThai == "Đã hủy");
+            var donHangHoanThanh = db.DonHang.Count(o => o.TrangThai == "Hoàn thành");
             var tyLeHoanThanh = soLuongDonHang > 0
                 ? Math.Round((decimal)donHangHoanThanh * 100 / soLuongDonHang, 1) : 0;
 
             var trungBinhDanhGia = tongDanhGia > 0
-                ? Math.Round(db.DanhGias.Average(r => (decimal)r.SoSao), 1) : 0;
+                ? Math.Round(db.DanhGia.Average(r => (decimal)r.SoSao), 1) : 0;
 
             var averageOrderValue = soLuongDonHang > 0
                 ? Math.Round(doanhThu / soLuongDonHang, 0) : 0;
-
-            // Gửi tất cả KPI ra View
             ViewBag.DoanhThu = doanhThu;
             ViewBag.SoLuongDonHang = soLuongDonHang;
             ViewBag.SoLuongKhachHang = soLuongKhachHang;
@@ -97,10 +92,9 @@ namespace DoAnTotNghiep.Controllers
             ViewBag.TrungBinhDanhGia = trungBinhDanhGia;
             ViewBag.AverageOrderValue = averageOrderValue;
 
-            // === Doanh thu theo tháng ===
-            var doanhThuTheoThangRaw = db.DonHangs
+            var doanhThuTheoThangRaw = db.DonHang
                 .Where(o => o.NgayDat.HasValue)
-                .SelectMany(o => o.ChiTietDonHangs.Select(od => new
+                .SelectMany(o => o.ChiTietDonHang.Select(od => new
                 {
                     Thang = o.NgayDat.Value.Month,
                     Nam = o.NgayDat.Value.Year,
@@ -125,7 +119,7 @@ namespace DoAnTotNghiep.Controllers
             }).ToList();
 
             // === Tỷ lệ đơn hàng theo trạng thái ===
-            var tyLeDonHang = db.DonHangs
+            var tyLeDonHang = db.DonHang
                 .GroupBy(o => o.TrangThai ?? "Không xác định")
                 .Select(g => new
                 {
@@ -143,7 +137,7 @@ namespace DoAnTotNghiep.Controllers
             }).ToList();
 
             // === Top 5 Sản phẩm bán chạy (group theo MaSanPham) ===
-            var topSanPham = db.ChiTietDonHangs
+            var topSanPham = db.ChiTietDonHang
                 .Include(cd => cd.ChiTietSanPham.SanPham)
                 .GroupBy(cd => cd.ChiTietSanPham.MaSanPham)
                 .Select(g => new
@@ -159,7 +153,7 @@ namespace DoAnTotNghiep.Controllers
             {
                 dynamic obj = new ExpandoObject();
                 obj.ProductName = item.MaSanPham != null
-                    ? db.SanPhams.FirstOrDefault(p => p.MaSanPham == item.MaSanPham)?.TenSanPham ?? "Không rõ"
+                    ? db.SanPham.FirstOrDefault(p => p.MaSanPham == item.MaSanPham)?.TenSanPham ?? "Không rõ"
                     : "Không rõ";
                 obj.Quantity = item.SoLuongBan;
                 return obj;
@@ -168,7 +162,7 @@ namespace DoAnTotNghiep.Controllers
             ViewBag.TopSanPhamBanChay = listTopSanPham;
 
             // === Top 5 Khách hàng mua nhiều nhất ===
-            var topKhachHang = db.DonHangs
+            var topKhachHang = db.DonHang
                 .GroupBy(o => o.MaNguoiDung)
                 .Select(g => new { MaNguoiDung = g.Key, SoDonHang = g.Count() })
                 .OrderByDescending(x => x.SoDonHang)
@@ -178,7 +172,7 @@ namespace DoAnTotNghiep.Controllers
             var listTopKhachHang = topKhachHang.Select(item =>
             {
                 dynamic obj = new ExpandoObject();
-                var user = db.NguoiDungs.FirstOrDefault(u => u.MaNguoiDung == item.MaNguoiDung);
+                var user = db.NguoiDung.FirstOrDefault(u => u.MaNguoiDung == item.MaNguoiDung);
                 obj.FullName = user?.Ten ?? "Không rõ";
                 obj.SoDonHang = item.SoDonHang;
                 return obj;
@@ -187,7 +181,7 @@ namespace DoAnTotNghiep.Controllers
             ViewBag.TopKhachHang = listTopKhachHang;
 
             // === Sản phẩm đánh giá thấp (1-2 sao) ===
-            var sanPhamThap = db.DanhGias
+            var sanPhamThap = db.DanhGia
                 .Where(r => r.SoSao >= 1 && r.SoSao <= 2)
                 .GroupBy(r => r.MaSanPham)
                 .Select(g => new { MaSanPham = g.Key, SoLuong = g.Count() })
@@ -198,16 +192,16 @@ namespace DoAnTotNghiep.Controllers
             ViewBag.SanPhamDanhGiaThap = sanPhamThap.Select(item =>
             {
                 dynamic obj = new ExpandoObject();
-                var sp = db.SanPhams.FirstOrDefault(p => p.MaSanPham == item.MaSanPham);
+                var sp = db.SanPham.FirstOrDefault(p => p.MaSanPham == item.MaSanPham);
                 obj.ProductName = sp?.TenSanPham ?? "Không rõ";
                 obj.SoDanhGiaThap = item.SoLuong;
                 return obj;
             }).ToList();
 
             // === Sản phẩm chưa từng bán ===
-            var sanPhamChuaBanRaw = db.SanPhams
-                .Where(p => !db.ChiTietDonHangs.Any(cd =>
-                    db.ChiTietSanPhams.Any(ct => ct.MaChiTiet == cd.MaChiTietSanPham && ct.MaSanPham == p.MaSanPham)))
+            var sanPhamChuaBanRaw = db.SanPham
+                .Where(p => !db.ChiTietDonHang.Any(cd =>
+                    db.ChiTietSanPham.Any(ct => ct.MaChiTiet == cd.MaChiTietSanPham && ct.MaSanPham == p.MaSanPham)))
                 .Select(p => p.TenSanPham)
                 .ToList();
 

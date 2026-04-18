@@ -156,7 +156,7 @@
                                 <div class="img-box">
                                     @if (!string.IsNullOrEmpty(item.AnhChinh))
                                     {
-                                        <img src="@Url.Content("~/AnhWeb/" + item.AnhChinh)" alt="@item.TenSanPham" />
+                                        <img src="@Url.Content(item.AnhChinh)" alt="@item.TenSanPham" />
                                     }
                                     else
                                     {

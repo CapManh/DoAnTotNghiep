@@ -25,25 +25,25 @@
         <div class="col-lg-6">
             <!-- Phần hình ảnh giữ nguyên -->
             <div class="main-image mb-4">
-                <img id="mainImage" src="@Url.Content("~/AnhWeb/" + Model.AnhChinh)" alt="@Model.TenSanPham"
+                <img id="mainImage" src="@Url.Content(Model.AnhChinh)" alt="@Model.TenSanPham"
                      onerror="this.src='~/AnhWeb/no-image.jpg';" />
             </div>
             <div class="d-flex gap-3 thumbnail">
                 @if (!string.IsNullOrEmpty(Model.AnhChinh))
                 {
-                    <img src="@Url.Content("~/AnhWeb/" + Model.AnhChinh)" onclick="changeImage(this)" class="active" alt="Hình chính" />
+                    <img src="@Url.Content(Model.AnhChinh)" onclick="changeImage(this)" class="active" alt="Hình chính" />
                 }
                 @if (!string.IsNullOrEmpty(Model.AnhPhu1))
                 {
-                    <img src="@Url.Content("~/AnhWeb/" + Model.AnhPhu1)" onclick="changeImage(this)" alt="Hình phụ 1" />
+                    <img src="@Url.Content(Model.AnhPhu1)" onclick="changeImage(this)" alt="Hình phụ 1" />
                 }
                 @if (!string.IsNullOrEmpty(Model.AnhPhu2))
                 {
-                    <img src="@Url.Content("~/AnhWeb/" + Model.AnhPhu2)" onclick="changeImage(this)" alt="Hình phụ 2" />
+                    <img src="@Url.Content(Model.AnhPhu2)" onclick="changeImage(this)" alt="Hình phụ 2" />
                 }
                 @if (!string.IsNullOrEmpty(Model.AnhPhu3))
                 {
-                    <img src="@Url.Content("~/AnhWeb/" + Model.AnhPhu3)" onclick="changeImage(this)" alt="Hình phụ 3" />
+                    <img src="@Url.Content(Model.AnhPhu3)" onclick="changeImage(this)" alt="Hình phụ 3" />
                 }
             </div>
         </div>

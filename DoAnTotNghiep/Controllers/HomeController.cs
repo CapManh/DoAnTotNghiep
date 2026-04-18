@@ -39,6 +39,9 @@ namespace DoAnTotNghiep.Controllers
                     Session["MaNguoiDung"] = user.MaNguoiDung;
                     Session["TenNguoiDung"] = user.Ten;
                     Session["VaiTro"] = user.MaVaiTro;
+                    Session["Email"] = user.Email;
+                    Session["SDT"] = user.SoDienThoai;
+                    Session["DiaChi"] = user.DiaChi;
 
                     string redirectUrl = "/";
 
@@ -139,7 +142,7 @@ namespace DoAnTotNghiep.Controllers
                 {
                     MaSP = x.MaSanPham,
                     TenSP = x.SanPham.TenSanPham,
-                    Anh = "/AnhWeb/" + x.SanPham.AnhChinh,
+                    AnhChinh =x.SanPham.AnhChinh,
                     Gia = x.SanPham.Gia ?? 0,
                     SL = x.SoLuong,
                     Link = "/Home/chitietsanpham/" + x.MaSanPham
@@ -164,7 +167,7 @@ namespace DoAnTotNghiep.Controllers
                 {
                     MaSP = x.MaSanPham,
                     TenSP = x.SanPham.TenSanPham,
-                    Anh = x.SanPham.AnhChinh,
+                    AnhChinh = x.SanPham.AnhChinh,
                     Gia = x.SanPham.Gia ?? 0,
                     SL = x.SoLuong ?? 0,
                     Link = "/Home/chitietsanpham/" + x.MaSanPham,
@@ -536,7 +539,7 @@ namespace DoAnTotNghiep.Controllers
         }
         public ActionResult chitietsanpham(int id)
         {
-            var sanPham = db.SanPhams
+            var sanPham = db.SanPham
                 .FirstOrDefault(sp => sp.MaSanPham == id);
 
             if (sanPham == null)
@@ -545,7 +548,7 @@ namespace DoAnTotNghiep.Controllers
             }
 
             // Lấy chi tiết sản phẩm (variant) để lấy số lượng tồn kho
-            var chiTiet = db.ChiTietSanPhams
+            var chiTiet = db.ChiTietSanPham
                 .Include("ThuongHieu")
                 .Include("ChatLieu")
                 .Include("MauSac")
@@ -568,10 +571,10 @@ namespace DoAnTotNghiep.Controllers
             double averageRating = 0.0;
             try
             {
-                reviewCount = db.DanhGias.Count(r => r.MaSanPham == id);
+                reviewCount = db.DanhGia.Count(r => r.MaSanPham == id);
                 if (reviewCount > 0)
                 {
-                    averageRating = db.DanhGias
+                    averageRating = db.DanhGia
                         .Where(r => r.MaSanPham == id)
                         .Average(r => (double)r.SoSao);
                 }
@@ -581,8 +584,8 @@ namespace DoAnTotNghiep.Controllers
             int soldCount = 0;
             try
             {
-                var total = db.ChiTietDonHangs
-                    .Join(db.ChiTietSanPhams,
+                var total = db.ChiTietDonHang
+                    .Join(db.ChiTietSanPham,
                         cd => cd.MaChiTietSanPham,
                         ct => ct.MaChiTiet,
                         (cd, ct) => new { cd, ct })
@@ -592,7 +595,7 @@ namespace DoAnTotNghiep.Controllers
             }
             catch { }
 
-            var danhGias = db.DanhGias
+            var danhGias = db.DanhGia
                 .Include(x => x.NguoiDung)
                 .Where(x => x.MaSanPham == id)
                 .OrderByDescending(x => x.NgayDanhGia)
@@ -603,7 +606,7 @@ namespace DoAnTotNghiep.Controllers
             ViewBag.AverageRating = averageRating;
             ViewBag.ReviewCount = reviewCount;
             ViewBag.SoldCount = soldCount;
-            ViewBag.SoLuongTon = soLuongTon;        // ← Thêm dòng này
+            ViewBag.SoLuongTon = soLuongTon;
             ViewBag.DanhGias = danhGias;
 
             LoadMenu();
@@ -744,7 +747,7 @@ namespace DoAnTotNghiep.Controllers
 
             int maND = Convert.ToInt32(Session["MaNguoiDung"]);
 
-            var gioHang = db.GioHangs
+            var gioHang = db.GioHang
                 .Include("SanPham")
                 .Where(x => x.MaNguoiDung == maND)
                 .ToList();
@@ -763,7 +766,7 @@ namespace DoAnTotNghiep.Controllers
 
                     if (!string.IsNullOrEmpty(MaGiamGia))
                     {
-                        var voucher = db.KhuyenMais
+                        var voucher = db.KhuyenMai
                             .FirstOrDefault(x => x.MaCode == MaGiamGia);
 
                         if (voucher != null)
@@ -781,12 +784,12 @@ namespace DoAnTotNghiep.Controllers
                         MaKhuyenMai = maKhuyenMai
                     };
 
-                    db.DonHangs.Add(donHang);
+                    db.DonHang.Add(donHang);
                     db.SaveChanges();
 
                     foreach (var item in gioHang)
                     {
-                        var chiTietSP = db.ChiTietSanPhams
+                        var chiTietSP = db.ChiTietSanPham
                             .FirstOrDefault(x => x.MaSanPham == item.MaSanPham);
 
                         if (chiTietSP == null) continue;
@@ -795,7 +798,7 @@ namespace DoAnTotNghiep.Controllers
 
                         chiTietSP.SoLuongTon = (chiTietSP.SoLuongTon ?? 0) - soLuong;
 
-                        db.ChiTietDonHangs.Add(new ChiTietDonHang
+                        db.ChiTietDonHang.Add(new ChiTietDonHang
                         {
                             MaDonHang = donHang.MaDonHang,
                             MaChiTietSanPham = chiTietSP.MaChiTiet,
@@ -804,13 +807,11 @@ namespace DoAnTotNghiep.Controllers
                         });
                     }
 
-                    db.GioHangs.RemoveRange(gioHang);
+                    db.GioHang.RemoveRange(gioHang);
                     db.SaveChanges();
-
-                    // ================== THANH TOÁN ==================
                     if (MaPhuongThuc == 5) // COD
                     {
-                        db.ThanhToans.Add(new ThanhToan
+                        db.ThanhToan.Add(new ThanhToan
                         {
                             MaDonHang = donHang.MaDonHang,
                             MaPhuongThuc = 5,
@@ -824,7 +825,6 @@ namespace DoAnTotNghiep.Controllers
                     db.SaveChanges();
                     transaction.Commit();
 
-                    // ================== REDIRECT ==================
                     if (MaPhuongThuc == 2)
                     {
                         return RedirectToAction("QR", new { maDonHang = donHang.MaDonHang });
@@ -841,12 +841,13 @@ namespace DoAnTotNghiep.Controllers
                     transaction.Rollback();
                     return Content("LỖI: " + ex.Message);
                 }
+
             }
         }
 
         public ActionResult QR(int maDonHang)
         {
-            var donHang = db.DonHangs.FirstOrDefault(x => x.MaDonHang == maDonHang);
+            var donHang = db.DonHang.FirstOrDefault(x => x.MaDonHang == maDonHang);
 
             if (donHang == null)
                 return RedirectToAction("GioHang");
@@ -875,7 +876,7 @@ namespace DoAnTotNghiep.Controllers
         [HttpPost]
         public JsonResult XacNhanChuyenKhoan(int maDonHang)
         {
-            var donHang = db.DonHangs.FirstOrDefault(x => x.MaDonHang == maDonHang);
+            var donHang = db.DonHang.FirstOrDefault(x => x.MaDonHang == maDonHang);
 
             if (donHang == null)
             {
@@ -884,7 +885,7 @@ namespace DoAnTotNghiep.Controllers
 
             donHang.TrangThai = "Đã thanh toán";
 
-            db.ThanhToans.Add(new ThanhToan
+            db.ThanhToan.Add(new ThanhToan
             {
                 MaDonHang = maDonHang,
                 MaPhuongThuc = 2,
@@ -900,7 +901,7 @@ namespace DoAnTotNghiep.Controllers
         }
         public ActionResult ThanhCongCOD(int maDonHang)
         {
-            var donHang = db.DonHangs.FirstOrDefault(x => x.MaDonHang == maDonHang);
+            var donHang = db.DonHang.FirstOrDefault(x => x.MaDonHang == maDonHang);
 
             if (donHang == null)
                 return RedirectToAction("GioHang");
@@ -980,7 +981,7 @@ namespace DoAnTotNghiep.Controllers
                     .Where(x => x.TrangThai == trangThai)
                     .ToList();
             }
-
+            LoadMenu();
             return View(donHangs);
         }
 
