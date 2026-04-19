@@ -1,31 +1,21 @@
 ﻿@model IEnumerable<DoAnTotNghiep.Models.GioHang>
 @{
-    ViewBag.Title = "Giỏ hàng của tôi";
+    ViewBag.Title = "Giỏ hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
 <link rel="stylesheet" href="@Url.Content("~/Content/GioHang.css")" />
-
-<section class="policy-header">
-    <div class="container text-center text-white">
-        <h1 class="fw-bold">Giỏ hàng</h1>
-        <p>
-            <a href="/" class="text-white text-decoration-none opacity-100 hover-opacity-75">Trang chủ</a>
-            / <span class="opacity-75">Giỏ hàng</span>
-        </p>
-    </div>
-</section>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <div class="container my-5">
     @if (Model != null && Model.Any())
     {
         <div class="row">
             <div class="col-lg-8">
-                <div class="card shadow-sm border-0 p-3">
+                <div class="card p-3 shadow-sm">
                     <table class="table align-middle" id="cartTable">
                         <thead>
-                            <tr class="text-muted small">
-                                <th><input type="checkbox" id="selectAll" class="form-check-input"></th>
+                            <tr>
+                                <th><input type="checkbox" id="selectAll"></th>
                                 <th>SẢN PHẨM</th>
                                 <th>GIÁ</th>
                                 <th>SỐ LƯỢNG</th>
@@ -36,79 +26,29 @@
                         <tbody>
                             @foreach (var item in Model)
                             {
-                                var thanhTien = (item.SanPham.Gia ?? 0) * item.SoLuong;
-                                <tr>
+                                var gia = item.SanPham?.Gia ?? 0;
+                                var soLuong = item.SoLuong ?? 1;
+                                var tonKho = item.SanPham?.ChiTietSanPhams?.FirstOrDefault()?.SoLuongTon ?? 0;
+
+                                <tr data-stock="@tonKho" data-product-name="@item.SanPham.TenSanPham">
+                                    <td><input type="checkbox" class="item-checkbox" value="@item.MaSanPham"></td>
                                     <td>
-                                        <input type="checkbox" class="item-checkbox"
-                                               data-price="@item.SanPham.Gia"
-                                               data-qty="@item.SoLuong"
-                                               value="@item.MaSanPham">
-                                    </td>
-                                    <td>
-                                        <a href="@Url.Action("chitietsanpham", "Home", new { id = item.MaSanPham })"
-                                           class="text-decoration-none text-dark">
-
-                                            <div class="d-flex align-items-center">
-
-                                                <img src="@Url.Content(item.SanPham.AnhChinh)"
-                                                     class="rounded"
-                                                     style="width:60px; height:60px; object-fit:cover;">
-
-                                                <div class="ms-3">
-                                                    <h6 class="mb-1 fw-bold">@item.SanPham.TenSanPham</h6>
-
-                                                    <div class="small text-muted">
-                                                        Thương hiệu: @(item.SanPham.ChiTietSanPham.FirstOrDefault()?.ThuongHieu?.TenThuongHieu ?? "N/A")
-                                                    </div>
-
-                                                    <div class="small text-muted">
-                                                        Màu: @(item.SanPham.ChiTietSanPham.FirstOrDefault()?.MauSac?.TenMau ?? "N/A")
-                                                    </div>
-                                                    <div class="small text-muted">
-                                                        Chất liệu: @(item.SanPham.ChiTietSanPham.FirstOrDefault()?.ChatLieu?.TenChatLieu ?? "N/A")
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </a>
-                                    </td>
-                                    <td class="text-secondary">@string.Format("{0:N0}", item.SanPham.Gia)đ</td>
-                                    <td>
-                                        <div class="qty-wrapper">
-
-                                            <div class="view-mode">
-                                                <span class="fw-bold qty-view">@item.SoLuong</span>
-                                            </div>
-                                            <div class="edit-mode d-none">
-                                                <div class="qty-input">
-                                                    <button onclick="updateQty(this, -1)" data-id="@item.MaSanPham">-</button>
-                                                    <input type="text" value="@item.SoLuong" class="qty">
-                                                    <button onclick="updateQty(this, 1)" data-id="@item.MaSanPham">+</button>
-
-                                                </div>
-
-                                                <button class="btn btn-success btn-sm mt-1"
-                                                        onclick="saveQty(this)"
-                                                        data-id="@item.MaSanPham">
-                                                    Lưu
-                                                </button>
-                                            </div>
-
+                                        <div class="d-flex align-items-center">
+                                            <img src="@Url.Content(item.SanPham.AnhChinh ?? "")" style="width:60px;height:60px;object-fit:cover">
+                                            <div class="ms-3"><h6>@item.SanPham.TenSanPham</h6></div>
                                         </div>
                                     </td>
-                                    <td class="price" data-price="@item.SanPham.Gia">
-                                        @string.Format("{0:N0}", item.SanPham.Gia) đ
-                                    </td>
+                                    <td class="price" data-price="@gia">@string.Format("{0:N0}", gia) ₫</td>
                                     <td>
-                                        <button onclick="toggleEdit(this)"
-                                                class="btn btn-sm text-primary border-0">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </button>
-
-                                        <button onclick="deleteItem(@item.MaSanPham)"
-                                                class="btn btn-sm text-danger border-0">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
+                                        <div class="d-flex align-items-center">
+                                            <button class="btn btn-outline-secondary btn-sm minus">-</button>
+                                            <input type="number" class="form-control text-center mx-2 qty-input" value="@soLuong" min="1" style="width:70px">
+                                            <button class="btn btn-outline-secondary btn-sm plus">+</button>
+                                        </div>
+                                    </td>
+                                    <td class="total">@string.Format("{0:N0}", gia * soLuong) ₫</td>
+                                    <td>
+                                        <button onclick="deleteItem(@item.MaSanPham)" class="btn btn-danger btn-sm">Xóa</button>
                                     </td>
                                 </tr>
                             }
@@ -118,17 +58,17 @@
             </div>
 
             <div class="col-lg-4">
-                <div class="card shadow-sm border-0 p-4 sticky-top" style="top: 20px;">
-                    <h5 class="fw-bold mb-4">Tóm tắt đơn hàng</h5>
-                    <div class="d-flex justify-content-between mb-3">
+                <div class="card p-4 shadow-sm sticky-top">
+                    <h5>Tóm tắt</h5>
+                    <div class="d-flex justify-content-between">
                         <span>Đã chọn:</span>
-                        <span id="selectedCount" class="fw-bold">0</span>
+                        <span id="selectedCount">0</span>
                     </div>
-                    <div class="d-flex justify-content-between border-top pt-3 mb-4">
-                        <span class="h5">Tổng tiền:</span>
-                        <span id="totalAmount" class="h5 fw-bold text-danger">0 đ</span>
+                    <div class="d-flex justify-content-between mt-3">
+                        <span>Tổng tiền:</span>
+                        <span id="totalAmount">0 ₫</span>
                     </div>
-                    <button onclick="processCheckout()" class="btn btn-orange w-100 py-3 fw-bold">
+                    <button id="btnThanhToan" class="btn btn-warning w-100 mt-4 fw-bold py-3">
                         THANH TOÁN NGAY
                     </button>
                 </div>
@@ -138,201 +78,220 @@
     else
     {
         <div class="text-center py-5">
-            <h4 class="mt-4 text-muted">Giỏ hàng của bạn đang trống</h4>
-            <a href="@Url.Action("sanpham1", "Home")" class="btn btn-orange px-4 mt-2">Mua sắm ngay</a>
+            <h4>Giỏ hàng của bạn đang trống</h4>
+            <a href="/Home/sanpham1" class="btn btn-primary mt-3">Tiếp tục mua sắm</a>
         </div>
     }
 </div>
-
 <script>
-    function toggleEdit(el) {
-        let row = $(el).closest('tr');
-
-        row.find('.view-mode').toggleClass('d-none');
-        row.find('.edit-mode').toggleClass('d-none');
-    }
-    const checkboxes = document.querySelectorAll('.item-checkbox');
-    const selectAll = document.getElementById('selectAll');
-
-    function calculateTotal() {
+    // ==================== CẬP NHẬT TỔNG TIỀN & SỐ LƯỢNG ĐÃ CHỌN ====================
+    function updateCart() {
         let total = 0;
         let count = 0;
 
-        document.querySelectorAll('.item-checkbox').forEach(cb => {
-            if (cb.checked) {
+        document.querySelectorAll('#cartTable tbody tr').forEach(row => {
+            const checkbox = row.querySelector('.item-checkbox');
+            if (!checkbox) return;
 
-                let row = cb.closest('tr');
+            const priceEl = row.querySelector('.price');
+            const qtyInput = row.querySelector('.qty-input');
 
-                let price = parseFloat(cb.dataset.price) || 0;
-                let qtyInput = row.querySelector('.qty');
-                let qtyView = row.querySelector('.qty-view');
+            const price = parseFloat(priceEl ? priceEl.dataset.price : 0) || 0;
+            let qty = parseInt(qtyInput ? qtyInput.value : 1) || 1;
 
-                let qty = 0;
+            // Đảm bảo số lượng không nhỏ hơn 1
+            if (qty < 1) {
+                qty = 1;
+                if (qtyInput) qtyInput.value = 1;
+            }
 
-                if (qtyInput) {
-                    qty = parseInt(qtyInput.value) || 0;
-                } else if (qtyView) {
-                    qty = parseInt(qtyView.innerText) || 0;
-                }
+            // Cập nhật cột tổng của từng dòng
+            const lineTotalEl = row.querySelector('.total');
+            if (lineTotalEl) {
+                lineTotalEl.innerText = (price * qty).toLocaleString('vi-VN') + " ₫";
+            }
 
+            // Nếu checkbox được chọn → cộng vào tổng tiền
+            if (checkbox.checked) {
                 total += price * qty;
                 count++;
             }
         });
 
-        document.getElementById('totalAmount').innerText =
-            total.toLocaleString('vi-VN') + ' đ';
-
+        // Cập nhật tổng tiền và số lượng đã chọn
+        document.getElementById('totalAmount').innerText = total.toLocaleString('vi-VN') + " ₫";
         document.getElementById('selectedCount').innerText = count;
     }
 
-    checkboxes.forEach(cb => cb.addEventListener('change', calculateTotal));
+    // ==================== CẬP NHẬT SỐ LƯỢNG VÀO DATABASE ====================
+    async function updateQuantityToDB(maSanPham, soLuong) {
+        if (!maSanPham) return false;
 
-    selectAll?.addEventListener('change', function () {
-        checkboxes.forEach(cb => cb.checked = this.checked);
-        calculateTotal();
+        try {
+            const response = await fetch('/Home/CapNhatSoLuongGioHang', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ maSanPham: maSanPham, soLuong: soLuong })
+            });
+
+            const result = await response.json();
+            return result.success === true;
+        } catch (error) {
+            console.error('Lỗi cập nhật số lượng:', error);
+            return false;
+        }
+    }
+
+    // ==================== XỬ LÝ NÚT + / - ====================
+    document.addEventListener('click', async function (e) {
+        if (e.target.classList.contains('plus') || e.target.classList.contains('minus')) {
+            const parent = e.target.parentElement;
+            const input = parent.querySelector('.qty-input');
+            if (!input) return;
+
+            let value = parseInt(input.value) || 1;
+            const maSanPham = parseInt(input.dataset.maSanPham) || parseInt(input.closest('tr').querySelector('.item-checkbox').value);
+
+            if (e.target.classList.contains('plus')) {
+                value++;
+            } else if (value > 1) {
+                value--;
+            }
+
+            input.value = value;
+
+            // Cập nhật vào DB
+            if (maSanPham) {
+                await updateQuantityToDB(maSanPham, value);
+            }
+
+            updateCart();
+        }
     });
-    function processCheckout() {
-        const selected = document.querySelectorAll('.item-checkbox:checked');
 
+    // ==================== Nhập số lượng trực tiếp ====================
+    document.addEventListener('change', async function (e) {
+        if (e.target.classList.contains('qty-input')) {
+            let value = parseInt(e.target.value) || 1;
+            if (value < 1) value = 1;
+            e.target.value = value;
+
+            const maSanPham = parseInt(e.target.dataset.maSanPham) ||
+                parseInt(e.target.closest('tr').querySelector('.item-checkbox').value);
+
+            if (maSanPham) {
+                await updateQuantityToDB(maSanPham, value);
+            }
+
+            updateCart();
+        }
+    });
+
+    // ==================== Chọn tất cả ====================
+    document.getElementById('selectAll').addEventListener('change', function () {
+        document.querySelectorAll('.item-checkbox').forEach(cb => {
+            cb.checked = this.checked;
+        });
+        updateCart();
+    });
+
+    // ==================== Checkbox đơn lẻ ====================
+    document.addEventListener('change', function (e) {
+        if (e.target.classList.contains('item-checkbox')) {
+            updateCart();
+        }
+    });
+
+    // ==================== NÚT THANH TOÁN ====================
+    document.getElementById('btnThanhToan').addEventListener('click', async function () {
+        const selected = document.querySelectorAll('.item-checkbox:checked');
         if (selected.length === 0) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Chưa chọn sản phẩm',
-                text: 'Vui lòng chọn ít nhất một sản phẩm để thanh toán!',
-                confirmButtonColor: '#ff4d4f'
+                text: 'Vui lòng chọn ít nhất một sản phẩm!'
             });
             return;
         }
 
-        Swal.fire({
-            title: 'Đang chuyển đến trang thanh toán...',
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            didOpen: () => Swal.showLoading()
+        // Kiểm tra tồn kho
+        let hasError = false;
+        let errorList = [];
+        selected.forEach(cb => {
+            const row = cb.closest('tr');
+            const tenSP = row.getAttribute('data-product-name') || "Sản phẩm";
+            const qty = parseInt(row.querySelector('.qty-input').value) || 1;
+            const stock = parseInt(row.getAttribute('data-stock')) || 0;
+
+            if (qty > stock) {
+                hasError = true;
+                errorList.push(`• ${tenSP}: chỉ còn ${stock} (bạn chọn ${qty})`);
+            }
         });
 
-        setTimeout(() => {
-            const ids = Array.from(selected)
-                .map(checkbox => checkbox.value)
-                .join(',');
-            window.location.href = '/Home/ThanhToan?ids=' + encodeURIComponent(ids);
-        }, 500);
-    }
+        if (hasError) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Không đủ tồn kho!',
+                html: errorList.join('<br>') + '<br><br>Vui lòng giảm số lượng trước khi thanh toán.',
+                confirmButtonText: 'Đã hiểu'
+            });
+            return;
+        }
 
+        // Chuyển sang trang Thanh toán
+        const ids = Array.from(selected).map(x => x.value).join(',');
+        window.location.href = '/Home/ThanhToan?ids=' + encodeURIComponent(ids);
+    });
+
+    // ==================== XÓA SẢN PHẨM ====================
     function deleteItem(id) {
         Swal.fire({
-            title: 'Xóa sản phẩm?',
-            text: 'Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng không?',
+            title: 'Xóa sản phẩm này?',
+            text: "Bạn có chắc chắn muốn xóa?",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#ff4d4f',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Xóa ngay',
-            cancelButtonText: 'Hủy',
-            reverseButtons: true
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Có, xóa',
+            cancelButtonText: 'Hủy'
         }).then((result) => {
             if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Đang xóa...',
-                    allowOutsideClick: false,
-                    didOpen: () => Swal.showLoading()
-                });
-
-                $.post('/Home/XoaGioHang', { id: id }, function (res) {
-
-                    Swal.close();
-
-                    if (res.success) {
-                        const Toast = Swal.mixin({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 1500,
-                            timerProgressBar: true
-                        });
-
-                        Toast.fire({
-                            icon: 'success',
-                            title: 'Đã xóa sản phẩm khỏi giỏ'
-                        });
-                        setTimeout(() => {
-                            location.reload();
-                        }, 800);
-
-                    } else {
-                        Swal.fire('Lỗi', 'Không thể xóa sản phẩm!', 'error');
+                $.ajax({
+                    url: '/Home/XoaGioHang',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.message,
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => location.reload());
+                        } else {
+                            Swal.fire('Lỗi', response.message || 'Xóa thất bại!', 'error');
+                        }
+                    },
+                    error: function () {
+                        Swal.fire('Lỗi', 'Không thể kết nối server!', 'error');
                     }
                 });
             }
         });
     }
-    function updateQty(btn, delta) {
-        let id = $(btn).data('id');
-        let input = $(btn).siblings('input');
 
-        let current = parseInt(input.val()) || 1;
-        current += delta;
-
-        if (current < 1) current = 1;
-
-        input.val(current);
-    }
-    function saveQty(btn) {
-        let row = btn.closest('tr');
-        let id = $(btn).data('id');           // lấy MaSanPham
-        let newQty = parseInt(row.querySelector('.qty').value);
-
-        if (newQty < 1) newQty = 1;
-
-        Swal.fire({
-            title: 'Đang cập nhật...',
-            allowOutsideClick: false,
-            didOpen: () => Swal.showLoading()
-        });
-
-        $.post('/Home/CapNhatSoLuong', {
-            id: id,
-            soLuong: newQty
-        }, function (res) {
-            Swal.close();
-
-            if (res.success) {
-                let view = row.querySelector('.qty-view');
-                let checkbox = row.querySelector('.item-checkbox');
-
-                view.innerText = newQty;
-                checkbox.setAttribute('data-qty', newQty);
-
-                row.querySelector('.view-mode').classList.remove('d-none');
-                row.querySelector('.edit-mode').classList.add('d-none');
-                calculateTotal();
-
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 1500,
-                    timerProgressBar: true
-                });
-                Toast.fire({
-                    icon: 'success',
-                    title: 'Cập nhật số lượng thành công'
-                });
-                location.reload();
-            } else {
-                Swal.fire('Lỗi', res.message || 'Không thể cập nhật số lượng!', 'error');
+    // ==================== KHỞI TẠO KHI LOAD TRANG ====================
+    window.onload = function () {
+        // Thêm data-ma-san-pham vào input số lượng để dễ lấy
+        document.querySelectorAll('.qty-input').forEach(input => {
+            const row = input.closest('tr');
+            const checkbox = row.querySelector('.item-checkbox');
+            if (checkbox) {
+                input.dataset.maSanPham = checkbox.value;
             }
-        }).fail(function () {
-            Swal.close();
-            Swal.fire('Lỗi', 'Không kết nối được với server!', 'error');
         });
-    }
-    const Toast = Swal.mixin({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 1800,
-        timerProgressBar: true
-    });
+
+        updateCart();
+    };
 </script>

@@ -13,6 +13,8 @@
     var tongTienGoc = gioHang.Sum(x => (x.SanPham?.Gia ?? 0) * (x.SoLuong ?? 0));
     var phiVanChuyen = 39000m;
     var tongThanhToan = tongTienGoc + phiVanChuyen;
+
+    bool isMuaNgay = ViewBag.MuaNgay != null && (bool)ViewBag.MuaNgay;
 }
 
 <div class="container my-5">
@@ -20,6 +22,16 @@
     @using (Html.BeginForm("DatHang", "Home", FormMethod.Post))
     {
         @Html.AntiForgeryToken()
+
+        <!-- ✅ QUAN TRỌNG: phân biệt MuaNgay -->
+        <input type="hidden" name="MuaNgay" value="@isMuaNgay.ToString().ToLower()" />
+        <input type="hidden" name="ids" value="@ViewBag.Ids" />
+        <!-- ✅ CHỈ khi mua ngay mới gửi -->
+        if (isMuaNgay && gioHang.Any())
+        {
+            <input type="hidden" name="MaSanPham" value="@gioHang.First().MaSanPham" />
+            <input type="hidden" name="SoLuong" value="@gioHang.First().SoLuong" />
+        }
 
         <input type="hidden" id="TongTienInput" name="TongTien" value="@tongThanhToan" />
         <input type="hidden" id="MaKhuyenMaiHidden" name="MaKhuyenMai" />
@@ -32,22 +44,21 @@
                 <div class="card p-4 mb-4">
                     <h5>Thông tin nhận hàng</h5>
 
-
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                            <label>Họ và tên *</label>
                             <input type="text" name="HoTen" class="form-control" value="@user" required />
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                            <label>SĐT *</label>
                             <input type="text" name="SoDienThoai" class="form-control" value="@sdt" required />
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Email</label>
+                            <label>Email</label>
                             <input type="email" name="Email" class="form-control" value="@email" />
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Địa chỉ giao hàng <span class="text-danger">*</span></label>
+                            <label>Địa chỉ *</label>
                             <input type="text" name="DiaChi" class="form-control" value="@diaChi" required />
                         </div>
                     </div>
@@ -58,12 +69,12 @@
 
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="MaPhuongThuc" value="2" checked />
-                        <label class="form-check-label">QR (Chuyển khoản)</label>
+                        <label>QR (Chuyển khoản)</label>
                     </div>
 
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="MaPhuongThuc" value="5" />
-                        <label class="form-check-label">COD (Thanh toán khi nhận)</label>
+                        <label>COD</label>
                     </div>
                 </div>
 
@@ -72,89 +83,63 @@
             <!-- RIGHT -->
             <div class="col-lg-5">
 
-                <div class="card p-4 shadow-sm rounded-3 sticky-top" style="top: 20px;">
+                <div class="card p-4 shadow-sm sticky-top" style="top:20px;">
 
-                    <h4 class="mb-3">Đơn hàng của bạn</h4>
+                    <h4>Đơn hàng (@gioHang.Count sản phẩm)</h4>
 
                     @if (gioHang.Any())
                     {
                         foreach (var item in gioHang)
                         {
                             var gia = item.SanPham?.Gia ?? 0;
-                            var sl = item.SoLuong ?? 0;
+                            var sl = item.SoLuong ?? 1;
 
-                            <div class="d-flex align-items-center justify-content-between border-bottom py-2">
-
-                                <div class="d-flex align-items-center">
-
-                                    <!-- ẢNH -->
+                            <div class="d-flex justify-content-between border-bottom py-3">
+                                <div class="d-flex">
                                     <img src="~/AnhWeb/@(item.SanPham?.AnhChinh ?? "no-image.png")"
-                                         style="width:60px; height:60px; object-fit:cover; border-radius:8px; margin-right:10px;" />
+                                         style="width:60px;height:60px;object-fit:cover;margin-right:10px;" />
 
-                                    <!-- TÊN -->
                                     <div>
                                         <b>@(item.SanPham?.TenSanPham ?? "SP lỗi")</b><br />
                                         <small>Số lượng: @sl</small>
                                     </div>
-
                                 </div>
 
-                                <!-- GIÁ -->
-                                <div class="text-end">
-                                    @(string.Format("{0:N0}", gia * sl)) ₫
-                                </div>
-
+                                <b>@String.Format("{0:N0}", gia * sl) ₫</b>
                             </div>
                         }
                     }
                     else
                     {
-                        <p class="text-danger">⚠ Không có sản phẩm</p>
+                        <p class="text-danger">Không có sản phẩm</p>
                     }
 
                     <hr />
 
                     <div class="d-flex justify-content-between">
-                        <span>Tổng tiền hàng</span>
-                        <b id="tongTienHang">@tongTienGoc.ToString("N0") ₫</b>
+                        <span>Tiền hàng</span>
+                        <b>@tongTienGoc.ToString("N0") ₫</b>
                     </div>
 
                     <div class="d-flex justify-content-between">
-                        <span>Phí vận chuyển</span>
+                        <span>Ship</span>
                         <b>@phiVanChuyen.ToString("N0") ₫</b>
                     </div>
 
                     <hr />
 
-                    <div class="mb-4">
-                        <label class="fw-bold mb-2">Mã khuyến mãi</label>
-
-                        <div class="input-group">
-                            <input type="text" id="MaGiamGiaInput" class="form-control" placeholder="Nhập mã giảm giá" />
-                            <button type="button" id="btnApDungVoucher" class="btn btn-dark">
-                                Áp dụng
-                            </button>
-                        </div>
-
-                        <small id="voucherMsg" class="text-success"></small>
-                        <small id="voucherError" class="text-danger"></small>
+                    <div class="d-flex justify-content-between fs-5">
+                        <b>Tổng</b>
+                        <b class="text-danger" id="TongTienText">@tongThanhToan.ToString("N0") ₫</b>
                     </div>
 
-                    <div id="codDepositBox" class="alert alert-warning mt-3 d-none">
-                        <b>✅ Bạn chỉ cần đặt cọc 10%</b><br>
-                        Đặt cọc: <span id="tienDatCoc"></span><br>
-                        Còn lại: <span id="tienConLai"></span>
-                    </div>
+                    <div id="codBox" class="alert alert-warning mt-3 d-none"></div>
 
-                    <div class="d-flex justify-content-between fs-4 fw-bold">
-                        <span>Tổng thanh toán</span>
-                        <span class="text-danger" id="TongTienText">@tongThanhToan.ToString("N0") ₫</span>
-                    </div>
-
-                    <button type="submit" class="btn btn-dark w-100 mt-4 py-3 fs-5">
-                        ĐẶT HÀNG NGAY
+                    <button type="submit" class="btn btn-dark w-100 mt-3 py-3">
+                        ĐẶT HÀNG
                     </button>
                 </div>
+
             </div>
 
         </div>
@@ -163,35 +148,34 @@
 
 @section Scripts{
     <script>
-        function formatMoney(n) {
+        function format(n) {
             return n.toLocaleString('vi-VN') + ' ₫';
         }
 
-        function updatePayment() {
-            const method = document.querySelector('input[name="MaPhuongThuc"]:checked').value;
-            const tongTien = parseFloat($('#TongTienText').text().replace(/[^0-9]/g, ''));
+        function getTongTien() {
+            return parseInt($('#TongTienText').text().replace(/[^0-9]/g, '')) || 0;
+        }
 
-            if (!tongTien) return;
+        function updateCOD() {
+            let method = $('input[name="MaPhuongThuc"]:checked').val();
+            let tong = getTongTien();
 
-            const box = $('#codDepositBox');
+            if (method == "5") {
+                let datCoc = Math.round(tong * 0.1);
+                let conLai = tong - datCoc;
 
-            if (method == "5") { // ✅ COD đúng
-                const datCoc = Math.round(tongTien * 0.1);
-                const conLai = tongTien - datCoc;
-
-                $('#tienDatCoc').text(formatMoney(datCoc));
-                $('#tienConLai').text(formatMoney(conLai));
-
-                box.removeClass('d-none');
+                $('#codBox')
+                    .removeClass('d-none')
+                    .html(`Đặt cọc: <b>${format(datCoc)}</b><br>Còn lại: <b>${format(conLai)}</b>`);
             } else {
-                box.addClass('d-none');
+                $('#codBox').addClass('d-none');
             }
         }
 
-        $('input[name="MaPhuongThuc"]').change(updatePayment);
+        $('input[name="MaPhuongThuc"]').change(updateCOD);
 
         $(document).ready(function () {
-            updatePayment();
+            updateCOD();
         });
     </script>
 }

@@ -1,224 +1,291 @@
-﻿@{
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
-<link rel="stylesheet" href="@Url.Content("~/Content/chitietsanpham.css")" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<script src="~/Scripts/jquery-3.7.1.min.js"></script>
-<script src="~/Scripts/sweetalert2.all.min.js"></script>
-
-@model DoAnTotNghiep.Models.SanPham
-@using DoAnTotNghiep.Models;
+﻿@model DoAnTotNghiep.Models.SanPham
+@using DoAnTotNghiep.Models
 
 @{
     ViewBag.Title = "Chi Tiết Sản Phẩm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
     var chiTiet = ViewBag.ChiTietSanPham as ChiTietSanPham;
     var danhGias = ViewBag.DanhGias as List<DanhGia> ?? new List<DanhGia>();
-    double avgRating = ViewBag.AverageRating ?? 0;
+
+    double avgRating = ViewBag.AverageRating ?? 0.0;
     int reviewCount = ViewBag.ReviewCount ?? 0;
     int soldCount = ViewBag.SoldCount ?? 0;
     int soLuongTon = ViewBag.SoLuongTon ?? 0;
     bool conHang = soLuongTon > 0;
 }
 
-<div class="product-page">
-    <div class="product-wrapper">
+<link rel="stylesheet" href="@Url.Content("~/Content/chitietsanpham.css")" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<div class="container mt-5">
+    <div class="row bg-white p-4 rounded shadow-sm">
+        <!-- LEFT: IMAGE -->
         <div class="col-lg-6">
-            <div class="main-image mb-4">
-                <img id="mainImage" src="@Url.Content(Model.AnhChinh)" alt="@Model.TenSanPham"
+            <div class="text-center mb-3">
+                <img id="mainImage"
+                     src="@Url.Content("~/AnhWeb/" + (Model.AnhChinh ?? "no-image.jpg"))"
+                     class="img-fluid rounded"
+                     style="max-height:400px; object-fit:cover;"
                      onerror="this.src='~/AnhWeb/no-image.jpg';" />
             </div>
-            <div class="d-flex gap-3 thumbnail">
+            <div class="d-flex gap-2 justify-content-center">
                 @if (!string.IsNullOrEmpty(Model.AnhChinh))
                 {
-                    <img src="@Url.Content(Model.AnhChinh)" onclick="changeImage(this)" class="active" alt="Hình chính" />
+                    <img src="@Url.Content("~/AnhWeb/" + Model.AnhChinh)"
+                         onclick="changeImage(this)"
+                         class="img-thumbnail active-thumb" style="width:70px;" />
                 }
                 @if (!string.IsNullOrEmpty(Model.AnhPhu1))
                 {
-                    <img src="@Url.Content(Model.AnhPhu1)" onclick="changeImage(this)" alt="Hình phụ 1" />
+                    <img src="@Url.Content("~/AnhWeb/" + Model.AnhPhu1)"
+                         onclick="changeImage(this)"
+                         class="img-thumbnail" style="width:70px;" />
                 }
                 @if (!string.IsNullOrEmpty(Model.AnhPhu2))
                 {
-                    <img src="@Url.Content(Model.AnhPhu2)" onclick="changeImage(this)" alt="Hình phụ 2" />
+                    <img src="@Url.Content("~/AnhWeb/" + Model.AnhPhu2)"
+                         onclick="changeImage(this)"
+                         class="img-thumbnail" style="width:70px;" />
                 }
                 @if (!string.IsNullOrEmpty(Model.AnhPhu3))
                 {
-                    <img src="@Url.Content(Model.AnhPhu3)" onclick="changeImage(this)" alt="Hình phụ 3" />
+                    <img src="@Url.Content("~/AnhWeb/" + Model.AnhPhu3)"
+                         onclick="changeImage(this)"
+                         class="img-thumbnail" style="width:70px;" />
                 }
             </div>
         </div>
 
+        <!-- RIGHT: INFO -->
         <div class="col-lg-6">
-            <h1 class="product-title">@Model.TenSanPham</h1>
-            <div class="price">@(Model.Gia?.ToString("N0") ?? "0") VNĐ</div>
-            <p class="sold-info mt-2">
+            <h2 class="fw-bold">@Model.TenSanPham</h2>
+            <h3 class="text-danger my-3">
+                @(Model.Gia?.ToString("N0") ?? "0") ₫
+            </h3>
+
+            <p class="sold-info mb-3">
                 <i class="fas fa-fire"></i> Đã bán @soldCount &nbsp;&nbsp;
                 <span class="stars">
                     @for (int i = 1; i <= 5; i++)
                     {
-                        <i class="@(i <= Math.Ceiling(avgRating) ? "fas fa-star" : "far fa-star")"></i>
+                        <i class="@(i <= Math.Ceiling(avgRating) ? "fas fa-star" : "far fa-star") text-warning"></i>
                     }
                 </span>
                 (@reviewCount đánh giá)
             </p>
-            <p class="text-muted mt-3">@Model.MoTa</p>
 
-            <div class="info-card">
+            <p class="text-muted">@Model.MoTa</p>
+
+            <div class="border rounded p-4 mb-4 bg-light">
                 <h5 class="fw-bold mb-3">Thông tin chi tiết</h5>
-                <div class="info-row"><span>Thương hiệu</span><span>@(chiTiet?.ThuongHieu?.TenThuongHieu ?? "Không có")</span></div>
-                <div class="info-row"><span>Chất liệu</span><span>@(chiTiet?.ChatLieu?.TenChatLieu ?? "Không có")</span></div>
-                <div class="info-row"><span>Màu sắc</span><span>@(chiTiet?.MauSac?.TenMau ?? "Không có")</span></div>
-                <div class="info-row">
-                    <span>Số lượng tồn kho</span>
-                    <span class="fw-bold @(conHang ? "text-success" : "text-danger")">
-                        @soLuongTon sản phẩm
-                    </span>
+                <div class="row">
+                    <div class="col-6">
+                        <p><strong>Thương hiệu:</strong><br> @(chiTiet?.ThuongHieu?.TenThuongHieu ?? "Đang cập nhật")</p>
+                        <p><strong>Chất liệu:</strong><br> @(chiTiet?.ChatLieu?.TenChatLieu ?? "Đang cập nhật")</p>
+                        <p><strong>Màu sắc:</strong><br> @(chiTiet?.MauSac?.TenMau ?? "Đang cập nhật")</p>
+                    </div>
+                    <div class="col-6">
+                        <p><strong>Bảo hành:</strong><br> 24 tháng chính hãng</p>
+                        <p><strong>Xuất xứ:</strong><br> Việt Nam</p>
+                        <p>
+                            <strong>Tồn kho:</strong><br>
+                            <span class="fw-bold @(conHang ? "text-success" : "text-danger")">
+                                @soLuongTon sản phẩm
+                            </span>
+                        </p>
+                    </div>
                 </div>
             </div>
 
             @if (conHang)
             {
-                <div class="quantity-group mt-4">
-                    <div class="quantity-btn" onclick="updateQuantity(-1)">−</div>
-                    <input type="text" id="quantity" class="quantity-input form-control" value="1" readonly />
-                    <div class="quantity-btn" onclick="updateQuantity(1)">+</div>
+                <div class="d-flex align-items-center mb-3">
+                    <button class="btn btn-outline-secondary" onclick="updateQuantity(-1)">-</button>
+                    <input type="text" id="quantity" class="form-control text-center mx-2" value="1" style="width:70px;" readonly />
+                    <button class="btn btn-outline-secondary" onclick="updateQuantity(1)">+</button>
                 </div>
 
-                <div class="d-flex gap-3 mt-3">
-                    <button id="btnAddCart" class="btn btn-danger px-4 py-2" data-id="@Model.MaSanPham">
-                        <i class="fas fa-cart-plus"></i> Thêm vào giỏ hàng
+                <div class="d-flex gap-3">
+                    <button id="btnAddCart" data-id="@Model.MaSanPham" class="btn btn-outline-danger w-50">
+                        <i class="fas fa-cart-plus"></i> Thêm giỏ
                     </button>
-                    <button type="button" onclick="muaNgay(this)" data-id="@Model.MaSanPham"
-                            class="btn btn-danger btn-action flex-fill">
+                    <button onclick="muaNgay(this)" data-id="@Model.MaSanPham" class="btn btn-danger w-50">
                         <i class="fas fa-bolt"></i> Mua ngay
                     </button>
                 </div>
             }
             else
             {
-                <div class="out-of-stock mt-4">
-                    <i class="fas fa-exclamation-triangle"></i> Sản phẩm tạm hết hàng
+                <div class="alert alert-danger mt-3">
+                    <i class="fas fa-exclamation-triangle"></i> Sản phẩm hiện đang hết hàng
                 </div>
             }
         </div>
     </div>
 
-    <!-- Phần đánh giá giữ nguyên (không thay đổi) -->
-    <div class="mx-5 pb-5">
-        <!-- ... phần đánh giá của bạn giữ nguyên ... -->
-        @* (bạn copy phần đánh giá cũ vào đây) *@
+    <!-- PHẦN ĐÁNH GIÁ -->
+    <div class="mt-5">
+        <h4 class="fw-bold mb-4">Đánh giá sản phẩm (@reviewCount)</h4>
+
+        @if (TempData["Success"] != null)
+        {<div class="alert alert-success">@TempData["Success"]</div>}
+        @if (TempData["Error"] != null)
+        {<div class="alert alert-danger">@TempData["Error"]</div>}
+
+        <!-- Form viết đánh giá -->
+        <!-- Form viết đánh giá -->
+        <!-- Form viết đánh giá -->
+        <!-- Form viết đánh giá -->
+        <div class="card shadow-sm p-4 mb-5">
+            <h5 class="mb-3">Viết đánh giá của bạn</h5>
+
+            @if (Session["MaNguoiDung"] == null)
+            {
+                <div class="alert alert-warning">
+                    <i class="fas fa-lock"></i>
+                    Bạn cần <a href="/Home/Login" class="alert-link fw-bold">đăng nhập</a> để viết đánh giá.
+                </div>
+            }
+            else
+            {
+                <form id="reviewForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="MaSanPham" value="@Model.MaSanPham" />
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Đánh giá sao của bạn</label>
+                        <div id="starRating" class="fs-3">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <i class="far fa-star star text-warning" data-value="@i"
+                                   style="cursor: pointer; margin-right: 8px;"></i>
+                            }
+                        </div>
+                        <input type="hidden" name="SoSao" id="SoSao" value="5" />
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Nội dung đánh giá</label>
+                        <textarea name="NoiDung" class="form-control" rows="4"
+                                  placeholder="Hãy chia sẻ cảm nhận của bạn về sản phẩm..." required></textarea>
+                    </div>
+
+                    <button type="button" id="btnSubmitReview" class="btn btn-primary btn-lg px-5">
+                        <i class="fas fa-paper-plane"></i> Gửi đánh giá
+                    </button>
+                </form>
+            }
+        </div>
+        <!-- Danh sách đánh giá -->
+        <h5 class="mb-3">Các đánh giá từ khách hàng</h5>
+
+        @if (danhGias.Any())
+        {
+            foreach (var dg in danhGias)
+            {
+                <div class="border-bottom pb-4 mb-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong>@(dg.NguoiDung?.Ten ?? "Khách hàng ẩn danh")</strong>
+                        <small class="text-muted">
+                            @if (dg.NgayDanhGia.HasValue)
+                            {
+                                @dg.NgayDanhGia.Value.ToString("dd/MM/yyyy HH:mm")
+                            }
+                        </small>
+                    </div>
+                    <div class="stars fs-4 mt-1 text-warning">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <i class="@(i <= (dg.SoSao ?? 0) ? "fas fa-star" : "far fa-star")"></i>
+                        }
+                    </div>
+                    <p class="mt-3 mb-0">@dg.NoiDung</p>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="text-muted fst-italic">Chưa có đánh giá nào. Hãy là người đầu tiên đánh giá sản phẩm này!</p>
+        }
     </div>
 </div>
 
 <script>
-    let maxQuantity = @soLuongTon;   // Số lượng tồn kho tối đa
+    let maxQuantity = @soLuongTon;
 
     function changeImage(img) {
-        document.getElementById('mainImage').src = img.src;
-        document.querySelectorAll('.thumbnail img').forEach(el => el.classList.remove('active'));
-        img.classList.add('active');
+        document.getElementById("mainImage").src = img.src;
+        document.querySelectorAll('.img-thumbnail').forEach(el => el.classList.remove('active-thumb'));
+        img.classList.add('active-thumb');
     }
 
     function updateQuantity(change) {
         let input = document.getElementById("quantity");
-        let qty = parseInt(input.value) || 1;
-        let newQty = qty + change;
-
-        if (newQty < 1) newQty = 1;
-        if (newQty > maxQuantity) newQty = maxQuantity;
-
-        input.value = newQty;
+        let value = parseInt(input.value) || 1;
+        value += change;
+        if (value < 1) value = 1;
+        if (value > maxQuantity) value = maxQuantity;
+        input.value = value;
     }
 
     function muaNgay(btn) {
         let id = $(btn).data("id");
         let soLuong = parseInt($("#quantity").val()) || 1;
-
-        if (soLuong > maxQuantity) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Vượt tồn kho',
-                text: `Chỉ còn ${maxQuantity} sản phẩm. Vui lòng chọn ít hơn!`
-            });
-            $("#quantity").val(maxQuantity);
-            return;
-        }
-
-        $.post('/Home/ThemGioHang', { id: id, soLuong: soLuong }, function (res) {
-            if (res.success) {
-                window.location.href = '/Home/ThanhToan';
-            } else {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Lỗi',
-                    text: res.message || 'Không thể mua ngay lúc này'
-                });
-            }
-        });
+        window.location.href = `/Home/MuaNgay?id=${id}&soLuong=${soLuong}`;
     }
 
-    // Xử lý Thêm vào giỏ hàng
-    $(document).ready(function () {
-        $("#btnAddCart").click(function (e) {
-            e.preventDefault();
-
-            let spId = $(this).data("id");
-            let quantity = parseInt($("#quantity").val()) || 1;
-
-            if (quantity > maxQuantity) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Vượt quá tồn kho",
-                    text: `Sản phẩm chỉ còn ${maxQuantity} cái. Vui lòng giảm số lượng!`
-                });
-                $("#quantity").val(maxQuantity);
-                return;
+    $("#btnAddCart").click(function () {
+        let id = $(this).data("id");
+        let quantity = parseInt($("#quantity").val()) || 1;
+        $.post("/Home/ThemGioHang", { id: id, quantity: quantity }, function (res) {
+            if (res.success) {
+                Swal.fire({ icon: 'success', title: 'Thành công!', text: res.message, timer: 2000, showConfirmButton: false });
+            } else {
+                Swal.fire('Lỗi', res.message || 'Không thể thêm vào giỏ', 'error');
             }
+        });
+    });
 
-            $.ajax({
-                url: '@Url.Action("ThemGioHang", "Home")',
-                type: "POST",
-                data: { id: spId, soLuong: quantity },
-                success: function (res) {
-                    if (res.success) {
-                        Swal.fire({
-                            icon: "success",
-                            title: "Đã thêm vào giỏ hàng!",
-                            showConfirmButton: false,
-                            timer: 1500
-                        });
-
-                        // Cập nhật số lượng giỏ hàng (nếu có hàm global)
-                        if (typeof updateMiniCart === "function") {
-                            updateMiniCart(res);
-                        }
-                    } else {
-                        Swal.fire({
-                            icon: "warning",
-                            title: "Thông báo",
-                            text: res.message || "Không thể thêm vào giỏ hàng"
-                        });
-                    }
-                },
-                error: function () {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Lỗi kết nối",
-                        text: "Vui lòng thử lại sau"
-                    });
+    // Đánh giá sao
+    let currentRating = 5;
+    document.querySelectorAll('.star').forEach(star => {
+        star.addEventListener('click', function () {
+            currentRating = parseInt(this.dataset.value);
+            document.getElementById('SoSao').value = currentRating;
+            document.querySelectorAll('.star').forEach(s => {
+                if (parseInt(s.dataset.value) <= currentRating) {
+                    s.classList.remove('far'); s.classList.add('fas');
+                } else {
+                    s.classList.remove('fas'); s.classList.add('far');
                 }
             });
         });
     });
 
-    // Star rating (giữ nguyên)
-    document.querySelectorAll('.star').forEach(star => {
-        star.addEventListener('click', function () {
-            let value = parseInt(this.getAttribute('data-value'));
-            document.getElementById('SoSao').value = value;
-            document.querySelectorAll('.star').forEach(s => {
-                s.classList.toggle('fas', parseInt(s.getAttribute('data-value')) <= value);
-                s.classList.toggle('far', parseInt(s.getAttribute('data-value')) > value);
-            });
+    // Gửi đánh giá AJAX
+    $("#btnSubmitReview").click(function () {
+        let formData = $("#reviewForm").serialize();
+        $.ajax({
+            url: '/Home/GuiDanhGia',
+            type: 'POST',
+            data: formData,
+            success: function (res) {
+                if (res.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Cảm ơn bạn!',
+                        text: 'Đánh giá đã được gửi thành công.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => location.reload());
+                } else {
+                    Swal.fire('Lỗi', res.message || 'Không thể gửi đánh giá', 'error');
+                }
+            },
+            error: function () {
+                Swal.fire('Lỗi kết nối', 'Vui lòng thử lại sau', 'error');
+            }
         });
     });
 </script>
