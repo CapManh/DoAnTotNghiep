@@ -94,7 +94,7 @@
 
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav me-auto">
-                @if (roleId == 1)
+                @if (roleId == 1 || roleId == 3 || roleId == 5)
                 {
                     <li class="nav-item"><a class="nav-link" href="@Url.Action("QuanLySanPham", "Admin")"><i class="fas fa-box"></i> Sản phẩm</a></li>
                     <li class="nav-item"><a class="nav-link" href="@Url.Action("DanhSachTaiKhoan", "Admin")"><i class="fas fa-users"></i> Tài khoản</a></li>
@@ -111,40 +111,6 @@
             </div>
         </div>
     </nav>
-
-    <div class="container main-content">
-        <div class="row g-4">
-            <div class="col-md-3">
-                <div class="card-box bg-blue">
-                    <h5><i class="fas fa-box"></i> Sản phẩm</h5>
-                    <h3>@ViewBag.SoSanPham</h3>
-
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card-box bg-green">
-                    <h5><i class="fas fa-users"></i> Người dùng</h5>
-                    <h3>@ViewBag.SoNguoiDung</h3>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card-box bg-orange">
-                    <h5><i class="fas fa-file-invoice"></i> Đơn hàng</h5>
-                    <h3>@ViewBag.SoDonHang</h3>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card-box bg-red">
-                    <h5><i class="fas fa-money-bill"></i> Doanh thu</h5>
-
-                    <h3>@String.Format("{0:N0} đ", (decimal)(ViewBag.DoanhThu ?? 0))</h3>
-                </div>
-            </div>
-        </div>
-    </div>
     <main class="container">
         @RenderBody()
     </main>

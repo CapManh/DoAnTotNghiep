@@ -1,4 +1,5 @@
 ﻿using DoAnTotNghiep.Models;
+using Microsoft.Ajax.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -17,9 +18,11 @@ namespace DoAnTotNghiep.Controllers
 
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            if (Session["VaiTro"] == null || (int)Session["VaiTro"] != 1)
+            int role = (int)Session["VaiTro"];
+
+            if (Session["VaiTro"] == null || (role != 1 && role != 3 && role != 5))
             {
-                filterContext.Result = new RedirectResult("~/Home/Login");
+                filterContext.Result = new RedirectResult("~/Admin/Login");
                 return;
             }
             base.OnActionExecuting(filterContext);
@@ -107,7 +110,7 @@ namespace DoAnTotNghiep.Controllers
                     Thang = g.Key.Thang,
                     DoanhThu = g.Sum(x => x.Tien)
                 })
-                .OrderByDescending(x => x.Nam).ThenByDescending(x => x.Thang) // Mới nhất lên đầu
+                .OrderByDescending(x => x.Nam).ThenByDescending(x => x.Thang)
                 .ToList();
 
             ViewBag.DoanhThuTheoThang = doanhThuTheoThangRaw.Select(x =>
@@ -117,8 +120,6 @@ namespace DoAnTotNghiep.Controllers
                 d.DoanhThu = x.DoanhThu;
                 return d;
             }).ToList();
-
-            // === Tỷ lệ đơn hàng theo trạng thái ===
             var tyLeDonHang = db.DonHang
                 .GroupBy(o => o.TrangThai ?? "Không xác định")
                 .Select(g => new
@@ -675,104 +676,191 @@ namespace DoAnTotNghiep.Controllers
 
             return RedirectToAction("QuanLyBanner");
         }
-        public ActionResult DanhSachTaiKhoan(string search, int page = 1, int pageSize = 10)
+
+        public ActionResult DanhSachTaiKhoan(string search, int? status, int? role, string sort, int page = 1, int pageSize = 10)
         {
-            if (Session["VaiTro"] == null || Convert.ToInt32(Session["VaiTro"]) != 1)
-            {
-                TempData["Message"] = "Bạn cần quyền Admin để truy cập trang này!";
+            if (Session["VaiTro"] == null)
                 return RedirectToAction("Login", "Admin");
+
+            int vaiTro = Convert.ToInt32(Session["VaiTro"]);
+            int currentUserId = Convert.ToInt32(Session["MaNguoiDung"]);
+
+            var users = db.NguoiDung
+                .Include(u => u.VaiTro)
+                .Where(u => u.MaNguoiDung != currentUserId)
+                .AsQueryable();
+
+
+            if (vaiTro == 3)
+                users = users.Where(u => u.MaVaiTro == 2);
+            else if (vaiTro == 5)
+                users = users.Where(u => u.MaVaiTro == 2 || u.MaVaiTro == 3);
+            if (role != null)
+            {
+                users = users.Where(u => u.MaVaiTro == role);
             }
 
-            var users = db.NguoiDung.Include(u => u.VaiTro).AsQueryable();
+            if (status != null)
+            {
+                bool isActive = status == 1;
+                users = users.Where(u => u.IsActive == isActive);
+            }
 
-            if (!string.IsNullOrEmpty(search))
+            if (!string.IsNullOrWhiteSpace(search))
             {
                 search = search.ToLower();
+
                 users = users.Where(u =>
-                    u.Ten.ToLower().Contains(search) ||
-                    u.Email.ToLower().Contains(search) ||
-                    (u.SoDienThoai != null && u.SoDienThoai.Contains(search))
+                    (u.Ten != null && u.Ten.ToLower().Contains(search)) ||
+                    (u.Email != null && u.Email.ToLower().Contains(search)) ||
+                    (u.SoDienThoai != null && u.SoDienThoai.Contains(search)) ||
+                    (u.DiaChi != null && u.DiaChi.ToLower().Contains(search)) ||
+                    u.MaNguoiDung.ToString().Contains(search)
                 );
             }
 
-            int total = users.Count();
-            int totalPages = (int)Math.Ceiling((double)total / pageSize);
+            switch (sort)
+            {
+                case "old":
+                    users = users.OrderBy(u => u.MaNguoiDung);
+                    break;
 
-            ViewBag.TotalPages = totalPages;
-            ViewBag.CurrentPage = page;
-            ViewBag.Search = search;
+                default:
+                    users = users.OrderByDescending(u => u.MaNguoiDung);
+                    break;
+            }
+            int total = users.Count();
 
             var model = users
-                .OrderByDescending(u => u.MaNguoiDung)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
+
+            ViewBag.TotalPages = (int)Math.Ceiling((double)total / pageSize);
+            ViewBag.CurrentPage = page;
+            ViewBag.Search = search;
+            ViewBag.VaiTro = vaiTro;
+            ViewBag.Status = status;
+            ViewBag.Sort = sort;
+            ViewBag.VaiTroList = GetAllVaiTroList();
 
             return View(model);
         }
         public ActionResult ThemTaiKhoan()
         {
-            if (Session["VaiTro"] == null || Convert.ToInt32(Session["VaiTro"]) != 1)
-            {
-                TempData["Message"] = "Bạn cần quyền Admin!";
+            if (Session["VaiTro"] == null)
                 return RedirectToAction("Login", "Admin");
+
+            int vaiTro = Convert.ToInt32(Session["VaiTro"]);
+
+            List<SelectListItem> roles = new List<SelectListItem>();
+
+            if (vaiTro == 1)
+            {
+                roles.Add(new SelectListItem { Value = "5", Text = "Quản trị viên" });
+                roles.Add(new SelectListItem { Value = "3", Text = "Nhân viên bán hàng" });
             }
 
-            ViewBag.VaiTroList = new List<SelectListItem>
+            else if (vaiTro == 5)
             {
-                new SelectListItem { Value = "1", Text = "Admin" },
-                new SelectListItem { Value = "2", Text = "Khách hàng" },
-                new SelectListItem { Value = "3", Text = "Nhân viên bán hàng" },
-                new SelectListItem { Value = "4", Text = "Quản lý kho" },
-                new SelectListItem { Value = "5", Text = "Quản trị viên" },
-                new SelectListItem { Value = "6", Text = "Khách VIP" }
-            };
+                roles.Add(new SelectListItem { Value = "3", Text = "Nhân viên bán hàng" });
+            }
+
+            else
+            {
+                TempData["Message"] = "Bạn không có quyền thêm tài khoản!";
+                return RedirectToAction("DanhSachTaiKhoan");
+            }
+
+            ViewBag.VaiTroList = roles;
+
             return View(new NguoiDung());
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult ThemTaiKhoan(NguoiDung model, string MatKhau)
         {
-            if (Session["VaiTro"] == null || Convert.ToInt32(Session["VaiTro"]) != 1)
-            {
+            if (Session["VaiTro"] == null)
                 return RedirectToAction("Login", "Admin");
+
+            int vaiTroNguoiTao = Convert.ToInt32(Session["VaiTro"]);
+
+
+            if (vaiTroNguoiTao == 1)
+            {
+                if (model.MaVaiTro != 5 && model.MaVaiTro != 3 && model.MaVaiTro != 4)
+                {
+                    TempData["Error"] = "Bạn không được tạo vai trò này!";
+                    return RedirectToAction("DanhSachTaiKhoan");
+                }
             }
 
-            // Khởi tạo lại danh sách vai trò
-            ViewBag.VaiTroList = new List<SelectListItem>
-    {
-        new SelectListItem { Value = "1", Text = "Admin" },
-        new SelectListItem { Value = "2", Text = "Khách hàng" },
-        new SelectListItem { Value = "3", Text = "Nhân viên bán hàng" },
-        new SelectListItem { Value = "4", Text = "Quản lý kho" },
-        new SelectListItem { Value = "5", Text = "Quản trị viên" },
-        new SelectListItem { Value = "6", Text = "Khách VIP" }
-    };
-
-            // Kiểm tra validation
-            if (string.IsNullOrEmpty(MatKhau))
+            else if (vaiTroNguoiTao == 5)
             {
-                ModelState.AddModelError("", "Mật khẩu không được để trống");
-                return View(model);
+                if (model.MaVaiTro != 3 && model.MaVaiTro != 4)
+                {
+                    TempData["Error"] = "Bạn chỉ được tạo nhân viên!";
+                    return RedirectToAction("DanhSachTaiKhoan");
+                }
             }
 
-            if (model.MaVaiTro == null || model.MaVaiTro == 0)
+            else
             {
-                ModelState.AddModelError("MaVaiTro", "Vui lòng chọn vai trò!");
-                return View(model);
+                TempData["Error"] = "Bạn không có quyền thêm tài khoản!";
+                return RedirectToAction("DanhSachTaiKhoan");
+            }
+
+            if (string.IsNullOrWhiteSpace(model.Ten) || model.Ten.Length < 5)
+            {
+                ModelState.AddModelError("Ten", "Tên phải dài hơn 5 ký tự");
+            }
+
+
+            var pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+
+            if (string.IsNullOrWhiteSpace(model.Email))
+            {
+                ModelState.AddModelError("Email", "Email không được để trống");
+            }
+            else if (!System.Text.RegularExpressions.Regex.IsMatch(model.Email, pattern))
+            {
+                ModelState.AddModelError("Email", "Email không đúng định dạng");
+            }
+
+
+            if (string.IsNullOrWhiteSpace(model.SoDienThoai))
+            {
+                ModelState.AddModelError("SoDienThoai", "Số điện thoại không được để trống");
+            }
+            else if (!System.Text.RegularExpressions.Regex
+                     .IsMatch(model.SoDienThoai, @"^\d{10,11}$"))
+            {
+                ModelState.AddModelError("SoDienThoai",
+                    "Số điện thoại phải có 10 hoặc 11 chữ số");
+            }
+
+
+            if (string.IsNullOrWhiteSpace(MatKhau))
+            {
+                ModelState.AddModelError("MatKhau", "Mật khẩu không được để trống");
             }
 
             if (db.NguoiDung.Any(u => u.Email == model.Email))
             {
                 ModelState.AddModelError("Email", "Email đã tồn tại!");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                GetVaiTroList(vaiTroNguoiTao);
                 return View(model);
             }
 
             try
             {
-                model.MatKhau = MatKhau; 
+                model.MatKhau = MatKhau;
                 model.NgayTao = DateTime.Now;
-
+                model.IsActive = true;
                 db.NguoiDung.Add(model);
                 db.SaveChanges();
 
@@ -781,111 +869,194 @@ namespace DoAnTotNghiep.Controllers
             }
             catch (Exception ex)
             {
-                TempData["Error"] = "Lỗi: " + ex.Message;
+                TempData["Error"] = ex.Message;
+
+                GetVaiTroList(vaiTroNguoiTao);
                 return View(model);
             }
         }
+        private List<SelectListItem> GetVaiTroList(int vaiTro)
+        {
+            var roles = new List<SelectListItem>();
+
+            if (vaiTro == 1)
+            {
+                roles.Add(new SelectListItem { Value = "5", Text = "Quản trị viên" });
+                roles.Add(new SelectListItem { Value = "3", Text = "Nhân viên bán hàng" });
+            }
+            else if (vaiTro == 5)
+            {
+                roles.Add(new SelectListItem { Value = "3", Text = "Nhân viên bán hàng" });
+            }
+            else
+            {
+                roles.Add(new SelectListItem { Value = "2", Text = "Khách hàng" });
+            }
+
+            return roles;
+        }
+        private List<SelectListItem> GetAllVaiTroList()
+        {
+            return db.VaiTro
+                .Select(v => new SelectListItem
+                {
+                    Value = v.MaVaiTro.ToString(),
+                    Text = v.TenVaiTro
+                })
+                .ToList();
+        }
         public ActionResult ChinhSuaTaiKhoan(int? id)
         {
-            if (Session["VaiTro"] == null || Convert.ToInt32(Session["VaiTro"]) != 1)
+            if (Session["VaiTro"] == null)
                 return RedirectToAction("Login", "Admin");
 
-            if (id == null) return HttpNotFound();
+            if (id == null)
+                return HttpNotFound();
+
+            int vaiTroHienTai = Convert.ToInt32(Session["VaiTro"]);
 
             var user = db.NguoiDung.Find(id);
-            if (user == null) return HttpNotFound();
+            if (user == null)
+                return HttpNotFound();
 
-            ViewBag.VaiTroList = new List<SelectListItem>
-            {
-                new SelectListItem { Value = "1", Text = "Admin" },
-                new SelectListItem { Value = "2", Text = "Khách hàng" },
-                new SelectListItem { Value = "3", Text = "Nhân viên bán hàng" },
-                new SelectListItem { Value = "4", Text = "Quản lý kho" },
-                new SelectListItem { Value = "5", Text = "Quản trị viên" },
-                new SelectListItem { Value = "6", Text = "Khách VIP" }
-            };
+            ViewBag.VaiTroList = GetVaiTroList(vaiTroHienTai);
 
             return View(user);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult ChinhSuaTaiKhoan(NguoiDung model)
         {
-            if (Session["VaiTro"] == null || Convert.ToInt32(Session["VaiTro"]) != 1)
+            if (Session["VaiTro"] == null)
                 return RedirectToAction("Login", "Admin");
 
-            if (ModelState.IsValid)
-            {
-                var user = db.NguoiDung.Find(model.MaNguoiDung);
-                if (user != null)
-                {
-                    user.Ten = model.Ten;
-                    user.Email = model.Email;
-                    user.SoDienThoai = model.SoDienThoai;
-                    user.DiaChi = model.DiaChi;
-                    user.MaVaiTro = model.MaVaiTro;
+            int vaiTroHienTai = Convert.ToInt32(Session["VaiTro"]);
 
-                    db.SaveChanges();
-                    TempData["Success"] = "Cập nhật tài khoản thành công!";
-                    return RedirectToAction("DanhSachTaiKhoan");
-                }
+            var user = db.NguoiDung.Find(model.MaNguoiDung);
+            if (user == null)
+                return HttpNotFound();
+
+            if (string.IsNullOrWhiteSpace(model.Ten) || model.Ten.Length < 5)
+                ModelState.AddModelError("Ten", "Tên phải dài hơn 5 ký tự");
+
+            if (string.IsNullOrWhiteSpace(model.Email))
+                ModelState.AddModelError("Email", "Email không được để trống");
+            else
+            {
+                var emailPattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+                if (!System.Text.RegularExpressions.Regex.IsMatch(model.Email, emailPattern))
+                    ModelState.AddModelError("Email", "Email không hợp lệ");
             }
 
-            ViewBag.VaiTroList = new List<SelectListItem>
+            if (db.NguoiDung.Any(x => x.Email == model.Email && x.MaNguoiDung != model.MaNguoiDung))
+                ModelState.AddModelError("Email", "Email đã tồn tại");
+
+            if (string.IsNullOrWhiteSpace(model.SoDienThoai))
+                ModelState.AddModelError("SoDienThoai", "SĐT không được để trống");
+            else if (!System.Text.RegularExpressions.Regex.IsMatch(model.SoDienThoai, @"^\d{10,11}$"))
+                ModelState.AddModelError("SoDienThoai", "SĐT phải 10 hoặc 11 số");
+
+
+            if (!ModelState.IsValid)
             {
-                new SelectListItem { Value = "1", Text = "Admin" },
-                new SelectListItem { Value = "2", Text = "Khách hàng" },
-                new SelectListItem { Value = "3", Text = "Nhân viên bán hàng" },
-                new SelectListItem { Value = "4", Text = "Quản lý kho" },
-                new SelectListItem { Value = "5", Text = "Quản trị viên" },
-                new SelectListItem { Value = "6", Text = "Khách VIP" }
-            };
-            TempData["Error"] = "Dữ liệu không hợp lệ!";
-            return View(model);
+                ViewBag.VaiTroList = GetVaiTroList(vaiTroHienTai);
+                return View(model);
+            }
+
+            user.Ten = model.Ten;
+            user.Email = model.Email;
+            user.SoDienThoai = model.SoDienThoai;
+            user.DiaChi = model.DiaChi;
+            user.MaVaiTro = model.MaVaiTro;
+
+            db.SaveChanges();
+
+            TempData["Success"] = "Cập nhật tài khoản thành công!";
+            return RedirectToAction("DanhSachTaiKhoan");
         }
-
         [HttpPost]
-
         public ActionResult XoaTaiKhoan(int id)
         {
-            if (Session["VaiTro"] == null || Convert.ToInt32(Session["VaiTro"]) != 1)
+            using (var transaction = db.Database.BeginTransaction())
             {
-                TempData["Message"] = "Bạn cần quyền Admin!";
-                return RedirectToAction("Login", "Admin");
-            }
+                try
+                {
+                    var user = db.NguoiDung
+                        .Include(u => u.GioHang)
+                        .Include(u => u.DonHang.Select(d => d.ChiTietDonHang))
+                        .Include(u => u.DanhGia)
+                        .FirstOrDefault(u => u.MaNguoiDung == id);
 
-            var user = db.NguoiDung
-                .Include(u => u.GioHang)
-                .Include(u => u.DonHang)
-                .Include(u => u.DanhGia)
-                .FirstOrDefault(u => u.MaNguoiDung == id);
+                    if (user == null)
+                    {
+                        TempData["Error"] = "Không tìm thấy tài khoản!";
+                        return RedirectToAction("DanhSachTaiKhoan");
+                    }
 
-            if (user == null)
-            {
-                TempData["Error"] = "Không tìm thấy tài khoản!";
-                return RedirectToAction("DanhSachTaiKhoan");
-            }
+                    var chiTietDonHang = db.ChiTietDonHang
+                        .Where(x => x.DonHang.MaNguoiDung == id)
+                        .ToList();
 
-            try
-            {
-                if (user.GioHang != null) db.GioHang.RemoveRange(user.GioHang);
-                if (user.DonHang != null) db.DonHang.RemoveRange(user.DonHang);
-                if (user.DanhGia != null) db.DanhGia.RemoveRange(user.DanhGia);
+                    db.ChiTietDonHang.RemoveRange(chiTietDonHang);
 
-                db.NguoiDung.Remove(user);
-                db.SaveChanges();
+                    var thanhToan = db.ThanhToan
+                        .Where(x => x.DonHang.MaNguoiDung == id)
+                        .ToList();
 
-                TempData["Success"] = "Xóa tài khoản thành công!";
-            }
-            catch (Exception ex)
-            {
-                TempData["Error"] = "Lỗi khi xóa: " + ex.Message;
+                    db.ThanhToan.RemoveRange(thanhToan);
+
+                    var donHang = db.DonHang
+                        .Where(x => x.MaNguoiDung == id)
+                        .ToList();
+
+                    db.DonHang.RemoveRange(donHang);
+                    var gioHang = db.GioHang
+                        .Where(x => x.MaNguoiDung == id)
+                        .ToList();
+
+                    db.GioHang.RemoveRange(gioHang);
+
+                    var danhGia = db.DanhGia
+                        .Where(x => x.MaNguoiDung == id)
+                        .ToList();
+
+                    db.DanhGia.RemoveRange(danhGia);
+                    db.NguoiDung.Remove(user);
+
+                    db.SaveChanges();
+                    transaction.Commit();
+
+                    TempData["Success"] = "Xóa tài khoản thành công!";
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+
+                    TempData["Error"] =
+                        ex.InnerException?.InnerException?.Message
+                        ?? ex.Message;
+                }
             }
 
             return RedirectToAction("DanhSachTaiKhoan");
         }
-       
+        [HttpPost]
+        public JsonResult ToggleKhoaTaiKhoan(int id)
+        {
+            var user = db.NguoiDung.FirstOrDefault(x => x.MaNguoiDung == id);
+
+            if (user == null)
+                return Json(new { success = false, message = "Không tìm thấy tài khoản" });
+
+            user.IsActive = !user.IsActive;
+            db.SaveChanges();
+
+            return Json(new
+            {
+                success = true,
+                message = user.IsActive ? "Đã mở khóa tài khoản" : "Đã khóa tài khoản"
+            });
+        }
         protected override void Dispose(bool disposing)
         {
             db.Dispose();

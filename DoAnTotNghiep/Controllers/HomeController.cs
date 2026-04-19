@@ -24,6 +24,14 @@ namespace DoAnTotNghiep.Controllers
             if (user != null)
             {
                 bool isPasswordCorrect = false;
+                if (user.IsActive == false)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Tài khoản của bạn hiện tại đã bị khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ!"
+                    });
+                }
 
                 try
                 {
@@ -48,7 +56,7 @@ namespace DoAnTotNghiep.Controllers
                     switch (user.MaVaiTro)
                     {
                         case 1:
-                            redirectUrl = Url.Action("DanhSachTaiKhoan", "Admin");
+                            redirectUrl = Url.Action("ThongKe", "Admin");
                             break;
 
                         case 2:
@@ -56,11 +64,11 @@ namespace DoAnTotNghiep.Controllers
                             break;
 
                         case 3:
-                            redirectUrl = Url.Action("Staff", "Staff");
+                            redirectUrl = Url.Action("ThongKe", "Admin");
                             break;
 
                         case 5:
-                            redirectUrl = Url.Action("Dashboard", "QuanTri");
+                            redirectUrl = Url.Action("ThongKe", "Admin");
                             break;
                     }
 
@@ -314,7 +322,7 @@ namespace DoAnTotNghiep.Controllers
 
                 model.NgayTao = DateTime.Now;
                 model.MaVaiTro = 2;
-
+                model.IsActive = true;
                 db.NguoiDung.Add(model);
                 db.SaveChanges();
 
@@ -547,14 +555,12 @@ namespace DoAnTotNghiep.Controllers
                 return HttpNotFound();
             }
 
-            // Lấy chi tiết sản phẩm (variant) để lấy số lượng tồn kho
             var chiTiet = db.ChiTietSanPham
                 .Include("ThuongHieu")
                 .Include("ChatLieu")
                 .Include("MauSac")
                 .FirstOrDefault(ct => ct.MaSanPham == id);
 
-            // Tính số lượng tồn kho hiện có (nếu có nhiều chi tiết thì lấy tổng)
             int soLuongTon = 0;
             if (chiTiet != null)
             {

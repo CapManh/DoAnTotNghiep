@@ -16,14 +16,13 @@
     double avgRating = ViewBag.AverageRating ?? 0;
     int reviewCount = ViewBag.ReviewCount ?? 0;
     int soldCount = ViewBag.SoldCount ?? 0;
-    int soLuongTon = ViewBag.SoLuongTon ?? 0;           // ← Quan trọng
+    int soLuongTon = ViewBag.SoLuongTon ?? 0;
     bool conHang = soLuongTon > 0;
 }
 
 <div class="product-page">
     <div class="product-wrapper">
         <div class="col-lg-6">
-            <!-- Phần hình ảnh giữ nguyên -->
             <div class="main-image mb-4">
                 <img id="mainImage" src="@Url.Content(Model.AnhChinh)" alt="@Model.TenSanPham"
                      onerror="this.src='~/AnhWeb/no-image.jpg';" />

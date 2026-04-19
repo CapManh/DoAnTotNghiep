@@ -6,6 +6,8 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-3.7.0.min.js"></script>
+<script src="~/Scripts/sweetalert2.all.min.js"></script>
 
 <style>
     body {
@@ -83,26 +85,50 @@
         </a>
     </div>
 
-    <div class="card mb-4">
-        <div class="card-body search-box">
-            @using (Html.BeginForm("DanhSachTaiKhoan", "Admin", FormMethod.Get))
-            {
-                <div class="row">
-                    <div class="col-md-9">
-                        <input type="text" name="search" value="@ViewBag.Search"
-                               class="form-control" placeholder="🔍 Tìm kiếm theo tên, email..." />
-                    </div>
-                    <div class="col-md-3">
-                        <button class="btn btn-primary w-100">
-                            <i class="fas fa-search"></i> Tìm kiếm
-                        </button>
-                    </div>
-                </div>
-            }
-        </div>
-    </div>
+    @using (Html.BeginForm("DanhSachTaiKhoan", "Admin", FormMethod.Get))
+    {
+        <div class="row g-2">
+            <div class="col-md-4">
+                <input type="text"
+                       name="search"
+                       value="@ViewBag.Search"
+                       class="form-control"
+                       placeholder="Tìm theo tên, email, SĐT, địa chỉ, ID..." />
+            </div>
 
-    <!-- TABLE -->
+            <div class="col-md-2">
+                <select name="status" class="form-select">
+                    <option value="">-- Trạng thái --</option>
+                    <option value="1" @(ViewBag.Status == 1 ? "selected" : "")>Hoạt động</option>
+                    <option value="0" @(ViewBag.Status == 0 ? "selected" : "")>Đã khóa</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <select name="role" class="form-select">
+                    <option value="">-- Vai trò --</option>
+                    @foreach (var item in ViewBag.VaiTroList as List<SelectListItem>)
+                    {
+                        <option value="@item.Value">@item.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="sort" class="form-select">
+                    <option value="new" @(ViewBag.Sort == "new" ? "selected" : "")>Mới nhất</option>
+                    <option value="old" @(ViewBag.Sort == "old" ? "selected" : "")>Cũ nhất</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100">
+                    <i class="fas fa-search"></i> Lọc
+                </button>
+            </div>
+
+        </div>
+    }
+
     <div class="card">
         <div class="card-body p-0">
             <table class="table table-hover mb-0">
@@ -169,25 +195,12 @@
                                         <i class="fas fa-pen"></i>
                                     </a>
 
-                                    @using (Html.BeginForm("ToggleKhoaTaiKhoan", "Admin", FormMethod.Post))
-                                    {
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@item.MaNguoiDung" />
-                                        if (item.IsActive)
-                                        {
-                                            <button type="submit" class="btn btn-secondary btn-sm action-btn" title="Khóa tài khoản">
-                                                <i class="fas fa-lock"></i>
-                                            </button>
-                                        }
-                                        else
-                                        {
-                                            <button type="submit" class="btn btn-success btn-sm action-btn" title="Mở khóa">
-                                                <i class="fas fa-unlock"></i>
-                                            </button>
-                                        }
-                                    }
-
-                                    <!-- Nút Xóa -->
+                                    <button type="button"
+                                            class="btn @(item.IsActive ? "btn-secondary" : "btn-success") btn-sm action-btn"
+                                            title="@(item.IsActive ? "Khóa tài khoản" : "Mở khóa")"
+                                            onclick="confirmToggle(@item.MaNguoiDung, @item.IsActive)">
+                                        <i class="fas @(item.IsActive ? "fa-lock" : "fa-unlock")"></i>
+                                    </button>
                                     @using (Html.BeginForm("XoaTaiKhoan", "Admin", FormMethod.Post, new { id = "deleteForm_" + item.MaNguoiDung }))
                                     {
                                         <input type="hidden" name="id" value="@item.MaNguoiDung" />
@@ -208,8 +221,6 @@
             </table>
         </div>
     </div>
-
-    <!-- PAGINATION -->
     @if (ViewBag.TotalPages > 1)
     {
         <nav class="mt-4">
@@ -226,15 +237,51 @@
 </div>
 
 <script>
-    function confirmDelete(id, name) {
-        if (confirm("Bạn có chắc chắn muốn xóa tài khoản: " + name + " ?")) {
-            document.getElementById('deleteForm_' + id).submit();
-        }
-    }
     function confirmDelete(btn) {
         var id = btn.getAttribute("data-id");
         var name = btn.getAttribute("data-name");
 
-        console.log(id, name);
+        if (confirm("Bạn có chắc muốn xóa tài khoản: " + name + " ?")) {
+            document.getElementById("deleteForm_" + id).submit();
+        }
+    }
+    function confirmToggle(id, isActive) {
+
+        Swal.fire({
+            title: isActive ? "Khóa tài khoản?" : "Mở khóa tài khoản?",
+            text: "Bạn có chắc chắn muốn thực hiện thao tác này?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Đồng ý",
+            cancelButtonText: "Hủy",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33"
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                $.ajax({
+                    url: '/Admin/ToggleKhoaTaiKhoan',
+                    type: 'POST',
+                    data: { id: id },
+
+                    success: function (res) {
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: res.message,
+                            timer: 1200,
+                            showConfirmButton: false
+                        });
+
+                        setTimeout(() => location.reload(), 1200);
+                    },
+
+                    error: function () {
+                        Swal.fire("Lỗi", "Không thể thực hiện!", "error");
+                    }
+                });
+            }
+        });
     }
 </script>
