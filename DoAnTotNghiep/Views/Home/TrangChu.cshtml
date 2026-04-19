@@ -154,7 +154,9 @@
 
                         <div class="price-cart ">
                             <div class="price text-lg-center">
-                                <span>@string.Format("{0:N0}", item.Gia) đ</span>
+                                <span>
+                                    @string.Format("{0:N0}", item.Gia) đ
+                                </span>
                             </div>
                             <button class="add-cart" data-id="@item.MaSanPham">Thêm Vào Giỏ Hàng</button>
                         </div>
@@ -222,17 +224,13 @@
         <div class="np-slider">
             <button class="np-btn np-prev">❮</button>
             <div class="np-track-wrap">
-                <div class="np-track">
+                <div class="product-list">
                     @if (ViewBag.SanPhamThinhHanh != null)
                     {
                         foreach (var item in ViewBag.SanPhamThinhHanh)
                         {
-                            if (item.NoiBat == true)   // ← ĐÃ SỬA: không còn @
+                            if (item.NoiBat == true)
                             {
-                                decimal giaGoc = item.Gia ?? 0;
-                                decimal giaSale = Math.Round(giaGoc * 0.75M);
-                                bool coSale = giaGoc > 5000000;
-
                                 <div class="product-card">
                                     <div class="img-box">
                                         @if (!string.IsNullOrEmpty(item.AnhChinh))
@@ -284,15 +282,9 @@
                                     </div>
                                     <div class="price-cart">
                                         <div class="price text-lg-center">
-                                            @if (coSale)
-                                            {
-                                                <del>@string.Format("{0:N0}", giaGoc) đ</del>
-                                                <span>@string.Format("{0:N0}", giaSale) đ</span>
-                                            }
-                                            else
-                                            {
-                                                <span>@string.Format("{0:N0}", giaGoc) đ</span>
-                                            }
+                                                <span>
+                                                    @string.Format("{0:N0}", item.Gia) đ
+                                                </span>
                                         </div>
                                         <button class="add-cart" data-id="@item.MaSanPham">Thêm Vào Giỏ Hàng</button>
                                     </div>

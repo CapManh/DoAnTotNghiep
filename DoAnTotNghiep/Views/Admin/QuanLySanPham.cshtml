@@ -2,7 +2,7 @@
 
 @{
     ViewBag.Title = "Quản lý Sản phẩm";
-    Layout = null;
+    Layout = "~/Views/Shared/Admin.cshtml";
 }
 
 <!DOCTYPE html>
@@ -24,32 +24,26 @@
             font-weight: 700;
             color: #2c3e50;
         }
-
-        /* HEADER */
         .top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
-
-        /* CARD */
         .card {
             border: none;
             border-radius: 18px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.08);
             overflow: hidden;
         }
-
-        /* TABLE */
         .table {
             margin: 0;
         }
 
-            .table thead {
+        .table thead {
                 background: linear-gradient(45deg, #4e73df, #224abe);
                 color: white;
-            }
+        }
 
             .table th {
                 border: none;
@@ -182,28 +176,63 @@
 
 <body class="p-4">
 
-    <!-- HEADER -->
     <div class="top-bar">
         <h2>📦 Quản lý Sản phẩm</h2>
         <a href="@Url.Action("ThemSanPham")" class="btn btn-success shadow">
             <i class="fas fa-plus"></i> Thêm sản phẩm
         </a>
     </div>
-
-    <!-- SEARCH -->
     <div class="row mb-4">
-        <div class="col-md-5">
-            <form method="get" class="d-flex">
-                <input type="text" name="search" value="@ViewBag.Search"
-                       class="form-control me-2" placeholder="🔍 Tìm kiếm sản phẩm..." />
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-search"></i>
-                </button>
-            </form>
-        </div>
+        <form method="get" class="row g-2 mb-3">
+
+            <div class="col-md-3">
+                <input name="search" value="@ViewBag.Search"
+                       class="form-control" placeholder="🔍 Tên sản phẩm" />
+            </div>
+
+            <div class="col-md-2">
+                @Html.DropDownList("danhMuc",
+                    (SelectList)ViewBag.DanhMucList,
+                    "-- Danh mục --",
+                    new { @class = "form-select" })
+            </div>
+
+            <div class="col-md-2">
+                @Html.DropDownList("thuongHieu",
+                    (SelectList)ViewBag.ThuongHieuList,
+                    "-- Thương hiệu --",
+                    new { @class = "form-select" })
+            </div>
+
+            <div class="col-md-2">
+                @Html.DropDownList("chatLieu",
+                    (SelectList)ViewBag.ChatLieuList,
+                    "-- Chất liệu --",
+                    new { @class = "form-select" })
+            </div>
+
+            <div class="col-md-2">
+                @Html.DropDownList("mauSac",
+                    (SelectList)ViewBag.MauSacList,
+                    "-- Màu --",
+                    new { @class = "form-select" })
+            </div>
+
+            <div class="col-md-1">
+                <select name="noiBat" class="form-select">
+                    <option value="">--</option>
+                    <option value="true">Hot</option>
+                    <option value="false">Normal</option>
+                </select>
+            </div>
+
+            <div class="col-md-12 mt-2">
+                <button class="btn btn-primary">Lọc</button>
+            </div>
+
+        </form>
     </div>
 
-    <!-- TABLE -->
     <div class="card">
         <div class="card-body p-0">
             <table class="table align-middle mb-0">
@@ -232,7 +261,6 @@
                             <td><strong>@item.MaSanPham</strong></td>
 
                             <td>
-                                <!-- Ảnh chính -->
                                 @if (!string.IsNullOrEmpty(item.AnhChinh))
                                 {
                                     <img src="@Url.Content(item.AnhChinh)"
@@ -244,8 +272,6 @@
                                 {
                                     <span class="text-muted">Không có ảnh</span>
                                 }
-
-                                <!-- Các ảnh phụ -->
                                 <div class="mt-2 d-flex flex-wrap gap-1">
                                     @if (!string.IsNullOrEmpty(item.AnhPhu1))
                                     {
@@ -278,7 +304,7 @@
                             <td>@(chiTiet?.MauSac?.TenMau ?? "—")</td>
 
                             <td class="price">
-                                <span>@string.Format("{0:N0}", item.Gia ?? 0) đ</span>
+                                <span>@string.Format("{0:N0}", item.Gia) đ</span>
                             </td>
 
                             <td>

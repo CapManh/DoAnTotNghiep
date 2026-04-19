@@ -2,7 +2,7 @@
 
 @{
     ViewBag.Title = "Chỉnh sửa sản phẩm";
-    Layout = null;
+    Layout = "~/Views/Shared/Admin.cshtml";
 }
 
 <!DOCTYPE html>
@@ -118,7 +118,11 @@
 
                             <div class="form-group">
                                 <label>Giá (đ)</label>
-                                @Html.TextBoxFor(m => m.Gia, new { @class = "form-control", type = "number" })
+                                @Html.TextBoxFor(m => m.Gia, "{0:0}", new
+                                {
+                                    @class = "form-control",
+                                    type = "number"
+                                })
                             </div>
 
                             <div class="form-group">
@@ -169,18 +173,14 @@
                                          "-- Chọn màu sắc --",
                                          new { @class = "form-select" })
                             </div>
-
                         </div>
 
                     </div>
 
-                    <!-- DESCRIPTION -->
                     <h5>Mô tả sản phẩm</h5>
                     <div class="form-group">
                         @Html.TextAreaFor(m => m.MoTa, new { @class = "form-control", rows = 4 })
                     </div>
-
-                    <!-- IMAGE -->
                     <h5>Hình ảnh</h5>
 
                     <div class="row">

@@ -24,7 +24,7 @@
         <div class="col-lg-6">
             <div class="text-center mb-3">
                 <img id="mainImage"
-                     src="@Url.Content("~/AnhWeb/" + (Model.AnhChinh ?? "no-image.jpg"))"
+                     src="@Url.Content((Model.AnhChinh ?? "no-image.jpg"))"
                      class="img-fluid rounded"
                      style="max-height:400px; object-fit:cover;"
                      onerror="this.src='~/AnhWeb/no-image.jpg';" />
@@ -32,32 +32,31 @@
             <div class="d-flex gap-2 justify-content-center">
                 @if (!string.IsNullOrEmpty(Model.AnhChinh))
                 {
-                    <img src="@Url.Content("~/AnhWeb/" + Model.AnhChinh)"
+                    <img src="@Url.Content(Model.AnhChinh)"
                          onclick="changeImage(this)"
                          class="img-thumbnail active-thumb" style="width:70px;" />
                 }
                 @if (!string.IsNullOrEmpty(Model.AnhPhu1))
                 {
-                    <img src="@Url.Content("~/AnhWeb/" + Model.AnhPhu1)"
+                    <img src="@Url.Content(Model.AnhPhu1)"
                          onclick="changeImage(this)"
                          class="img-thumbnail" style="width:70px;" />
                 }
                 @if (!string.IsNullOrEmpty(Model.AnhPhu2))
                 {
-                    <img src="@Url.Content("~/AnhWeb/" + Model.AnhPhu2)"
+                    <img src="@Url.Content(Model.AnhPhu2)"
                          onclick="changeImage(this)"
                          class="img-thumbnail" style="width:70px;" />
                 }
                 @if (!string.IsNullOrEmpty(Model.AnhPhu3))
                 {
-                    <img src="@Url.Content("~/AnhWeb/" + Model.AnhPhu3)"
+                    <img src="@Url.Content(Model.AnhPhu3)"
                          onclick="changeImage(this)"
                          class="img-thumbnail" style="width:70px;" />
                 }
             </div>
         </div>
 
-        <!-- RIGHT: INFO -->
         <div class="col-lg-6">
             <h2 class="fw-bold">@Model.TenSanPham</h2>
             <h3 class="text-danger my-3">
@@ -124,7 +123,6 @@
         </div>
     </div>
 
-    <!-- PHẦN ĐÁNH GIÁ -->
     <div class="mt-5">
         <h4 class="fw-bold mb-4">Đánh giá sản phẩm (@reviewCount)</h4>
 
@@ -133,10 +131,6 @@
         @if (TempData["Error"] != null)
         {<div class="alert alert-danger">@TempData["Error"]</div>}
 
-        <!-- Form viết đánh giá -->
-        <!-- Form viết đánh giá -->
-        <!-- Form viết đánh giá -->
-        <!-- Form viết đánh giá -->
         <div class="card shadow-sm p-4 mb-5">
             <h5 class="mb-3">Viết đánh giá của bạn</h5>
 
@@ -177,7 +171,6 @@
                 </form>
             }
         </div>
-        <!-- Danh sách đánh giá -->
         <h5 class="mb-3">Các đánh giá từ khách hàng</h5>
 
         @if (danhGias.Any())
@@ -238,16 +231,33 @@
     $("#btnAddCart").click(function () {
         let id = $(this).data("id");
         let quantity = parseInt($("#quantity").val()) || 1;
+
         $.post("/Home/ThemGioHang", { id: id, quantity: quantity }, function (res) {
             if (res.success) {
-                Swal.fire({ icon: 'success', title: 'Thành công!', text: res.message, timer: 2000, showConfirmButton: false });
+
+                $.get("/Home/LayGioHang", function (cart) {
+                    if (cart.success) {
+                        $('#cart-count').text(cart.totalQuantity);
+
+                        if (typeof renderMiniCart === "function") {
+                            renderMiniCart(cart.cartItems, cart.totalAmount);
+                        }
+                    }
+                });
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã thêm vào giỏ',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+
             } else {
                 Swal.fire('Lỗi', res.message || 'Không thể thêm vào giỏ', 'error');
             }
         });
     });
 
-    // Đánh giá sao
     let currentRating = 5;
     document.querySelectorAll('.star').forEach(star => {
         star.addEventListener('click', function () {
@@ -263,7 +273,6 @@
         });
     });
 
-    // Gửi đánh giá AJAX
     $("#btnSubmitReview").click(function () {
         let formData = $("#reviewForm").serialize();
         $.ajax({

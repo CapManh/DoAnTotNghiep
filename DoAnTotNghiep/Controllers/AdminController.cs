@@ -199,7 +199,6 @@ namespace DoAnTotNghiep.Controllers
                 return obj;
             }).ToList();
 
-            // === Sản phẩm chưa từng bán ===
             var sanPhamChuaBanRaw = db.SanPham
                 .Where(p => !db.ChiTietDonHang.Any(cd =>
                     db.ChiTietSanPham.Any(ct => ct.MaChiTiet == cd.MaChiTietSanPham && ct.MaSanPham == p.MaSanPham)))
@@ -215,9 +214,16 @@ namespace DoAnTotNghiep.Controllers
 
             return View();
         }
-        public ActionResult QuanLySanPham(string search, int page = 1, int pageSize = 10)
+        public ActionResult QuanLySanPham(
+    string search,
+    int? danhMuc,
+    int? thuongHieu,
+    int? chatLieu,
+    int? mauSac,
+    bool? noiBat,
+    int page = 1,
+    int pageSize = 10)
         {
-
             try
             {
                 if (page < 1) page = 1;
@@ -230,43 +236,59 @@ namespace DoAnTotNghiep.Controllers
                     .Include(s => s.ChiTietSanPham.Select(ct => ct.ChatLieu))
                     .Include(s => s.ChiTietSanPham.Select(ct => ct.MauSac))
                     .AsQueryable();
+
                 if (!string.IsNullOrEmpty(search))
                 {
                     search = search.ToLower().Trim();
-
                     query = query.Where(s =>
                         s.TenSanPham.ToLower().Contains(search) ||
-                        (s.DanhMuc != null && s.DanhMuc.TenDanhMuc.ToLower().Contains(search)) 
+                        s.DanhMuc.TenDanhMuc.ToLower().Contains(search));
+                }
+
+
+                if (danhMuc.HasValue)
+                    query = query.Where(x => x.MaDanhMuc == danhMuc);
+
+                if (noiBat.HasValue)
+                    query = query.Where(x => x.NoiBat == noiBat);
+
+                if (thuongHieu.HasValue || chatLieu.HasValue || mauSac.HasValue)
+                {
+                    query = query.Where(x =>
+                        x.ChiTietSanPham.Any(ct =>
+                            (!thuongHieu.HasValue || ct.MaThuongHieu == thuongHieu) &&
+                            (!chatLieu.HasValue || ct.MaChatLieu == chatLieu) &&
+                            (!mauSac.HasValue || ct.MaMau == mauSac)
+                        )
                     );
                 }
+
                 int totalProducts = query.Count();
 
-                int totalPages = (int)Math.Ceiling((double)totalProducts / pageSize);
                 var result = query
                     .OrderByDescending(s => s.NoiBat)
                     .ThenByDescending(s => s.NgayTao)
-                    .ThenByDescending(s => s.MaSanPham)
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
                     .ToList();
-                ViewBag.TotalPages = totalPages;
+
+                ViewBag.TotalPages = (int)Math.Ceiling((double)totalProducts / pageSize);
                 ViewBag.CurrentPage = page;
                 ViewBag.Search = search;
                 ViewBag.PageSize = pageSize;
                 ViewBag.TotalProducts = totalProducts;
-                ViewBag.DanhMucList = new SelectList(db.DanhMuc.ToList(), "MaDanhMuc", "TenDanhMuc");
+
+                // DROPDOWN DATA
+                ViewBag.DanhMucList = new SelectList(db.DanhMuc, "MaDanhMuc", "TenDanhMuc");
+                ViewBag.ThuongHieuList = new SelectList(db.ThuongHieu, "MaThuongHieu", "TenThuongHieu");
+                ViewBag.ChatLieuList = new SelectList(db.ChatLieu, "MaChatLieu", "TenChatLieu");
+                ViewBag.MauSacList = new SelectList(db.MauSac, "MaMau", "TenMau");
 
                 return View(result);
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Lỗi khi tải danh sách sản phẩm: " + ex.Message;
-                if (ex.InnerException != null)
-                    TempData["ErrorMessage"] += " - Chi tiết: " + ex.InnerException.Message;
-                ViewBag.TotalPages = 0;
-                ViewBag.CurrentPage = 1;
-                ViewBag.TotalProducts = 0;
-
+                TempData["ErrorMessage"] = ex.Message;
                 return View(new List<SanPham>());
             }
         }
@@ -276,7 +298,6 @@ namespace DoAnTotNghiep.Controllers
             ViewBag.ThuongHieuList = new SelectList(db.ThuongHieu.ToList(), "MaThuongHieu", "TenThuongHieu");
             ViewBag.ChatLieuList = new SelectList(db.ChatLieu.ToList(), "MaChatLieu", "TenChatLieu");
             ViewBag.MauSacList = new SelectList(db.MauSac.ToList(), "MaMau", "TenMau");
-
             return View(new SanPham());
         }
 
@@ -371,6 +392,7 @@ namespace DoAnTotNghiep.Controllers
                 ViewBag.ThuongHieuList = new SelectList(db.ThuongHieu.ToList(), "MaThuongHieu", "TenThuongHieu");
                 ViewBag.ChatLieuList = new SelectList(db.ChatLieu.ToList(), "MaChatLieu", "TenChatLieu");
                 ViewBag.MauSacList = new SelectList(db.MauSac.ToList(), "MaMau", "TenMau");
+
                 var chiTiet = db.ChiTietSanPham
                     .FirstOrDefault(ct => ct.MaSanPham == id);
 
@@ -400,8 +422,6 @@ namespace DoAnTotNghiep.Controllers
                 return RedirectToAction("QuanLySanPham");
             }
         }
-
-        // POST: Xử lý chỉnh sửa
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult ChinhSuaSanPham(SanPham model, int? MaThuongHieu, int? MaChatLieu, int? MaMau, int? SoLuongTon)
@@ -468,7 +488,6 @@ namespace DoAnTotNghiep.Controllers
             ViewBag.ThuongHieuList = new SelectList(db.ThuongHieu.ToList(), "MaThuongHieu", "TenThuongHieu", MaThuongHieu);
             ViewBag.ChatLieuList = new SelectList(db.ChatLieu.ToList(), "MaChatLieu", "TenChatLieu", MaChatLieu);
             ViewBag.MauSacList = new SelectList(db.MauSac.ToList(), "MaMau", "TenMau", MaMau);
-
             return View(model);
         }
         [HttpPost]
@@ -606,7 +625,6 @@ namespace DoAnTotNghiep.Controllers
                     banner.NgayBatDau = model.NgayBatDau;
                     banner.NgayKetThuc = model.NgayKetThuc;
 
-                    // 🔥 XỬ LÝ ẢNH
                     if (fileUpload != null && fileUpload.ContentLength > 0)
                     {
                         string extension = Path.GetExtension(fileUpload.FileName);
@@ -631,8 +649,6 @@ namespace DoAnTotNghiep.Controllers
 
             return View(model);
         }
-
-        // POST: Xóa Banner
         [HttpPost]
 
         public ActionResult XoaBanner(int id)

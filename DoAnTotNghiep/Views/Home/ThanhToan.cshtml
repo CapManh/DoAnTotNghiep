@@ -23,10 +23,8 @@
     {
         @Html.AntiForgeryToken()
 
-        <!-- ✅ QUAN TRỌNG: phân biệt MuaNgay -->
         <input type="hidden" name="MuaNgay" value="@isMuaNgay.ToString().ToLower()" />
         <input type="hidden" name="ids" value="@ViewBag.Ids" />
-        <!-- ✅ CHỈ khi mua ngay mới gửi -->
         if (isMuaNgay && gioHang.Any())
         {
             <input type="hidden" name="MaSanPham" value="@gioHang.First().MaSanPham" />
@@ -96,7 +94,7 @@
 
                             <div class="d-flex justify-content-between border-bottom py-3">
                                 <div class="d-flex">
-                                    <img src="~/AnhWeb/@(item.SanPham?.AnhChinh ?? "no-image.png")"
+                                    <img src="@Url.Content(item.SanPham?.AnhChinh ?? "~/AnhWeb/no-image.png")"
                                          style="width:60px;height:60px;object-fit:cover;margin-right:10px;" />
 
                                     <div>
@@ -113,7 +111,31 @@
                     {
                         <p class="text-danger">Không có sản phẩm</p>
                     }
+                    <hr />
+                    <div class="card shadow-sm p-3 mb-3">
 
+                        <label class="fw-bold mb-2">
+                            Mã giảm giá
+                        </label>
+
+                        <div class="input-group">
+
+                            <input type="text"
+                                   id="voucher-code"
+                                   class="form-control"
+                                   placeholder="Nhập mã giảm giá">
+
+                            <button type="button"
+                                    class="btn btn-danger"
+                                    id="btn-apdung-voucher">
+                                Áp dụng
+                            </button>
+</div>
+
+                        <small id="voucher-message"
+                               class="text-success mt-2 d-block"></small>
+
+                    </div>
                     <hr />
 
                     <div class="d-flex justify-content-between">
@@ -176,6 +198,55 @@
 
         $(document).ready(function () {
             updateCOD();
+        });
+        $('#btn-apdung-voucher').click(function () {
+
+            let code = $('#voucher-code').val();
+
+            if (!code) {
+                $('#voucher-message')
+                    .removeClass('text-success')
+                    .addClass('text-danger')
+                    .text("Vui lòng nhập mã giảm giá");
+
+                return;
+            }
+
+            let tongTien = getTongTien();
+
+            $.post('/Home/ApDungVoucher',
+                {
+                    code: code,
+                    tongTien: tongTien
+                },
+                function (res) {
+
+                    if (res.success) {
+
+                        $('#voucher-message')
+                            .removeClass('text-danger')
+                            .addClass('text-success')
+                            .text(res.message);
+
+                        $('#TongTienText')
+                            .text(res.tongSauGiam.toLocaleString() + ' ₫');
+
+                        $('#TongTienInput')
+                            .val(res.tongSauGiam);
+
+                        $('#MaKhuyenMaiHidden')
+                            .val(res.maKhuyenMai);
+
+                        updateCOD();
+                    }
+                    else {
+
+                        $('#voucher-message')
+                            .removeClass('text-success')
+                            .addClass('text-danger')
+                            .text(res.message);
+                    }
+                });
         });
     </script>
 }

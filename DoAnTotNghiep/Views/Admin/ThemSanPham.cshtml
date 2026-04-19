@@ -2,7 +2,7 @@
 
 @{
     ViewBag.Title = "Thêm sản phẩm";
-    Layout = null;
+    Layout = "~/Views/Shared/Admin.cshtml";
 }
 
 <!DOCTYPE html>
@@ -110,7 +110,6 @@
 
                     <div class="row">
 
-                        <!-- LEFT -->
                         <div class="col-md-6">
 
                             <div class="form-group">
@@ -171,18 +170,14 @@
                                          "-- Chọn màu sắc --",
                                          new { @class = "form-select" })
                             </div>
-
                         </div>
 
                     </div>
 
-                    <!-- DESCRIPTION -->
                     <h5>Mô tả sản phẩm</h5>
                     <div class="form-group">
                         @Html.TextAreaFor(m => m.MoTa, new { @class = "form-control", rows = 4 })
                     </div>
-
-                    <!-- IMAGE -->
                     <h5>Hình ảnh</h5>
 
                     <div class="row">
