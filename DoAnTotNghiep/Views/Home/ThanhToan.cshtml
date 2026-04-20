@@ -182,16 +182,25 @@
             let method = $('input[name="MaPhuongThuc"]:checked').val();
             let tong = getTongTien();
 
+            let hienThiTong = tong;
+
             if (method == "5") {
                 let datCoc = Math.round(tong * 0.1);
                 let conLai = tong - datCoc;
 
+                hienThiTong = datCoc;
+
                 $('#codBox')
                     .removeClass('d-none')
-                    .html(`Đặt cọc: <b>${format(datCoc)}</b><br>Còn lại: <b>${format(conLai)}</b>`);
+                    .html(`
+                Đặt cọc: <b>${format(datCoc)}</b><br>
+                Còn lại: <b>${format(conLai)}</b>
+            `);
             } else {
-                $('#codBox').addClass('d-none');
+                $('#codBox').addClass('d-none').html('');
             }
+
+            $('#TongTienText').text(format(hienThiTong) + ' ₫');
         }
 
         $('input[name="MaPhuongThuc"]').change(updateCOD);

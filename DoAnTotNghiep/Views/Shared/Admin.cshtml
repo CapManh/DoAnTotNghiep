@@ -94,7 +94,7 @@
 
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav me-auto">
-                @if (roleId == 1 || roleId == 3 || roleId == 5)
+                @if (roleId == 1 || roleId == 5)
                 {
                     <li class="nav-item"><a class="nav-link" href="@Url.Action("QuanLySanPham", "Admin")"><i class="fas fa-box"></i> Sản phẩm</a></li>
                     <li class="nav-item"><a class="nav-link" href="@Url.Action("DanhSachTaiKhoan", "Admin")"><i class="fas fa-users"></i> Tài khoản</a></li>
@@ -102,14 +102,33 @@
                     <li class="nav-item"><a class="nav-link" href="@Url.Action("QuanLyBanner", "Admin")"><i class="fas fa-image"></i> Banner</a></li>
                     <li class="nav-item"><a class="nav-link" href="@Url.Action("QuanLyKhuyenMai", "Admin")"><i class="fas fa-gift"></i> Khuyến mãi</a></li>
                     <li class="nav-item"><a class="nav-link" href="@Url.Action("Danhsachdanhgia", "Admin")"><i class="fas fa-comments"></i> Phản hồi</a></li>
-                    <li class="nav-item"><a class="nav-link" href="@Url.Action("QuanLyTinTuc", "Admin")"><i class="fas fa-lock"></i>Tin Tức</a></li>
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("QuanLyTinTuc", "Admin")"><i class="fas fa-lock"></i> Tin Tức</a></li>
                     <li class="nav-item"><a class="nav-link" href="@Url.Action("Thongke", "Admin")"><i class="fas fa-chart-bar"></i> Thống kê</a></li>
                     <li class="nav-item"><a class="nav-link" href="@Url.Action("QuanLyDanhMuc", "Admin")"><i class="fas fa-chart-bar"></i> Danh Mục</a></li>
                     <li class="nav-item"><a class="nav-link" href="@Url.Action("QuanLyThuongHieu", "Admin")"><i class="fas fa-chart-bar"></i> Thương Hiệu</a></li>
                 }
+
+                else if (roleId == 3)
+                {
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("DanhSachTaiKhoan", "Admin")"><i class="fas fa-users"></i> Tài khoản</a></li>
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("DanhSachDonHang", "Admin")"><i class="fas fa-file-invoice"></i> Đơn hàng</a></li>
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Danhsachdanhgia", "Admin")"><i class="fas fa-comments"></i> Đánh giá</a></li>
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Thongke", "Admin")"><i class="fas fa-chart-bar"></i> Thống kê</a></li>
+                }
             </ul>
-            <div class="user-box">
-                <i class="fas fa-user-circle"></i> @username
+            <div class="dropdown user-box">
+                <a href="#" class="text-white text-decoration-none dropdown-toggle"
+                   data-bs-toggle="dropdown">
+                    <i class="fas fa-user-circle"></i> @username
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item text-danger" href="@Url.Action("Logout","Home")">
+                            Đăng xuất
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>

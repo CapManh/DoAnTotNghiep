@@ -281,12 +281,6 @@
                             <hr class="flex-grow-1" style="border-color: #dadce0;">
                         </div>
 
-                        <div class="d-flex justify-content-center gap-4">
-                            <button onclick="socialLogin('facebook')" class="btn rounded-3xl d-flex align-items-center justify-content-center" style="width:56px;height:56px;background:#1877f2;border:none;color:white;"><i class="bi bi-facebook fs-3"></i></button>
-                            <button onclick="socialLogin('twitter')" class="btn rounded-3xl d-flex align-items-center justify-content-center" style="width:56px;height:56px;background:#1da1f2;border:none;color:white;"><i class="bi bi-twitter fs-3"></i></button>
-                            <button onclick="socialLogin('google')" class="btn rounded-3xl d-flex align-items-center justify-content-center text-white fw-bold fs-3" style="width:56px;height:56px;background:#ea4335;border:none;">G</button>
-                        </div>
-
                         <div class="text-center mt-5 small text-muted">
                             Chưa có tài khoản?
                             <a href="#" onclick="showRegisterContent()" class="fw-bold" style="color:#9b00ff;">Đăng ký ngay</a>
@@ -315,7 +309,17 @@
                                 <input type="email" id="register-email" class="form-control auth-input" placeholder="Nhập email của bạn" style="border-left: none; border-radius: 0 12px 12px 0;">
                             </div>
                         </div>
-
+                        <div class="mb-4">
+                            <label class="small fw-bold text-muted mb-2">Số điện thoại</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-white border-end-0 rounded-start-3" style="border-color: #dadce0;">
+                                    <i class="bi bi-telephone fs-4 text-muted"></i>
+                                </span>
+                                <input type="text" id="register-sdt" class="form-control auth-input"
+                                       placeholder="Nhập số điện thoại của bạn"
+                                       style="border-left: none; border-radius: 0 12px 12px 0;">
+                            </div>
+                        </div>
                         <div class="mb-4">
                             <label class="small fw-bold text-muted mb-2">Mật khẩu</label>
                             <div class="input-group input-group-lg">
@@ -338,12 +342,6 @@
                             <hr class="flex-grow-1" style="border-color: #dadce0;">
                             <span class="px-4 text-muted small fw-medium">Hoặc đăng nhập bằng</span>
                             <hr class="flex-grow-1" style="border-color: #dadce0;">
-                        </div>
-
-                        <div class="d-flex justify-content-center gap-4">
-                            <button onclick="socialLogin('facebook')" class="btn rounded-3xl d-flex align-items-center justify-content-center" style="width:56px;height:56px;background:#1877f2;border:none;color:white;"><i class="bi bi-facebook fs-3"></i></button>
-                            <button onclick="socialLogin('twitter')" class="btn rounded-3xl d-flex align-items-center justify-content-center" style="width:56px;height:56px;background:#1da1f2;border:none;color:white;"><i class="bi bi-twitter fs-3"></i></button>
-                            <button onclick="socialLogin('google')" class="btn rounded-3xl d-flex align-items-center justify-content-center text-white fw-bold fs-3" style="width:56px;height:56px;background:#ea4335;border:none;">G</button>
                         </div>
 
                         <div class="text-center mt-5 small text-muted">
@@ -590,9 +588,10 @@
             var userData = {
                 Ten: $('#register-ten').val().trim(),
                 Email: $('#register-email').val().trim(),
-                MatKhau: $('#register-matkhau').val().trim()
+                MatKhau: $('#register-matkhau').val().trim(),
+                SoDienThoai: $('#register-sdt').val().trim()
             };
-            if (!userData.Ten || !userData.Email || !userData.MatKhau) {
+            if (!userData.Ten || !userData.Email || !userData.MatKhau || !userData.SoDienThoai) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'Thiếu thông tin',

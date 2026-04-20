@@ -152,7 +152,7 @@
                     foreach (var item in ViewBag.SanPhamMoi)
                     {
                         <div class="product-card">
-                            <a href="@Url.Action("chitietsanpham", "Home", new { id = item.MaSanPham })" class="img-link">
+                            <a href="@Url.Action("ChiTietSanPham", "Home", new { id = item.MaSanPham })" class="img-link">
                                 <div class="img-box">
                                     @if (!string.IsNullOrEmpty(item.AnhChinh))
                                     {
@@ -188,7 +188,7 @@
                                     }
                                 </div>
                                 <div class="product-name">
-                                    <a href="@Url.Action("ChiTiet", "Home", new { id = item.MaSanPham })"
+                                    <a href="@Url.Action("ChiTietSanPham", "Home", new { id = item.MaSanPham })"
                                        class="text-decoration-none text-dark">
                                         @item.TenSanPham
                                     </a>

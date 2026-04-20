@@ -1245,32 +1245,40 @@ namespace DoAnTotNghiep.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult TrangThaiDonHang(int id, string trangThaiMoi)
         {
-
-
             try
             {
-                var donHang = db.DonHang.Find(id);
+                var donHang = db.DonHang
+                    .Include(o => o.ChiTietDonHang.Select(cd => cd.ChiTietSanPham))
+                    .FirstOrDefault(o => o.MaDonHang == id);
+
                 if (donHang == null)
                 {
                     TempData["Message"] = "Không tìm thấy đơn hàng!";
                     return RedirectToAction("ChiTietDonHang", new { id });
                 }
 
-                // ================== KIỂM TRA NGHIÊM NGẶT ==================
-                if (donHang.TrangThai == "Hoàn thành")
+                if (donHang.TrangThai == "Hoàn thành" || donHang.TrangThai == "Đã hủy")
                 {
-                    TempData["Message"] = "Đơn hàng đã hoàn thành, không thể thay đổi trạng thái nữa!";
+                    TempData["Message"] = $"Đơn hàng đã ở trạng thái **{donHang.TrangThai}**, không thể thay đổi nữa!";
                     return RedirectToAction("ChiTietDonHang", new { id });
                 }
 
-                // (Tùy chọn) Không cho hủy nếu đang giao
-                if (trangThaiMoi == "Đã hủy" && donHang.TrangThai == "Đang giao")
+                if (trangThaiMoi == "Đã hủy")
                 {
-                    TempData["Message"] = "Không thể hủy đơn hàng đang trong quá trình giao hàng!";
+                    foreach (var chiTiet in donHang.ChiTietDonHang)
+                    {
+                        if (chiTiet.ChiTietSanPham != null)
+                        {
+                            chiTiet.ChiTietSanPham.SoLuongTon += (chiTiet.SoLuong ?? 0);
+                        }
+                    }
+
+                    donHang.TrangThai = "Đã hủy";
+                    db.SaveChanges();
+
+                    TempData["Message"] = "Đơn hàng đã được hủy thành công. Số lượng sản phẩm đã được trả lại kho!";
                     return RedirectToAction("ChiTietDonHang", new { id });
                 }
-
-                // Nếu qua hết kiểm tra thì mới cập nhật
                 donHang.TrangThai = trangThaiMoi;
                 db.SaveChanges();
 
@@ -1278,7 +1286,7 @@ namespace DoAnTotNghiep.Controllers
             }
             catch (Exception ex)
             {
-                TempData["Message"] = "Lỗi khi cập nhật: " + ex.Message;
+                TempData["Message"] = "Lỗi khi cập nhật trạng thái: " + ex.Message;
             }
 
             return RedirectToAction("ChiTietDonHang", new { id = id });

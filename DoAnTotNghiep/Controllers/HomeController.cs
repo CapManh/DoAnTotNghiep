@@ -9,6 +9,7 @@ using System.Web.Helpers;
 using System.Web.Mvc;
 using BCrypt.Net;
 using System.Data.Entity;
+using System.Text.RegularExpressions;
 
 namespace DoAnTotNghiep.Controllers
 {
@@ -378,34 +379,95 @@ namespace DoAnTotNghiep.Controllers
         [HttpPost]
         public JsonResult Register(NguoiDung model)
         {
-            if (model == null || string.IsNullOrEmpty(model.Email))
+            if (model == null)
             {
                 return Json(new { success = false, message = "Dữ liệu không hợp lệ!" });
             }
 
+            if (string.IsNullOrWhiteSpace(model.Ten) || model.Ten.Trim().Length < 5)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Tên phải có ít nhất 5 ký tự!"
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(model.Email) ||
+                !Regex.IsMatch(model.Email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Email không hợp lệ!"
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(model.SoDienThoai) ||
+                !Regex.IsMatch(model.SoDienThoai, @"^0\d{9}$"))
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Số điện thoại phải 10 số và bắt đầu bằng 0!"
+                });
+            }
+            if (string.IsNullOrWhiteSpace(model.MatKhau) || model.MatKhau.Length < 6)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Mật khẩu phải ít nhất 6 ký tự!"
+                });
+            }
+
             try
             {
-                var check = db.NguoiDung.FirstOrDefault(x => x.Email == model.Email);
-                if (check != null)
+                var checkEmail = db.NguoiDung.FirstOrDefault(x => x.Email == model.Email);
+                if (checkEmail != null)
                 {
-                    return Json(new { success = false, message = "Email này đã được sử dụng!" });
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Email này đã được sử dụng!"
+                    });
+                }
+
+                var checkSDT = db.NguoiDung.FirstOrDefault(x => x.SoDienThoai == model.SoDienThoai);
+                if (checkSDT != null)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Số điện thoại đã được sử dụng!"
+                    });
                 }
 
                 model.NgayTao = DateTime.Now;
                 model.MaVaiTro = 2;
                 model.IsActive = true;
+
                 db.NguoiDung.Add(model);
                 db.SaveChanges();
 
-                return Json(new { success = true, message = "Tạo tài khoản thành công." });
+                return Json(new
+                {
+                    success = true,
+                    message = "Tạo tài khoản thành công."
+                });
             }
             catch (Exception ex)
             {
                 var msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                return Json(new { success = false, message = "Lỗi hệ thống: " + msg });
+
+                return Json(new
+                {
+                    success = false,
+                    message = "Lỗi hệ thống: " + msg
+                });
             }
         }
-        public ActionResult Logout()
+    public ActionResult Logout()
         {
             Session.Clear();
             Session.Abandon();
@@ -898,14 +960,17 @@ namespace DoAnTotNghiep.Controllers
         [HttpPost]
         public JsonResult XacNhanChuyenKhoan()
         {
-            if (Session["Checkout"] == null)
-                return Json(new { success = false, message = "Không có dữ liệu thanh toán" });
-
             if (Session["MaNguoiDung"] == null)
                 return Json(new { success = false, message = "Chưa đăng nhập" });
 
+            if (Session["Checkout"] == null)
+                return Json(new { success = false, message = "Không có dữ liệu thanh toán" });
+
             int maND = Convert.ToInt32(Session["MaNguoiDung"]);
             dynamic data = Session["Checkout"];
+
+            if (data == null)
+                return Json(new { success = false, message = "Session không hợp lệ" });
 
             using (var transaction = db.Database.BeginTransaction())
             {
@@ -918,21 +983,40 @@ namespace DoAnTotNghiep.Controllers
 
                     if (!gioHang.Any())
                         return Json(new { success = false, message = "Giỏ hàng trống" });
+                    decimal tongTienGoc = (decimal)gioHang.Sum(x => x.SoLuong * (x.SanPham.Gia ?? 0));
+
+                    int maPhuongThuc = 2;
+                    string diaChi = null;
+
+                    try
+                    {
+                        maPhuongThuc = data.MaPhuongThuc;
+                        diaChi = data.DiaChi;
+                    }
+                    catch { }
+
+                    decimal tienCoc = 0;
+                    decimal tongTienSauCoc = tongTienGoc;
+
+                    if (maPhuongThuc == 5)
+                    {
+                        tienCoc = tongTienGoc * 0.1m;
+                        tongTienSauCoc = tongTienGoc - tienCoc;
+                    }
 
                     var donHang = new DonHang
                     {
                         MaNguoiDung = maND,
-                        TongTien = data.TongTien,
+                        TongTien = tongTienSauCoc,
                         TrangThai = "Chờ xác nhận",
-                        DiaChiGiao = data.DiaChi,
+                        DiaChiGiao = diaChi,
                         NgayDat = DateTime.Now,
-                        MaPhuongThuc = 2
+                        MaPhuongThuc = maPhuongThuc
                     };
 
                     db.DonHang.Add(donHang);
                     db.SaveChanges();
 
-                    // thêm chi tiết đơn hàng
                     foreach (var item in gioHang)
                     {
                         var chiTiet = db.ChiTietSanPham
@@ -940,6 +1024,12 @@ namespace DoAnTotNghiep.Controllers
 
                         if (chiTiet == null)
                             throw new Exception("Không tìm thấy chi tiết sản phẩm");
+
+                        if ((chiTiet.SoLuongTon ?? 0) < item.SoLuong)
+                        {
+                            throw new Exception($"Sản phẩm {item.SanPham.TenSanPham} không đủ số lượng");
+                        }
+                        chiTiet.SoLuongTon -= item.SoLuong;
 
                         db.ChiTietDonHang.Add(new ChiTietDonHang
                         {
@@ -950,15 +1040,13 @@ namespace DoAnTotNghiep.Controllers
                         });
                     }
 
-                    // xoá giỏ hàng
                     db.GioHang.RemoveRange(gioHang);
 
-                    // thêm thanh toán
                     db.ThanhToan.Add(new ThanhToan
                     {
                         MaDonHang = donHang.MaDonHang,
-                        MaPhuongThuc = 2,
-                        SoTien = data.TongTien,
+                        MaPhuongThuc = maPhuongThuc,
+                        SoTien = (maPhuongThuc == 5) ? tienCoc : tongTienGoc,
                         TrangThai = "Hoàn thành",
                         MaGiaoDich = "CK_" + DateTime.Now.Ticks,
                         NgayThanhToan = DateTime.Now
@@ -966,14 +1054,13 @@ namespace DoAnTotNghiep.Controllers
 
                     db.SaveChanges();
                     transaction.Commit();
-
                     Session.Remove("Checkout");
 
                     return Json(new
                     {
                         success = true,
                         redirect = Url.Action("ThanhCongCOD", "Home",
-                        new { maDonHang = donHang.MaDonHang })
+                            new { maDonHang = donHang.MaDonHang })
                     });
                 }
                 catch (Exception ex)
