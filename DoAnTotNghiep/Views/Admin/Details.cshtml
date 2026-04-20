@@ -1,0 +1,12 @@
+﻿@model DoAnTotNghiep.Models.TinTuc
+@{
+    ViewBag.Title = "Sửa thương hiệu";
+    Layout = "~/Views/Shared/Admin.cshtml";
+}
+<h2>@Model.TieuDe</h2>
+
+<p><b>Ngày đăng:</b> @Model.NgayDang?.ToString("dd/MM/yyyy HH:mm:ss"))</p>
+
+<img src="~/AnhWeb/@Model.HinhAnh" width="300" />
+
+<p>@Model.NoiDung</p>

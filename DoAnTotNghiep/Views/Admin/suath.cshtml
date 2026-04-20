@@ -1,0 +1,20 @@
+﻿@model DoAnTotNghiep.Models.ThuongHieu
+@{
+    ViewBag.Title = "Sửa thương hiệu";
+    Layout = "~/Views/Shared/Admin.cshtml";
+}
+
+<h2>Sửa thương hiệu</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.HiddenFor(x => x.MaThuongHieu)
+
+    <div class="form-group">
+        <label>Tên thương hiệu</label>
+        @Html.TextBoxFor(x => x.TenThuongHieu, new { @class = "form-control" })
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-2">Cập nhật</button>
+    <a href="@Url.Action("Index")" class="btn btn-secondary">Quay lại</a>
+}

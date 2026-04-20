@@ -1,0 +1,52 @@
+﻿@model List<DoAnTotNghiep.Models.KhuyenMai>
+
+<h2>Quản lý khuyến mãi</h2>
+
+<a href="@Url.Action("themkm")" class="btn btn-success mb-3">+ Thêm khuyến mãi</a>
+
+<table class="table table-bordered">
+    <tr>
+        <th>Mã code</th>
+        <th>% Giảm</th>
+        <th>Ngày bắt đầu</th>
+        <th>Ngày kết thúc</th>
+        <th>Trạng thái</th>
+        <th>Chức năng</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.MaCode</td>
+            <td>@item.PhanTramGiam %</td>
+
+            <td>@(item.NgayBatDau?.ToString("dd/MM/yyyy") ?? "")</td>
+            <td>@(item.NgayKetThuc?.ToString("dd/MM/yyyy") ?? "")</td>
+
+            <td>
+                @{
+                    var now = DateTime.Now;
+                    if (item.NgayKetThuc < now)
+                    {
+                        <span style="color:red;">Hết hạn</span>
+                    }
+                    else if (item.NgayBatDau > now)
+                    {
+                        <span style="color:orange;">Chưa bắt đầu</span>
+                    }
+                    else
+                    {
+                        <span style="color:green;">Đang áp dụng</span>
+                    }
+                }
+            </td>
+
+            <td>
+                <a href="@Url.Action("suakm", new { id = item.MaKhuyenMai })" class="btn btn-warning">Sửa</a>
+                <a href="@Url.Action("xoakm", new { id = item.MaKhuyenMai })"
+                   onclick="return confirm('Xóa?')"
+                   class="btn btn-danger">Xóa</a>
+            </td>
+        </tr>
+    }
+</table>

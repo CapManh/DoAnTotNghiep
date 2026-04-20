@@ -1,0 +1,28 @@
+﻿@model List<DoAnTotNghiep.Models.ThuongHieu>
+@{
+    ViewBag.Title = "quan ly thương hiệu";
+    Layout = "~/Views/Shared/Admin.cshtml";
+}
+<h2>Quản lý thương hiệu</h2>
+
+<a href="@Url.Action("themth")" class="btn btn-success mb-3">+ Thêm thương hiệu</a>
+
+<table class="table table-bordered">
+    <tr>
+        <th>Tên thương hiệu</th>
+        <th>Chức năng</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.TenThuongHieu</td>
+            <td>
+                <a href="@Url.Action("suath", new { id = item.MaThuongHieu })" class="btn btn-warning">Sửa</a>
+                <a href="@Url.Action("xoath", new { id = item.MaThuongHieu })"
+                   onclick="return confirm('Xóa?')"
+                   class="btn btn-danger">Xóa</a>
+            </td>
+        </tr>
+    }
+</table>

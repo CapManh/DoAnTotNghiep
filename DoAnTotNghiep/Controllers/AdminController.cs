@@ -1119,5 +1119,465 @@ namespace DoAnTotNghiep.Controllers
 
             return View(model);
         }
+        // QUẢN LÝ ĐƠN HÀNG - Admin Controller
+        public ActionResult DanhSachDonHang(string search, string productFilter, string statusFilter,
+      DateTime? fromDate, DateTime? toDate, int page = 1, int pageSize = 10)
+        {
+
+
+            // Danh sách trạng thái
+            ViewBag.StatusList = new SelectList(new[]
+            {
+
+        new SelectListItem { Value = "Chờ thanh toán", Text = "Chờ thanh toán" },
+        new SelectListItem { Value = "Đã xác nhận", Text = "Đã xác nhận" },
+        new SelectListItem { Value = "Đang giao", Text = "Đang giao" },
+        new SelectListItem { Value = "Hoàn thành", Text = "Hoàn thành" },
+        new SelectListItem { Value = "Đã hủy", Text = "Đã hủy" }
+    }, "Value", "Text", statusFilter);
+
+            ViewBag.SelectedStatus = statusFilter;
+
+            try
+            {
+                var orders = db.DonHangs
+                    .Include(o => o.NguoiDung)
+                    .Include(o => o.ChiTietDonHangs.Select(od => od.ChiTietSanPham.SanPham))
+                    .AsQueryable();
+
+                // Tìm kiếm
+                if (!string.IsNullOrEmpty(search))
+                {
+                    search = search.ToLower();
+                    orders = orders.Where(o =>
+                        o.MaDonHang.ToString().Contains(search) ||
+                        (o.NguoiDung != null && o.NguoiDung.Ten.ToLower().Contains(search)) ||
+                        (o.TrangThai != null && o.TrangThai.ToLower().Contains(search)));
+                }
+
+                // Lọc theo tên sản phẩm
+                if (!string.IsNullOrEmpty(productFilter))
+                {
+                    productFilter = productFilter.ToLower();
+                    orders = orders.Where(o => o.ChiTietDonHangs.Any(od =>
+                        od.ChiTietSanPham != null &&
+                        od.ChiTietSanPham.SanPham != null &&
+                        od.ChiTietSanPham.SanPham.TenSanPham.ToLower().Contains(productFilter)));
+                }
+
+                // Lọc theo trạng thái
+                if (!string.IsNullOrEmpty(statusFilter))
+                {
+                    orders = orders.Where(o => o.TrangThai == statusFilter);
+                }
+
+                // Lọc theo ngày
+                if (fromDate.HasValue)
+                    orders = orders.Where(o => o.NgayDat >= fromDate.Value);
+
+                if (toDate.HasValue)
+                    orders = orders.Where(o => o.NgayDat <= toDate.Value.AddDays(1).AddSeconds(-1));
+
+                int totalOrders = orders.Count();
+                int totalPages = (int)Math.Ceiling((double)totalOrders / pageSize);
+
+                ViewBag.TotalPages = totalPages;
+                ViewBag.CurrentPage = page;
+                ViewBag.Search = search;
+                ViewBag.ProductFilter = productFilter;
+                ViewBag.StatusFilter = statusFilter;
+                ViewBag.FromDate = fromDate?.ToString("yyyy-MM-dd");
+                ViewBag.ToDate = toDate?.ToString("yyyy-MM-dd");
+
+                var result = orders
+                    .OrderByDescending(o => o.MaDonHang)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                // Tính tổng tiền
+                var tongTienDict = new Dictionary<int, decimal>();
+                foreach (var order in result)
+                {
+                    decimal tongTien = order.ChiTietDonHangs.Sum(od => (od.Gia ?? 0) * (od.SoLuong ?? 0));
+                    tongTienDict[order.MaDonHang] = tongTien;
+                }
+
+                ViewBag.TongTienDict = tongTienDict;
+
+                return View(result);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Lỗi khi tải danh sách đơn hàng: " + ex.Message;
+                return View(new List<DonHang>());
+            }
+        }
+        public ActionResult ChiTietDonHang(int id)
+        {
+
+
+            var donHang = db.DonHangs
+                .Include(o => o.NguoiDung)
+                .Include(o => o.ChiTietDonHangs.Select(od => od.ChiTietSanPham.SanPham))
+                .Include(o => o.ChiTietDonHangs.Select(od => od.ChiTietSanPham.ThuongHieu))
+                .Include(o => o.ChiTietDonHangs.Select(od => od.ChiTietSanPham.MauSac))
+                .FirstOrDefault(o => o.MaDonHang == id);
+
+            if (donHang == null)
+            {
+                return HttpNotFound();
+            }
+
+            ViewBag.OrderStatuses = new List<SelectListItem>
+    {
+        new SelectListItem { Value = "Chờ thanh toán", Text = "Chờ thanh toán" },
+        new SelectListItem { Value = "Đã xác nhận", Text = "Đã xác nhận" },
+        new SelectListItem { Value = "Đang giao", Text = "Đang giao" },
+        new SelectListItem { Value = "Hoàn thành", Text = "Hoàn thành" },
+        new SelectListItem { Value = "Đã hủy", Text = "Đã hủy" }
+    };
+
+            return View(donHang);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult TrangThaiDonHang(int id, string trangThaiMoi)
+        {
+
+
+            try
+            {
+                var donHang = db.DonHangs.Find(id);
+                if (donHang == null)
+                {
+                    TempData["Message"] = "Không tìm thấy đơn hàng!";
+                    return RedirectToAction("ChiTietDonHang", new { id });
+                }
+
+                // ================== KIỂM TRA NGHIÊM NGẶT ==================
+                if (donHang.TrangThai == "Hoàn thành")
+                {
+                    TempData["Message"] = "Đơn hàng đã hoàn thành, không thể thay đổi trạng thái nữa!";
+                    return RedirectToAction("ChiTietDonHang", new { id });
+                }
+
+                // (Tùy chọn) Không cho hủy nếu đang giao
+                if (trangThaiMoi == "Đã hủy" && donHang.TrangThai == "Đang giao")
+                {
+                    TempData["Message"] = "Không thể hủy đơn hàng đang trong quá trình giao hàng!";
+                    return RedirectToAction("ChiTietDonHang", new { id });
+                }
+
+                // Nếu qua hết kiểm tra thì mới cập nhật
+                donHang.TrangThai = trangThaiMoi;
+                db.SaveChanges();
+
+                TempData["Message"] = $"Cập nhật trạng thái thành **{trangThaiMoi}** thành công!";
+            }
+            catch (Exception ex)
+            {
+                TempData["Message"] = "Lỗi khi cập nhật: " + ex.Message;
+            }
+
+            return RedirectToAction("ChiTietDonHang", new { id = id });
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult XoaDonHang(int id)
+        {
+
+
+            try
+            {
+                // Load đầy đủ các bảng liên quan
+                var donHang = db.DonHangs
+                    .Include(o => o.ChiTietDonHangs)
+                    .Include(o => o.ThanhToans)        // ← Bắt buộc phải thêm dòng này
+                    .FirstOrDefault(o => o.MaDonHang == id);
+
+                if (donHang == null)
+                {
+                    TempData["Message"] = "Không tìm thấy đơn hàng để xóa!";
+                    return RedirectToAction("DanhSachDonHang");
+                }
+
+                // Xóa Chi tiết đơn hàng
+                if (donHang.ChiTietDonHangs != null && donHang.ChiTietDonHangs.Any())
+                {
+                    db.ChiTietDonHangs.RemoveRange(donHang.ChiTietDonHangs);
+                }
+
+                // Xóa Thanh toán (rất quan trọng)
+                if (donHang.ThanhToans != null && donHang.ThanhToans.Any())
+                {
+                    db.ThanhToans.RemoveRange(donHang.ThanhToans);
+                }
+
+                // Cuối cùng mới xóa đơn hàng
+                db.DonHangs.Remove(donHang);
+
+                db.SaveChanges();
+
+                TempData["Message"] = "Xóa đơn hàng thành công!";
+            }
+            catch (Exception ex)
+            {
+                TempData["Message"] = "Lỗi khi xóa đơn hàng: " + ex.Message;
+                if (ex.InnerException != null)
+                {
+                    TempData["InnerMessage"] = "Chi tiết lỗi: " + ex.InnerException.Message;
+                }
+            }
+
+            return RedirectToAction("DanhSachDonHang");
+        }
+        public ActionResult QuanLyTinTuc()
+        {
+            var list = db.TinTucs.OrderByDescending(x => x.NgayDang).ToList();
+            return View(list);
+        }
+
+        // 📌 Thêm tin tức (GET)
+        public ActionResult Create()
+        {
+            return View();
+        }
+
+        // 📌 Thêm tin tức (POST)
+        [HttpPost]
+        public ActionResult Create(TinTuc model)
+        {
+            if (ModelState.IsValid)
+            {
+                model.NgayDang = DateTime.Now;
+                db.TinTucs.Add(model);
+                db.SaveChanges();
+                return RedirectToAction("QuanLyTinTuc");
+            }
+            return View(model);
+        }
+
+        // 📌 Sửa
+        public ActionResult Edit(int id)
+        {
+            var tin = db.TinTucs.Find(id);
+            return View(tin);
+        }
+
+        [HttpPost]
+        public ActionResult Edit(TinTuc model)
+        {
+            if (ModelState.IsValid)
+            {
+                db.Entry(model).State = System.Data.Entity.EntityState.Modified;
+                db.SaveChanges();
+                return RedirectToAction("QuanLyTinTuc");
+            }
+            return View(model);
+        }
+
+        // 📌 Xóa
+        public ActionResult Delete(int id)
+        {
+            var tin = db.TinTucs.Find(id);
+            db.TinTucs.Remove(tin);
+            db.SaveChanges();
+            return RedirectToAction("QuanLyTinTuc");
+        }
+
+        // 📌 Chi tiết
+        public ActionResult Details(int id)
+        {
+            var tin = db.TinTucs.Find(id);
+            return View(tin);
+        }
+        // 📌 Danh sách đánh giá
+        public ActionResult Danhsachdanhgia()
+        {
+            var list = db.DanhGias
+                         .Include("NguoiDung")
+                         .Include("SanPham")
+                         .OrderByDescending(x => x.NgayDanhGia)
+                         .ToList();
+
+            return View(list);
+        }
+
+        // 📌 Xem chi tiết
+        public ActionResult chitietdanhgia(int id)
+        {
+            var dg = db.DanhGias
+                       .Include("NguoiDung")
+                       .Include("SanPham")
+                       .FirstOrDefault(x => x.MaDanhGia == id);
+
+            return View(dg);
+        }
+
+        // 📌 Xóa đánh giá
+        public ActionResult xoadanhgia(int id)
+        {
+            var dg = db.DanhGias.Find(id);
+            db.DanhGias.Remove(dg);
+            db.SaveChanges();
+            return RedirectToAction("Danhsachdanhgia");
+        }
+        // 📌 Danh sách
+        public ActionResult QuanLyKhuyenMai()
+        {
+            var list = db.KhuyenMais
+                         .OrderByDescending(x => x.NgayBatDau)
+                         .ToList();
+
+            return View(list);
+        }
+
+        // 📌 Thêm (GET)
+        public ActionResult themkm()
+        {
+            return View();
+        }
+
+        // 📌 Thêm (POST)
+        [HttpPost]
+        public ActionResult themkm(KhuyenMai model)
+        {
+            if (ModelState.IsValid)
+            {
+                db.KhuyenMais.Add(model);
+                db.SaveChanges();
+                return RedirectToAction("QuanLyKhuyenMai");
+            }
+            return View(model);
+        }
+
+        // 📌 Sửa
+        public ActionResult suakm(int id)
+        {
+            var km = db.KhuyenMais.Find(id);
+            return View(km);
+        }
+
+        [HttpPost]
+        public ActionResult suakm(KhuyenMai model)
+        {
+            if (ModelState.IsValid)
+            {
+                db.Entry(model).State = System.Data.Entity.EntityState.Modified;
+                db.SaveChanges();
+                return RedirectToAction("QuanLyKhuyenMai");
+            }
+            return View(model);
+        }
+
+        // 📌 Xóa
+        public ActionResult xoakm(int id)
+        {
+            var km = db.KhuyenMais.Find(id);
+            db.KhuyenMais.Remove(km);
+            db.SaveChanges();
+            return RedirectToAction("QuanLyKhuyenMai");
+        }
+        // 📌 Danh sách
+        public ActionResult QuanLyDanhMuc()
+        {
+            var list = db.DanhMucs.ToList();
+            return View(list);
+        }
+
+        // 📌 Thêm
+        public ActionResult themdm()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult themdm(DanhMuc model)
+        {
+            if (ModelState.IsValid)
+            {
+                db.DanhMucs.Add(model);
+                db.SaveChanges();
+                return RedirectToAction("QuanLyDanhMuc");
+            }
+            return View(model);
+        }
+
+        // 📌 Sửa
+        public ActionResult suadm(int id)
+        {
+            var dm = db.DanhMucs.Find(id);
+            return View(dm);
+        }
+
+        [HttpPost]
+        public ActionResult suadm(DanhMuc model)
+        {
+            if (ModelState.IsValid)
+            {
+                db.Entry(model).State = System.Data.Entity.EntityState.Modified;
+                db.SaveChanges();
+                return RedirectToAction("QuanLyDanhMuc");
+            }
+            return View(model);
+        }
+
+        // 📌 Xóa
+        public ActionResult xoadm(int id)
+        {
+            var dm = db.DanhMucs.Find(id);
+            db.DanhMucs.Remove(dm);
+            db.SaveChanges();
+            return RedirectToAction("QuanLyDanhMuc");
+        }
+        public ActionResult QuanLyThuongHieu()
+        {
+            return View(db.ThuongHieux.ToList());
+        }
+
+        public ActionResult themth()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult themth(ThuongHieu model)
+        {
+            if (ModelState.IsValid)
+            {
+                db.ThuongHieux.Add(model);
+                db.SaveChanges();
+                return RedirectToAction("QuanLyThuongHieu");
+            }
+            return View(model);
+        }
+
+        public ActionResult suath(int id)
+        {
+            var th = db.ThuongHieux.Find(id);
+            return View(th);
+        }
+
+        [HttpPost]
+        public ActionResult suath(ThuongHieu model)
+        {
+            if (ModelState.IsValid)
+            {
+                db.Entry(model).State = System.Data.Entity.EntityState.Modified;
+                db.SaveChanges();
+                return RedirectToAction("QuanLyThuongHieu");
+            }
+            return View(model);
+        }
+
+        public ActionResult xoath(int id)
+        {
+            var th = db.ThuongHieux.Find(id);
+            db.ThuongHieux.Remove(th);
+            db.SaveChanges();
+            return RedirectToAction("QuanLyThuongHieu");
+        }
     }
 }

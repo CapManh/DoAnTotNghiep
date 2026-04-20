@@ -983,77 +983,46 @@ string MaGiamGia = null)
         [HttpPost]
         public JsonResult XacNhanChuyenKhoan(int maDonHang)
         {
-            var donHang = db.DonHang
-                .FirstOrDefault(x => x.MaDonHang == maDonHang);
-
-            if (donHang == null)
-                return Json(new { success = false });
-
-            int maND = donHang.MaNguoiDung ?? 0;
-
-            var gioHang = db.GioHang
-                .Include(x => x.SanPham)
-                .Where(x => x.MaNguoiDung == maND)
-                .ToList();
-
-            using (var transaction = db.Database.BeginTransaction())
+            try
             {
-                try
+                var donHang = db.DonHangs.Find(maDonHang);
+                if (donHang == null)
                 {
-                    foreach (var item in gioHang)
-                    {
-                        var chiTietSP = db.ChiTietSanPham
-                            .FirstOrDefault(x =>
-                                x.MaSanPham == item.MaSanPham);
-
-                        if (chiTietSP == null)
-                            continue;
-
-                        int soLuong = item.SoLuong ?? 1;
-
-                        // trừ tồn kho
-                        chiTietSP.SoLuongTon =
-                            (chiTietSP.SoLuongTon ?? 0) - soLuong;
-
-                        // thêm chi tiết đơn hàng
-                        db.ChiTietDonHang.Add(new ChiTietDonHang
-                        {
-                            MaDonHang = maDonHang,
-                            MaChiTietSanPham = chiTietSP.MaChiTiet,
-                            SoLuong = soLuong,
-                            Gia = item.SanPham.Gia ?? 0
-                        });
-                    }
-
-                    // xóa giỏ hàng
-                    db.GioHang.RemoveRange(gioHang);
-
-                    // cập nhật trạng thái đơn
-                    donHang.TrangThai = "Đã thanh toán";
-
-                    // lưu thanh toán
-                    db.ThanhToan.Add(new ThanhToan
-                    {
-                        MaDonHang = maDonHang,
-                        MaPhuongThuc = 2,
-                        SoTien = donHang.TongTien,
-                        TrangThai = "Hoàn thành",
-                        MaGiaoDich = Guid.NewGuid().ToString(),
-                        NgayThanhToan = DateTime.Now
-                    });
-
-                    db.SaveChanges();
-
-                    transaction.Commit();
-
-                    return Json(new { success = true });
+                    return Json(new { success = false, message = "Không tìm thấy đơn hàng!" });
                 }
-                catch
+
+                // Kiểm tra logic
+                if (donHang.TrangThai == "Hoàn thành")
                 {
-                    transaction.Rollback();
-
-                    return Json(new { success = false });
+                    return Json(new { success = false, message = "Đơn hàng đã hoàn thành rồi!" });
                 }
+
+                if (donHang.TrangThai == "Đã hủy")
+                {
+                    return Json(new { success = false, message = "Không thể thanh toán đơn hàng đã hủy!" });
+                }
+
+                // ========== SỬA Ở ĐÂY ==========
+                donHang.TrangThai = "Đã xác nhận";     // Hoặc "Đang giao" tùy quy trình của bạn
+
+                // Thêm bản ghi thanh toán (giữ nguyên)
+                db.ThanhToans.Add(new ThanhToan
+                {
+                    MaDonHang = maDonHang,
+                    MaPhuongThuc = 2,                    // Chuyển khoản
+                    SoTien = donHang.TongTien ?? 0,
+                    TrangThai = "Hoàn thành",
+                    MaGiaoDich = "CK_" + DateTime.Now.ToString("yyyyMMddHHmm"),
+                    NgayThanhToan = DateTime.Now
+                });
+
+                db.SaveChanges();
+
+                return Json(new { success = true, message = "Xác nhận chuyển khoản thành công!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi: " + ex.Message });
             }
         }
         public ActionResult ThanhCongCOD(int maDonHang)

@@ -1,0 +1,35 @@
+﻿@model DoAnTotNghiep.Models.KhuyenMai
+@{
+    ViewBag.Title = "Sửa khuyen mãi";
+    Layout = "~/Views/Shared/Admin.cshtml";
+}
+<h2>Sửa khuyến mãi</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.HiddenFor(x => x.MaKhuyenMai)
+
+    <div class="form-group">
+        <label>Mã code</label>
+        @Html.TextBoxFor(x => x.MaCode, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label>% Giảm</label>
+        @Html.TextBoxFor(x => x.PhanTramGiam, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label>Ngày bắt đầu</label>
+        @Html.TextBoxFor(x => x.NgayBatDau, "{0:yyyy-MM-dd}",
+                 new { @type = "date", @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label>Ngày kết thúc</label>
+        @Html.TextBoxFor(x => x.NgayKetThuc, "{0:yyyy-MM-dd}",
+                 new { @type = "date", @class = "form-control" })
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-2">Cập nhật</button>
+}

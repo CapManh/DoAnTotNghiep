@@ -1,0 +1,22 @@
+﻿@model DoAnTotNghiep.Models.DanhMuc
+@{
+    ViewBag.Title = "them danh muc";
+    Layout = "~/Views/Shared/Admin.cshtml";
+}
+<h2>Thêm danh mục</h2>
+
+@using (Html.BeginForm())
+{
+    <div class="form-group">
+        <label>Tên danh mục</label>
+        @Html.TextBoxFor(x => x.TenDanhMuc, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label>Mô tả</label>
+        @Html.TextBoxFor(x => x.MoTa, new { @class = "form-control" })
+    </div>
+
+    <button type="submit" class="btn btn-success mt-2">Thêm</button>
+    <a href="@Url.Action("Index")" class="btn btn-secondary">Quay lại</a>
+}

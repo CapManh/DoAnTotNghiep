@@ -1,0 +1,159 @@
+﻿@model DoAnTotNghiep.Models.DonHang
+@{
+    Layout = "~/Views/Shared/Admin.cshtml";
+    ViewBag.Title = "Chi Tiết Đơn Hàng";
+}
+
+<h2 class="mb-4">Chi Tiết Đơn Hàng - Mã: #@Model.MaDonHang</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+
+<div class="row">
+    <!-- Thông tin đơn hàng -->
+    <div class="col-md-7">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="bi bi-info-circle"></i> Thông Tin Đơn Hàng</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Mã Đơn:</strong> #@Model.MaDonHang</p>
+                        <p><strong>Khách hàng:</strong> @(Model.NguoiDung?.Ten ?? "Khách vãng lai")</p>
+                        <p><strong>Email:</strong> @(Model.NguoiDung?.Email ?? "—")</p>
+                        <p><strong>SĐT:</strong> @(Model.NguoiDung?.SoDienThoai ?? "—")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Ngày đặt:</strong> @(Model.NgayDat?.ToString("dd/MM/yyyy HH:mm") ?? "—")</p>
+                        <p>
+                            <strong>Tổng tiền:</strong>
+                            <strong class="text-danger">@String.Format("{0:N0} VNĐ", Model.ChiTietDonHangs?.Sum(od => (od.Gia ?? 0) * (od.SoLuong ?? 0)) ?? 0)</strong>
+                        </p>
+                        <p>
+                            <strong>Trạng thái:</strong>
+                            <span class="badge @(Model.TrangThai == "Hoàn thành" ? "bg-success" : Model.TrangThai == "Đã hủy" ? "bg-danger" : "bg-warning")">
+                                @Model.TrangThai
+                            </span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Cập nhật trạng thái -->
+                @if (Model.TrangThai != "Hoàn thành")
+                {
+                    <form action="@Url.Action("TrangThaiDonHang", "Admin")" method="post" class="mt-4">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.MaDonHang" />
+                        <div class="form-group">
+                            <label><strong>Chọn trạng thái mới:</strong></label>
+                            <div class="input-group">
+                                @Html.DropDownList("trangThaiMoi",
+                                         (List<SelectListItem>)ViewBag.OrderStatuses,
+                                         Model.TrangThai,
+                                         new { @class = "form-control" })
+                                <button type="submit" class="btn btn-primary">Cập Nhật</button>
+                            </div>
+                        </div>
+                    </form>
+                }
+                else
+                {
+                    <div class="alert alert-info mt-3">
+                        <i class="bi bi-check-circle"></i> Đơn hàng đã hoàn thành. Không thể thay đổi trạng thái.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Thông tin thanh toán -->
+    <div class="col-md-5">
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5><i class="bi bi-credit-card"></i> Thông Tin Thanh Toán</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.ThanhToans != null && Model.ThanhToans.Any())
+                {
+                    var tt = Model.ThanhToans.FirstOrDefault();
+                    <p><strong>Phương thức:</strong> Chuyển khoản</p>
+                    <p><strong>Số tiền:</strong> <strong>@String.Format("{0:N0} VNĐ", tt.SoTien)</strong></p>
+                    <p><strong>Trạng thái TT:</strong> <span class="badge bg-success">@tt.TrangThai</span></p>
+                    <p><strong>Mã giao dịch:</strong> @tt.MaGiaoDich</p>
+                    <p><strong>Ngày thanh toán:</strong> @(tt.NgayThanhToan?.ToString("dd/MM/yyyy HH:mm") ?? "—")</p>
+                }
+                else
+                {
+                    <p class="text-muted">Chưa có thông tin thanh toán.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Địa chỉ giao hàng -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5><i class="bi bi-geo-alt"></i> Địa Chỉ Giao Hàng</h5>
+    </div>
+    <div class="card-body">
+        <p><strong>Địa chỉ:</strong> @Model.DiaChiGiao</p>
+    </div>
+</div>
+
+<!-- Danh sách sản phẩm -->
+<h4 class="mb-3">Danh Sách Sản Phẩm</h4>
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>Ảnh</th>
+                <th>Tên Sản Phẩm</th>
+                <th>Số Lượng</th>
+                <th>Đơn Giá</th>
+                <th>Thành Tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.ChiTietDonHangs)
+            {
+                var sp = item.ChiTietSanPham?.SanPham;
+                string img = sp?.AnhChinh != null ? Url.Content("~/Content/img/" + sp.AnhChinh) : Url.Content("~/Content/img/default.jpg");
+
+                <tr>
+                    <td><img src="@img" class="product-image" /></td>
+                    <td><strong>@sp?.TenSanPham</strong></td>
+                    <td class="text-center">@item.SoLuong</td>
+                    <td class="text-end">@(item.Gia?.ToString("N0")) VNĐ</td>
+                    <td class="text-end fw-bold">@((item.Gia * item.SoLuong)?.ToString("N0")) VNĐ</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="mt-4">
+    <a href="@Url.Action("DanhSachDonHang", "Admin")" class="btn btn-secondary">← Quay lại danh sách</a>
+    <button onclick="window.print()" class="btn btn-success"><i class="bi bi-printer"></i> In hóa đơn</button>
+</div>
+
+<style>
+    .product-image {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 6px;
+    }
+
+    .badge {
+        padding: 6px 12px;
+        font-size: 14px;
+    }
+</style>

@@ -1,0 +1,24 @@
+﻿@model DoAnTotNghiep.Models.DanhGia
+@{
+    ViewBag.Title = "Sửa thương hiệu";
+    Layout = "~/Views/Shared/Admin.cshtml";
+}
+<h2>Chi tiết đánh giá</h2>
+
+<p><b>Người dùng:</b> @Model.NguoiDung.Ten</p>
+<p><b>Sản phẩm:</b> @Model.SanPham.TenSanPham</p>
+
+<p>
+    <b>Số sao:</b>
+    @for (int i = 0; i < Model.SoSao; i++)
+    {
+        <span style="color: gold;">★</span>
+    }
+</p>
+
+<p><b>Nội dung:</b></p>a
+<p>@Model.NoiDung</p>
+<p>
+    <b>Ngày:</b>
+    @(Model.NgayDanhGia?.ToString("dd/MM/yyyy 'lúc' HH:mm"))
+</p>

@@ -1,0 +1,42 @@
+﻿@model List<DoAnTotNghiep.Models.DanhGia>
+@{
+    ViewBag.Title = "Sửa thương hiệu";
+    Layout = "~/Views/Shared/Admin.cshtml";
+}
+<h2>Quản lý đánh giá</h2>
+
+<table class="table table-bordered">
+    <tr>
+        <th>Người dùng</th>
+        <th>Sản phẩm</th>
+        <th>Số sao</th>
+        <th>Nội dung</th>
+        <th>Ngày</th>
+        <th>Chức năng</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.NguoiDung.Ten</td>
+            <td>@item.SanPham.TenSanPham</td>
+            <td>
+                @for (int i = 0; i < item.SoSao; i++)
+                {
+                    <span style="color: gold;">★</span>
+                }
+            </td>
+            <td>@item.NoiDung</td>
+            <td>
+                @(item.NgayDanhGia?.ToString("dd/MM/yyyy HH:mm"))
+            </td>
+
+            <td>
+                <a href="@Url.Action("chitietdanhgia", new { id = item.MaDanhGia })" class="btn btn-info">Xem</a>
+                <a href="@Url.Action("xoadanhgia", new { id = item.MaDanhGia })"
+                   onclick="return confirm('Xóa đánh giá này?')"
+                   class="btn btn-danger">Xóa</a>
+            </td>
+        </tr>
+    }
+</table>

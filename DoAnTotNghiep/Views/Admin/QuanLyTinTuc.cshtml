@@ -1,0 +1,36 @@
+﻿@model List<DoAnTotNghiep.Models.TinTuc>
+
+@{
+    Layout = "~/Views/Shared/Admin.cshtml";
+}
+
+<h2>Quản lý tin tức</h2>
+
+<a href="@Url.Action("Create")" class="btn btn-success mb-3">+ Thêm tin</a>
+
+<table class="table table-bordered">
+    <tr>
+        <th>Hình</th>
+        <th>Tiêu đề</th>
+        <th>Ngày đăng</th>
+        <th>Chức năng</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                <img src="~/AnhWeb/@item.HinhAnh" width="100" />
+            </td>
+            <td>@item.TieuDe</td>
+            <td>@(item.NgayDang?.ToString("dd/MM/yyyy HH:mm:ss"))</td>
+            <td>
+                <a href="@Url.Action("Details", new { id = item.MaTinTuc })" class="btn btn-info">Xem</a>
+                <a href="@Url.Action("Edit", new { id = item.MaTinTuc })" class="btn btn-warning">Sửa</a>
+                <a href="@Url.Action("Delete", new { id = item.MaTinTuc })"
+                   onclick="return confirm('Xóa tin này?')"
+                   class="btn btn-danger">Xóa</a>
+            </td>
+        </tr>
+    }
+</table>

@@ -1,0 +1,26 @@
+﻿@model DoAnTotNghiep.Models.TinTuc
+@{
+    ViewBag.Title = "Sửa thương hiệu";
+    Layout = "~/Views/Shared/Admin.cshtml";
+}
+<h2>Thêm tin tức</h2>
+
+@using (Html.BeginForm())
+{
+    <div class="form-group">
+        <label>Tiêu đề</label>
+        @Html.TextBoxFor(x => x.TieuDe, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label>Nội dung</label>
+        @Html.TextAreaFor(x => x.NoiDung, new { @class = "form-control", rows = 5 })
+    </div>
+
+    <div class="form-group">
+        <label>Hình ảnh (tên file)</label>
+        @Html.TextBoxFor(x => x.HinhAnh, new { @class = "form-control" })
+    </div>
+
+    <button type="submit" class="btn btn-success mt-2">Lưu</button>
+}

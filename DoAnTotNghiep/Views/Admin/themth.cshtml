@@ -1,0 +1,17 @@
+﻿@model DoAnTotNghiep.Models.ThuongHieu
+@{
+    ViewBag.Title = "them thương hiệu";
+    Layout = "~/Views/Shared/Admin.cshtml";
+}
+<h2>Thêm thương hiệu</h2>
+
+@using (Html.BeginForm())
+{
+    <div class="form-group">
+        <label>Tên thương hiệu</label>
+        @Html.TextBoxFor(x => x.TenThuongHieu, new { @class = "form-control" })
+    </div>
+
+    <button type="submit" class="btn btn-success mt-2">Thêm</button>
+    <a href="@Url.Action("Index")" class="btn btn-secondary">Quay lại</a>
+}

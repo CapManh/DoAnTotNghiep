@@ -1,0 +1,172 @@
+﻿@model IEnumerable<DoAnTotNghiep.Models.DonHang>
+@{
+    Layout = "~/Views/Shared/Admin.cshtml";
+    ViewBag.Title = "Danh Sách Đơn Hàng";
+    var tongTienDict = ViewBag.TongTienDict as Dictionary<int, decimal>;
+}
+
+<h2 class="mb-4">📋 Danh Sách Đơn Hàng</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+
+<!-- Form tìm kiếm và lọc -->
+@using (Html.BeginForm("DanhSachDonHang", "Admin", FormMethod.Get))
+{
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <input type="text" name="search" class="form-control"
+                   placeholder="Tìm theo mã đơn hàng hoặc tên khách hàng"
+                   value="@ViewBag.Search" />
+        </div>
+        <div class="col-md-3">
+            <input type="text" name="productFilter" class="form-control"
+                   placeholder="Tìm theo tên sản phẩm"
+                   value="@ViewBag.ProductFilter" />
+        </div>
+        <div class="col-md-3">
+            @Html.DropDownList("statusFilter", (SelectList)ViewBag.StatusList,
+                     "-- Tất cả trạng thái --", new { @class = "form-control" })
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-funnel"></i> Lọc
+            </button>
+            <a href="@Url.Action("DanhSachDonHang", "Admin")"
+               class="btn btn-secondary">Xóa lọc</a>
+        </div>
+    </div>
+}
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info">Hiện tại không có đơn hàng nào.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th style="width: 100px;">Mã Đơn</th>
+                    <th style="width: 80px;">Ảnh</th>
+                    <th>Khách Hàng</th>
+                    <th style="width: 130px;">Ngày Đặt</th>
+                    <th>Trạng Thái</th>
+                    <th style="width: 150px; text-align:right;">Tổng Tiền</th>
+                    <th style="width: 180px;">Thao Tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model)
+                {
+                    var firstDetail = order.ChiTietDonHangs?.FirstOrDefault();
+                    var sanPham = firstDetail?.ChiTietSanPham?.SanPham;
+
+                    string imageUrl = Url.Content("~/Content/img/default.jpg");
+                    if (sanPham != null && !string.IsNullOrEmpty(sanPham.AnhChinh))
+                    {
+                        imageUrl = Url.Content("~/Content/img/" + sanPham.AnhChinh);
+                    }
+
+                    <tr>
+                        <td><strong>#@order.MaDonHang</strong></td>
+                        <td>
+                            <img src="@imageUrl" alt="Sản phẩm" class="product-image" />
+                        </td>
+                        <td>
+                            @if (order.NguoiDung != null)
+                            {
+                                <strong>@order.NguoiDung.Ten</strong><br />
+                                <small class="text-muted">@order.NguoiDung.Email</small>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Khách vãng lai</span>
+                            }
+                        </td>
+                        <td>@(order.NgayDat?.ToString("dd/MM/yyyy HH:mm") ?? "Chưa xác định")</td>
+                        <td>
+                            <!-- Trạng thái chữ màu đỏ -->
+                            <span class="text-danger fw-bold">
+                                @order.TrangThai
+                            </span>
+                        </td>
+                        <td style="text-align: right; font-weight: bold;">
+                            @if (tongTienDict != null && tongTienDict.ContainsKey(order.MaDonHang))
+                            {
+                                @String.Format("{0:N0} đ", tongTienDict[order.MaDonHang])
+                            }
+                            else
+                            {
+                                <span class="text-muted">0 đ</span>
+                            }
+                        </td>
+                        <td>
+                            <a href="@Url.Action("ChiTietDonHang", "Admin", new { id = order.MaDonHang })"
+                               class="btn btn-info btn-sm">
+                                <i class="bi bi-eye"></i> Xem
+                            </a>
+
+                            <form action="@Url.Action("XoaDonHang", "Admin")" method="post"
+                                  style="display:inline;"
+                                  onsubmit="return confirm('Bạn có chắc chắn muốn xóa đơn hàng này không?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@order.MaDonHang" />
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-trash"></i> Xóa
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<!-- Phân trang -->
+@if (ViewBag.TotalPages > 1)
+{
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("DanhSachDonHang", "Admin", new
+                    {
+                        page = i,
+                        search = ViewBag.Search,
+                        productFilter = ViewBag.ProductFilter,
+                        statusFilter = ViewBag.SelectedStatus
+                    })">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+
+<style>
+    .product-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+    }
+
+    .table th, .table td {
+        vertical-align: middle;
+    }
+
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 13px;
+    }
+</style>
