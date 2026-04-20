@@ -28,7 +28,7 @@
                             {
                                 var gia = item.SanPham?.Gia ?? 0;
                                 var soLuong = item.SoLuong ?? 1;
-                                var tonKho = item.SanPham?.ChiTietSanPhams?.FirstOrDefault()?.SoLuongTon ?? 0;
+                                var tonKho = item.SanPham?.ChiTietSanPham?.FirstOrDefault()?.SoLuongTon ?? 0;
 
                                 <tr data-stock="@tonKho" data-product-name="@item.SanPham.TenSanPham">
                                     <td><input type="checkbox" class="item-checkbox" value="@item.MaSanPham"></td>

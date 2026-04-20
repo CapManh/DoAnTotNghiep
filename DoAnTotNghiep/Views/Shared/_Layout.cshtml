@@ -841,6 +841,8 @@
             const list = $('#mini-cart-list');
             list.empty();
 
+            let coLoiTonKho = false;
+
             if (items && items.length > 0) {
 
                 $('#cart-has-items').removeClass('d-none');
@@ -852,46 +854,76 @@
                     let gia = item.Gia || 0;
                     let anh = item.AnhChinh || "/AnhWeb/default-product.png";
                     let sl = item.SL || 0;
+                    let tonKho = item.TonKho || 0;
                     let link = item.Link || "/Home/chitietsanpham/" + item.MaSP;
 
+                    let canhBao = "";
+
+                    if (sl > tonKho) {
+                        canhBao = `
+                <div class="text-danger small">
+                    Chỉ còn ${tonKho} sản phẩm trong kho
+                </div>`;
+
+                        coLoiTonKho = true;
+                    }
+
                     let html = `
-                    <div class="d-flex align-items-start mb-3 position-relative">
+            <div class="d-flex align-items-start mb-3 position-relative">
 
-                        <a href="${link}">
-                            <img src="${anh}"
-                                 class="rounded border"
-                                 style="width:55px;height:55px;object-fit:cover;">
-                        </a>
+                <a href="${link}">
+                    <img src="${anh}"
+                         class="rounded border"
+                         style="width:55px;height:55px;object-fit:cover;">
+                </a>
 
-                        <div class="ms-3 flex-grow-1">
+                <div class="ms-3 flex-grow-1">
 
-                            <a href="${link}"
-                               class="fw-bold small text-dark text-decoration-none cart-name">
-                               ${ten}
-                            </a>
+                    <a href="${link}"
+                       class="fw-bold small text-dark text-decoration-none cart-name">
+                       ${ten}
+                    </a>
 
-                            <div class="text-danger fw-bold">
-                                ${gia.toLocaleString()} đ
-                            </div>
+                    <div class="text-danger fw-bold">
+                        ${gia.toLocaleString()} đ
+                    </div>
 
-                            <div class="small text-muted">
-                                SL: ${sl}
-                            </div>
-                            <button class="btn-remove-cart"
-                                data-id="${item.MaSP}"
-                                style="border:none;background:none;font-size:18px;color:#999;">
-                            ×
-                        </button>
-                        </div>
+                    <div class="small text-muted">
+                        SL: ${sl}
+                    </div>
 
-                    </div>`;
+                    ${canhBao}
+
+                    <button class="btn-remove-cart"
+                        data-id="${item.MaSP}"
+                        style="border:none;background:none;font-size:18px;color:#999;">
+                    ×
+                </button>
+
+                </div>
+
+            </div>`;
+
                     list.append(html);
                 });
 
                 $('#mini-cart-total')
                     .text(total.toLocaleString() + ' đ');
+                if (coLoiTonKho) {
+
+                    $('#btn-checkout-mini')
+                        .prop('disabled', true)
+                        .text('Số lượng vượt tồn kho');
+
+                } else {
+
+                    $('#btn-checkout-mini')
+                        .prop('disabled', false)
+                        .text('Thanh toán');
+                }
 
             } else {
+
                 $('#cart-has-items').addClass('d-none');
                 $('#cart-empty-content').removeClass('d-none');
             }

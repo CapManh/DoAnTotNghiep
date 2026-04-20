@@ -1532,7 +1532,6 @@ body {
     color: #444;
 }
 
-/* responsive */
 @media (max-width: 1100px) {
     .testimonial-card {
         width: 100%;

@@ -101,16 +101,48 @@ namespace DoAnTotNghiep.Controllers
             try
             {
                 if (Session["MaNguoiDung"] == null)
-                    return Json(new { success = false, message = "Vui lòng đăng nhập!" });
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Vui lòng đăng nhập!"
+                    });
+                }
 
                 if (quantity < 1) quantity = 1;
 
                 int maND = Convert.ToInt32(Session["MaNguoiDung"]);
+
+                int tonKho = db.ChiTietSanPham
+                    .Where(x => x.MaSanPham == id)
+                    .Select(x => x.SoLuongTon ?? 0)
+                    .FirstOrDefault();
+
+                if (tonKho <= 0)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Sản phẩm đã hết hàng"
+                    });
+                }
+
                 var item = db.GioHang
-                    .FirstOrDefault(x => x.MaNguoiDung == maND && x.MaSanPham == id);
+                    .FirstOrDefault(x =>
+                        x.MaNguoiDung == maND &&
+                        x.MaSanPham == id);
 
                 if (item == null)
                 {
+                    if (quantity > tonKho)
+                    {
+                        return Json(new
+                        {
+                            success = false,
+                            message = "Số lượng đã hết vui lòng chọn sản phẩm khác"
+                        });
+                    }
+
                     db.GioHang.Add(new GioHang
                     {
                         MaNguoiDung = maND,
@@ -121,7 +153,18 @@ namespace DoAnTotNghiep.Controllers
                 }
                 else
                 {
-                    item.SoLuong += quantity;
+                    int tongSoLuong = (item.SoLuong ?? 0) + quantity;
+
+                    if (tongSoLuong > tonKho)
+                    {
+                        return Json(new
+                        {
+                            success = false,
+                            message = "Số lượng đã hết vui lòng chọn sản phẩm khác"
+                        });
+                    }
+
+                    item.SoLuong = tongSoLuong;
                 }
 
                 db.SaveChanges();
@@ -130,7 +173,11 @@ namespace DoAnTotNghiep.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
             }
         }
         private JsonResult LayMiniCart(int maND)
@@ -152,8 +199,23 @@ namespace DoAnTotNghiep.Controllers
                     MaSP = x.MaSanPham,
                     TenSP = x.SanPham.TenSanPham,
                     AnhChinh = x.SanPham.AnhChinh,
-                    Gia = x.SanPham.Gia ?? 0,
+
+                    Gia = (x.SanPham.KhuyenMai != null &&
+                       x.SanPham.KhuyenMai.PhanTramGiam > 0)
+                    ? (x.SanPham.Gia ?? 0)
+                      - ((x.SanPham.Gia ?? 0)
+                      * x.SanPham.KhuyenMai.PhanTramGiam / 100)
+                    : (x.SanPham.Gia ?? 0),
+
+                    GiaGoc = x.SanPham.Gia ?? 0,
+
                     SL = x.SoLuong,
+
+                    TonKho = db.ChiTietSanPham
+                    .Where(ct => ct.MaSanPham == x.MaSanPham)
+                    .Select(ct => ct.SoLuongTon)
+                    .FirstOrDefault(),
+
                     Link = "/Home/chitietsanpham/" + x.MaSanPham
                 })
             });
@@ -886,6 +948,7 @@ string MaGiamGia = null)
                 }
             }
         }
+
         public ActionResult QR(int maDonHang)
         {
             var donHang = db.DonHang
@@ -1020,7 +1083,6 @@ string MaGiamGia = null)
             if (sp == null)
                 return HttpNotFound();
 
-            // kiểm tra sản phẩm đã có trong giỏ chưa
             var gioHang = db.GioHang
                 .FirstOrDefault(x =>
                     x.MaNguoiDung == maND &&
@@ -1042,7 +1104,6 @@ string MaGiamGia = null)
 
             db.SaveChanges();
 
-            // chuyển sang trang thanh toán với đúng sản phẩm vừa chọn
             return RedirectToAction("ThanhToan",
                 new { ids = id });
         }
