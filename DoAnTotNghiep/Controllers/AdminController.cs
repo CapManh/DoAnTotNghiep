@@ -1140,9 +1140,9 @@ namespace DoAnTotNghiep.Controllers
 
             try
             {
-                var orders = db.DonHangs
+                var orders = db.DonHang
                     .Include(o => o.NguoiDung)
-                    .Include(o => o.ChiTietDonHangs.Select(od => od.ChiTietSanPham.SanPham))
+                    .Include(o => o.ChiTietDonHang.Select(od => od.ChiTietSanPham.SanPham))
                     .AsQueryable();
 
                 // Tìm kiếm
@@ -1159,7 +1159,7 @@ namespace DoAnTotNghiep.Controllers
                 if (!string.IsNullOrEmpty(productFilter))
                 {
                     productFilter = productFilter.ToLower();
-                    orders = orders.Where(o => o.ChiTietDonHangs.Any(od =>
+                    orders = orders.Where(o => o.ChiTietDonHang.Any(od =>
                         od.ChiTietSanPham != null &&
                         od.ChiTietSanPham.SanPham != null &&
                         od.ChiTietSanPham.SanPham.TenSanPham.ToLower().Contains(productFilter)));
@@ -1199,7 +1199,7 @@ namespace DoAnTotNghiep.Controllers
                 var tongTienDict = new Dictionary<int, decimal>();
                 foreach (var order in result)
                 {
-                    decimal tongTien = order.ChiTietDonHangs.Sum(od => (od.Gia ?? 0) * (od.SoLuong ?? 0));
+                    decimal tongTien = order.ChiTietDonHang.Sum(od => (od.Gia ?? 0) * (od.SoLuong ?? 0));
                     tongTienDict[order.MaDonHang] = tongTien;
                 }
 
@@ -1217,11 +1217,11 @@ namespace DoAnTotNghiep.Controllers
         {
 
 
-            var donHang = db.DonHangs
+            var donHang = db.DonHang
                 .Include(o => o.NguoiDung)
-                .Include(o => o.ChiTietDonHangs.Select(od => od.ChiTietSanPham.SanPham))
-                .Include(o => o.ChiTietDonHangs.Select(od => od.ChiTietSanPham.ThuongHieu))
-                .Include(o => o.ChiTietDonHangs.Select(od => od.ChiTietSanPham.MauSac))
+                .Include(o => o.ChiTietDonHang.Select(od => od.ChiTietSanPham.SanPham))
+                .Include(o => o.ChiTietDonHang.Select(od => od.ChiTietSanPham.ThuongHieu))
+                .Include(o => o.ChiTietDonHang.Select(od => od.ChiTietSanPham.MauSac))
                 .FirstOrDefault(o => o.MaDonHang == id);
 
             if (donHang == null)
@@ -1249,7 +1249,7 @@ namespace DoAnTotNghiep.Controllers
 
             try
             {
-                var donHang = db.DonHangs.Find(id);
+                var donHang = db.DonHang.Find(id);
                 if (donHang == null)
                 {
                     TempData["Message"] = "Không tìm thấy đơn hàng!";
@@ -1292,9 +1292,9 @@ namespace DoAnTotNghiep.Controllers
             try
             {
                 // Load đầy đủ các bảng liên quan
-                var donHang = db.DonHangs
-                    .Include(o => o.ChiTietDonHangs)
-                    .Include(o => o.ThanhToans)        // ← Bắt buộc phải thêm dòng này
+                var donHang = db.DonHang
+                    .Include(o => o.ChiTietDonHang)
+                    .Include(o => o.ThanhToan)        // ← Bắt buộc phải thêm dòng này
                     .FirstOrDefault(o => o.MaDonHang == id);
 
                 if (donHang == null)
@@ -1304,19 +1304,19 @@ namespace DoAnTotNghiep.Controllers
                 }
 
                 // Xóa Chi tiết đơn hàng
-                if (donHang.ChiTietDonHangs != null && donHang.ChiTietDonHangs.Any())
+                if (donHang.ChiTietDonHang != null && donHang.ChiTietDonHang.Any())
                 {
-                    db.ChiTietDonHangs.RemoveRange(donHang.ChiTietDonHangs);
+                    db.ChiTietDonHang.RemoveRange(donHang.ChiTietDonHang);
                 }
 
                 // Xóa Thanh toán (rất quan trọng)
-                if (donHang.ThanhToans != null && donHang.ThanhToans.Any())
+                if (donHang.ThanhToan != null && donHang.ThanhToan.Any())
                 {
-                    db.ThanhToans.RemoveRange(donHang.ThanhToans);
+                    db.ThanhToan.RemoveRange(donHang.ThanhToan);
                 }
 
                 // Cuối cùng mới xóa đơn hàng
-                db.DonHangs.Remove(donHang);
+                db.DonHang.Remove(donHang);
 
                 db.SaveChanges();
 
@@ -1335,7 +1335,7 @@ namespace DoAnTotNghiep.Controllers
         }
         public ActionResult QuanLyTinTuc()
         {
-            var list = db.TinTucs.OrderByDescending(x => x.NgayDang).ToList();
+            var list = db.TinTuc.OrderByDescending(x => x.NgayDang).ToList();
             return View(list);
         }
 
@@ -1352,7 +1352,7 @@ namespace DoAnTotNghiep.Controllers
             if (ModelState.IsValid)
             {
                 model.NgayDang = DateTime.Now;
-                db.TinTucs.Add(model);
+                db.TinTuc.Add(model);
                 db.SaveChanges();
                 return RedirectToAction("QuanLyTinTuc");
             }
@@ -1362,7 +1362,7 @@ namespace DoAnTotNghiep.Controllers
         // 📌 Sửa
         public ActionResult Edit(int id)
         {
-            var tin = db.TinTucs.Find(id);
+            var tin = db.TinTuc.Find(id);
             return View(tin);
         }
 
@@ -1381,8 +1381,8 @@ namespace DoAnTotNghiep.Controllers
         // 📌 Xóa
         public ActionResult Delete(int id)
         {
-            var tin = db.TinTucs.Find(id);
-            db.TinTucs.Remove(tin);
+            var tin = db.TinTuc.Find(id);
+            db.TinTuc.Remove(tin);
             db.SaveChanges();
             return RedirectToAction("QuanLyTinTuc");
         }
@@ -1390,13 +1390,13 @@ namespace DoAnTotNghiep.Controllers
         // 📌 Chi tiết
         public ActionResult Details(int id)
         {
-            var tin = db.TinTucs.Find(id);
+            var tin = db.TinTuc.Find(id);
             return View(tin);
         }
         // 📌 Danh sách đánh giá
         public ActionResult Danhsachdanhgia()
         {
-            var list = db.DanhGias
+            var list = db.DanhGia
                          .Include("NguoiDung")
                          .Include("SanPham")
                          .OrderByDescending(x => x.NgayDanhGia)
@@ -1408,7 +1408,7 @@ namespace DoAnTotNghiep.Controllers
         // 📌 Xem chi tiết
         public ActionResult chitietdanhgia(int id)
         {
-            var dg = db.DanhGias
+            var dg = db.DanhGia
                        .Include("NguoiDung")
                        .Include("SanPham")
                        .FirstOrDefault(x => x.MaDanhGia == id);
@@ -1419,44 +1419,38 @@ namespace DoAnTotNghiep.Controllers
         // 📌 Xóa đánh giá
         public ActionResult xoadanhgia(int id)
         {
-            var dg = db.DanhGias.Find(id);
-            db.DanhGias.Remove(dg);
+            var dg = db.DanhGia.Find(id);
+            db.DanhGia.Remove(dg);
             db.SaveChanges();
             return RedirectToAction("Danhsachdanhgia");
         }
-        // 📌 Danh sách
         public ActionResult QuanLyKhuyenMai()
         {
-            var list = db.KhuyenMais
+            var list = db.KhuyenMai
                          .OrderByDescending(x => x.NgayBatDau)
                          .ToList();
 
             return View(list);
         }
 
-        // 📌 Thêm (GET)
         public ActionResult themkm()
         {
             return View();
         }
-
-        // 📌 Thêm (POST)
         [HttpPost]
         public ActionResult themkm(KhuyenMai model)
         {
             if (ModelState.IsValid)
             {
-                db.KhuyenMais.Add(model);
+                db.KhuyenMai.Add(model);
                 db.SaveChanges();
                 return RedirectToAction("QuanLyKhuyenMai");
             }
             return View(model);
         }
-
-        // 📌 Sửa
         public ActionResult suakm(int id)
         {
-            var km = db.KhuyenMais.Find(id);
+            var km = db.KhuyenMai.Find(id);
             return View(km);
         }
 
@@ -1475,15 +1469,15 @@ namespace DoAnTotNghiep.Controllers
         // 📌 Xóa
         public ActionResult xoakm(int id)
         {
-            var km = db.KhuyenMais.Find(id);
-            db.KhuyenMais.Remove(km);
+            var km = db.KhuyenMai.Find(id);
+            db.KhuyenMai.Remove(km);
             db.SaveChanges();
             return RedirectToAction("QuanLyKhuyenMai");
         }
         // 📌 Danh sách
         public ActionResult QuanLyDanhMuc()
         {
-            var list = db.DanhMucs.ToList();
+            var list = db.DanhMuc.ToList();
             return View(list);
         }
 
@@ -1498,17 +1492,16 @@ namespace DoAnTotNghiep.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.DanhMucs.Add(model);
+                db.DanhMuc.Add(model);
                 db.SaveChanges();
                 return RedirectToAction("QuanLyDanhMuc");
             }
             return View(model);
         }
 
-        // 📌 Sửa
         public ActionResult suadm(int id)
         {
-            var dm = db.DanhMucs.Find(id);
+            var dm = db.DanhMuc.Find(id);
             return View(dm);
         }
 
@@ -1524,17 +1517,16 @@ namespace DoAnTotNghiep.Controllers
             return View(model);
         }
 
-        // 📌 Xóa
         public ActionResult xoadm(int id)
         {
-            var dm = db.DanhMucs.Find(id);
-            db.DanhMucs.Remove(dm);
+            var dm = db.DanhMuc.Find(id);
+            db.DanhMuc.Remove(dm);
             db.SaveChanges();
             return RedirectToAction("QuanLyDanhMuc");
         }
         public ActionResult QuanLyThuongHieu()
         {
-            return View(db.ThuongHieux.ToList());
+            return View(db.ThuongHieu.ToList());
         }
 
         public ActionResult themth()
@@ -1547,7 +1539,7 @@ namespace DoAnTotNghiep.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.ThuongHieux.Add(model);
+                db.ThuongHieu.Add(model);
                 db.SaveChanges();
                 return RedirectToAction("QuanLyThuongHieu");
             }
@@ -1556,7 +1548,7 @@ namespace DoAnTotNghiep.Controllers
 
         public ActionResult suath(int id)
         {
-            var th = db.ThuongHieux.Find(id);
+            var th = db.ThuongHieu.Find(id);
             return View(th);
         }
 
@@ -1574,9 +1566,21 @@ namespace DoAnTotNghiep.Controllers
 
         public ActionResult xoath(int id)
         {
-            var th = db.ThuongHieux.Find(id);
-            db.ThuongHieux.Remove(th);
+            var th = db.ThuongHieu.Find(id);
+
+            bool dangSuDung = db.ChiTietSanPham
+                .Any(x => x.MaThuongHieu == id);
+
+            if (dangSuDung)
+            {
+                TempData["Error"] =
+                    "Thương hiệu đang có sản phẩm!";
+                return RedirectToAction("QuanLyThuongHieu");
+            }
+
+            db.ThuongHieu.Remove(th);
             db.SaveChanges();
+
             return RedirectToAction("QuanLyThuongHieu");
         }
     }

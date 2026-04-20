@@ -427,6 +427,7 @@ namespace DoAnTotNghiep.Controllers
             ViewBag.BannerTopRight = banners.FirstOrDefault(b => b.ThuTu == 2);
             ViewBag.BannerBottomLeft = banners.FirstOrDefault(b => b.ThuTu == 3);
             ViewBag.BannerBottomRight = banners.FirstOrDefault(b => b.ThuTu == 4);
+            ViewBag.BannerBottomThird = banners.FirstOrDefault(b => b.ThuTu == 5);
             DateTime ngay30NgayTruoc = DateTime.Now.AddDays(-30);
             var sanPhamMoi = db.SanPham
      .Where(sp => sp.NoiBat == true || sp.NgayTao >= ngay30NgayTruoc)
@@ -835,208 +836,187 @@ namespace DoAnTotNghiep.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult DatHang(
-string HoTen,
-string SoDienThoai,
-string Email,
-string DiaChi,
-int MaPhuongThuc,
-decimal TongTien,
-string ids = null,
-string MaGiamGia = null)
+    string HoTen,
+    string SoDienThoai,
+    string Email,
+    string DiaChi,
+    int MaPhuongThuc,
+    decimal TongTien,
+    string ids = null,
+    string MaGiamGia = null)
         {
             if (Session["MaNguoiDung"] == null)
                 return RedirectToAction("TrangChu", "Home");
 
-            int maND = Convert.ToInt32(Session["MaNguoiDung"]);
-
-            List<GioHang> gioHang = new List<GioHang>();
-
-            if (Request.Form["MuaNgay"] == "true")
+            Session["Checkout"] = new
             {
-                if (int.TryParse(Request.Form["MaSanPham"], out int maSP) &&
-                    int.TryParse(Request.Form["SoLuong"], out int soLuong))
-                {
-                    var sp = db.SanPham.Find(maSP);
+                HoTen,
+                SoDienThoai,
+                Email,
+                DiaChi,
+                MaPhuongThuc,
+                TongTien,
+                ids,
+                MaGiamGia
+            };
 
-                    if (sp != null)
-                    {
-                        gioHang.Add(new GioHang
-                        {
-                            MaSanPham = maSP,
-                            SoLuong = soLuong,
-                            SanPham = sp
-                        });
-                    }
-                }
-            }
-            else
-            {
-                var query = db.GioHang
-                    .Include(x => x.SanPham)
-                    .Where(x => x.MaNguoiDung == maND);
+            if (MaPhuongThuc == 2)
+                return RedirectToAction("QR");
 
-                if (!string.IsNullOrEmpty(ids))
-                {
-                    var listId = ids.Split(',')
-                        .Select(x => int.TryParse(x.Trim(), out int id) ? id : 0)
-                        .Where(x => x > 0)
-                        .ToList();
+            if (MaPhuongThuc == 5)
+                return RedirectToAction("ThanhCongCOD");
 
-                    query = query.Where(x =>
-                        x.MaSanPham.HasValue &&
-                        listId.Contains(x.MaSanPham.Value));
-                }
-
-                gioHang = query.ToList();
-            }
-
-            if (!gioHang.Any())
-            {
-                TempData["Error"] = "Không có sản phẩm để đặt hàng";
+            return RedirectToAction("TrangChu", "Home");
+        }
+        public ActionResult QR()
+        {
+            if (Session["Checkout"] == null)
                 return RedirectToAction("GioHang", "Home");
-            }
+
+            dynamic data = Session["Checkout"];
+
+            decimal tongTien = data.TongTien;
+
+            string stk = "123456789";
+            string bank = "VCB";
+            string ten = "LE TUAN MANH";
+
+            string noiDung = "DATCOC_" + DateTime.Now.Ticks;
+
+            string qr =
+                $"https://img.vietqr.io/image/{bank}-{stk}-compact2.png" +
+                $"?amount={(long)tongTien}" +
+                $"&addInfo={noiDung}" +
+                $"&accountName={ten}";
+
+            ViewBag.QR = qr;
+            ViewBag.TongTien = tongTien;
+            ViewBag.NoiDung = noiDung;
+
+            return View();
+        }
+        [HttpPost]
+        public JsonResult XacNhanChuyenKhoan()
+        {
+            if (Session["Checkout"] == null)
+                return Json(new { success = false, message = "Không có dữ liệu thanh toán" });
+
+            if (Session["MaNguoiDung"] == null)
+                return Json(new { success = false, message = "Chưa đăng nhập" });
+
+            int maND = Convert.ToInt32(Session["MaNguoiDung"]);
+            dynamic data = Session["Checkout"];
 
             using (var transaction = db.Database.BeginTransaction())
             {
                 try
                 {
-                    int? maKhuyenMai = null;
+                    var gioHang = db.GioHang
+                        .Include(x => x.SanPham)
+                        .Where(x => x.MaNguoiDung == maND)
+                        .ToList();
 
-                    if (!string.IsNullOrEmpty(MaGiamGia))
-                    {
-                        var voucher = db.KhuyenMai
-                            .FirstOrDefault(x => x.MaCode == MaGiamGia);
-
-                        if (voucher != null)
-                            maKhuyenMai = voucher.MaKhuyenMai;
-                    }
+                    if (!gioHang.Any())
+                        return Json(new { success = false, message = "Giỏ hàng trống" });
 
                     var donHang = new DonHang
                     {
                         MaNguoiDung = maND,
-                        TongTien = TongTien,
-                        TrangThai = "Chờ thanh toán",
-                        DiaChiGiao = DiaChi,
+                        TongTien = data.TongTien,
+                        TrangThai = "Chờ xác nhận",
+                        DiaChiGiao = data.DiaChi,
                         NgayDat = DateTime.Now,
-                        MaPhuongThuc = MaPhuongThuc,
-                        MaKhuyenMai = maKhuyenMai
+                        MaPhuongThuc = 2
                     };
 
                     db.DonHang.Add(donHang);
                     db.SaveChanges();
 
+                    // thêm chi tiết đơn hàng
+                    foreach (var item in gioHang)
+                    {
+                        var chiTiet = db.ChiTietSanPham
+                            .FirstOrDefault(x => x.MaSanPham == item.MaSanPham);
+
+                        if (chiTiet == null)
+                            throw new Exception("Không tìm thấy chi tiết sản phẩm");
+
+                        db.ChiTietDonHang.Add(new ChiTietDonHang
+                        {
+                            MaDonHang = donHang.MaDonHang,
+                            MaChiTietSanPham = chiTiet.MaChiTiet,
+                            SoLuong = item.SoLuong,
+                            Gia = item.SanPham.Gia
+                        });
+                    }
+
+                    // xoá giỏ hàng
+                    db.GioHang.RemoveRange(gioHang);
+
+                    // thêm thanh toán
+                    db.ThanhToan.Add(new ThanhToan
+                    {
+                        MaDonHang = donHang.MaDonHang,
+                        MaPhuongThuc = 2,
+                        SoTien = data.TongTien,
+                        TrangThai = "Hoàn thành",
+                        MaGiaoDich = "CK_" + DateTime.Now.Ticks,
+                        NgayThanhToan = DateTime.Now
+                    });
+
+                    db.SaveChanges();
                     transaction.Commit();
 
-                    if (MaPhuongThuc == 2)
-                        return RedirectToAction("QR",
-                            new { maDonHang = donHang.MaDonHang });
+                    Session.Remove("Checkout");
 
-                    if (MaPhuongThuc == 5)
-                        return RedirectToAction("ThanhCongCOD",
-                            new { maDonHang = donHang.MaDonHang });
-
-                    return RedirectToAction("DonHangCuaToi", "Home");
+                    return Json(new
+                    {
+                        success = true,
+                        redirect = Url.Action("ThanhCongCOD", "Home",
+                        new { maDonHang = donHang.MaDonHang })
+                    });
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
 
-                    TempData["Error"] =
-                        "Đặt hàng thất bại: " + ex.Message;
-
-                    return RedirectToAction("GioHang");
+                    return Json(new
+                    {
+                        success = false,
+                        message = ex.Message
+                    });
                 }
             }
         }
-
-        public ActionResult QR(int maDonHang)
+        public ActionResult ThanhCongCOD(int? maDonHang)
         {
-            var donHang = db.DonHang
-                .FirstOrDefault(x => x.MaDonHang == maDonHang);
+            if (Session["Checkout"] == null)
+                return RedirectToAction("GioHang", "Home");
 
-            if (donHang == null)
-                return RedirectToAction("GioHang");
+            dynamic data = Session["Checkout"];
 
-            decimal tongTien = donHang.TongTien ?? 0;
-
+            decimal tongTien = data.TongTien;
             decimal tienCoc = tongTien * 0.1m;
 
             string stk = "123456789";
             string bank = "VCB";
             string ten = "LE TUAN MANH";
 
-            string noiDung = "DH" + maDonHang;
+            string noiDung = "DATCOC_" + DateTime.Now.Ticks;
 
             string qr =
-            $"https://img.vietqr.io/image/{bank}-{stk}-compact2.png" +
-            $"?amount={(long)tienCoc}" +
-            $"&addInfo={noiDung}" +
-            $"&accountName={ten}";
+                $"https://img.vietqr.io/image/{bank}-{stk}-compact2.png" +
+                $"?amount={(long)tienCoc}" +
+                $"&addInfo={noiDung}" +
+                $"&accountName={ten}";
 
-            ViewBag.MaDonHang = maDonHang;
             ViewBag.QR = qr;
             ViewBag.TienCoc = tienCoc;
             ViewBag.NoiDung = noiDung;
 
             return View();
         }
-        [HttpPost]
-        public JsonResult XacNhanChuyenKhoan(int maDonHang)
-        {
-            try
-            {
-                var donHang = db.DonHangs.Find(maDonHang);
-                if (donHang == null)
-                {
-                    return Json(new { success = false, message = "Không tìm thấy đơn hàng!" });
-                }
 
-                // Kiểm tra logic
-                if (donHang.TrangThai == "Hoàn thành")
-                {
-                    return Json(new { success = false, message = "Đơn hàng đã hoàn thành rồi!" });
-                }
-
-                if (donHang.TrangThai == "Đã hủy")
-                {
-                    return Json(new { success = false, message = "Không thể thanh toán đơn hàng đã hủy!" });
-                }
-
-                // ========== SỬA Ở ĐÂY ==========
-                donHang.TrangThai = "Đã xác nhận";     // Hoặc "Đang giao" tùy quy trình của bạn
-
-                // Thêm bản ghi thanh toán (giữ nguyên)
-                db.ThanhToans.Add(new ThanhToan
-                {
-                    MaDonHang = maDonHang,
-                    MaPhuongThuc = 2,                    // Chuyển khoản
-                    SoTien = donHang.TongTien ?? 0,
-                    TrangThai = "Hoàn thành",
-                    MaGiaoDich = "CK_" + DateTime.Now.ToString("yyyyMMddHHmm"),
-                    NgayThanhToan = DateTime.Now
-                });
-
-                db.SaveChanges();
-
-                return Json(new { success = true, message = "Xác nhận chuyển khoản thành công!" });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Lỗi: " + ex.Message });
-            }
-        }
-        public ActionResult ThanhCongCOD(int maDonHang)
-        {
-            var donHang = db.DonHang.FirstOrDefault(x => x.MaDonHang == maDonHang);
-
-            if (donHang == null)
-                return RedirectToAction("GioHang");
-
-            ViewBag.MaDonHang = maDonHang;
-            ViewBag.TongTien = donHang.TongTien;
-
-            return View();
-        }
         public ActionResult MuaNgay(int id, int soLuong)
         {
             if (Session["MaNguoiDung"] == null)

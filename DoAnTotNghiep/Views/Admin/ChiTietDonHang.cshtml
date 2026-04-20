@@ -34,7 +34,7 @@
                         <p><strong>Ngày đặt:</strong> @(Model.NgayDat?.ToString("dd/MM/yyyy HH:mm") ?? "—")</p>
                         <p>
                             <strong>Tổng tiền:</strong>
-                            <strong class="text-danger">@String.Format("{0:N0} VNĐ", Model.ChiTietDonHangs?.Sum(od => (od.Gia ?? 0) * (od.SoLuong ?? 0)) ?? 0)</strong>
+                            <strong class="text-danger">@String.Format("{0:N0} VNĐ", Model.ChiTietDonHang?.Sum(od => (od.Gia ?? 0) * (od.SoLuong ?? 0)) ?? 0)</strong>
                         </p>
                         <p>
                             <strong>Trạng thái:</strong>
@@ -80,9 +80,9 @@
                 <h5><i class="bi bi-credit-card"></i> Thông Tin Thanh Toán</h5>
             </div>
             <div class="card-body">
-                @if (Model.ThanhToans != null && Model.ThanhToans.Any())
+                @if (Model.ThanhToan != null && Model.ThanhToan.Any())
                 {
-                    var tt = Model.ThanhToans.FirstOrDefault();
+                    var tt = Model.ThanhToan.FirstOrDefault();
                     <p><strong>Phương thức:</strong> Chuyển khoản</p>
                     <p><strong>Số tiền:</strong> <strong>@String.Format("{0:N0} VNĐ", tt.SoTien)</strong></p>
                     <p><strong>Trạng thái TT:</strong> <span class="badge bg-success">@tt.TrangThai</span></p>
@@ -122,17 +122,27 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model.ChiTietDonHangs)
+            @foreach (var item in Model.ChiTietDonHang)
             {
                 var sp = item.ChiTietSanPham?.SanPham;
-                string img = sp?.AnhChinh != null ? Url.Content("~/Content/img/" + sp.AnhChinh) : Url.Content("~/Content/img/default.jpg");
 
                 <tr>
-                    <td><img src="@img" class="product-image" /></td>
-                    <td><strong>@sp?.TenSanPham</strong></td>
+                    <td>
+                        <img src="@(sp?.AnhChinh ?? "/Content/img/default.jpg")"
+                             class="product-image" />
+                    </td>
+
+                    <td><strong>@(sp?.TenSanPham ?? "Không có tên")</strong></td>
+
                     <td class="text-center">@item.SoLuong</td>
-                    <td class="text-end">@(item.Gia?.ToString("N0")) VNĐ</td>
-                    <td class="text-end fw-bold">@((item.Gia * item.SoLuong)?.ToString("N0")) VNĐ</td>
+
+                    <td class="text-end">
+                        @(item.Gia?.ToString("N0")) VNĐ
+                    </td>
+
+                    <td class="text-end fw-bold">
+                        @((item.Gia * item.SoLuong)?.ToString("N0")) VNĐ
+                    </td>
                 </tr>
             }
         </tbody>

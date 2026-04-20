@@ -1484,8 +1484,8 @@
     <Content Include="Views\Admin\ThemTaiKhoan.cshtml" />
     <Content Include="Views\Admin\ChinhSuaTaiKhoan.cshtml" />
     <Content Include="Views\Shared\Admin.cshtml" />
-    <Content Include="Views\Home\QR.cshtml" />
     <Content Include="Views\Home\ThanhCongCOD.cshtml" />
+    <Content Include="Views\Home\QR.cshtml" />
     <Content Include="Views\Admin\Thongke.cshtml" />
     <Content Include="Views\Admin\DanhSachDonHang.cshtml" />
     <Content Include="Views\Admin\ChiTietDonHang.cshtml" />

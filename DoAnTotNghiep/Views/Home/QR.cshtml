@@ -89,17 +89,15 @@
         }
 
     keyframes fadeIn {
-        from
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
 
-    {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 </style>
 
@@ -117,8 +115,8 @@
             </div>
 
             <div>
-                <span>Tiền cọc</span>
-                <b class="price">@ViewBag.TienCoc.ToString("N0") ₫</b>
+                <span>Tiền</span>
+                <b class="price">@ViewBag.TongTien.ToString("N0") ₫</b>
             </div>
 
             <div>
@@ -140,25 +138,43 @@
 </div>
 
 <script>
-function xacNhan() {
-    fetch('/Home/XacNhanChuyenKhoan', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ maDonHang: @ViewBag.MaDonHang })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            alert("✅ Thanh toán thành công!");
-            window.location = "/Home/TrangChu";
-        } else {
-            alert("❌ Thanh toán thất bại!");
-        }
-    })
-    .catch(() => {
-        alert("⚠ Lỗi kết nối!");
-    });
-}
+    function xacNhan() {
+
+        if (!confirm("Bạn chắc chắn đã chuyển khoản?"))
+            return;
+
+        fetch('/Home/XacNhanChuyenKhoan', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(res => {
+
+                if (!res.ok)
+                    throw new Error("HTTP " + res.status);
+
+                return res.json();
+            })
+            .then(data => {
+
+                if (data.success) {
+
+                    alert("✅ Thanh toán thành công");
+                    window.location.href = data.redirect;
+
+                } else {
+
+                    alert(data.message || "Thanh toán thất bại");
+
+                }
+
+            })
+            .catch(error => {
+
+                console.log(error);
+                alert("⚠ Không gọi được Controller");
+
+            });
+    }
 </script>

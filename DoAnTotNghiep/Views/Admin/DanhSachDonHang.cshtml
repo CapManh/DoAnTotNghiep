@@ -66,13 +66,13 @@ else
             <tbody>
                 @foreach (var order in Model)
                 {
-                    var firstDetail = order.ChiTietDonHangs?.FirstOrDefault();
+                    var firstDetail = order.ChiTietDonHang?.FirstOrDefault();
                     var sanPham = firstDetail?.ChiTietSanPham?.SanPham;
 
                     string imageUrl = Url.Content("~/Content/img/default.jpg");
                     if (sanPham != null && !string.IsNullOrEmpty(sanPham.AnhChinh))
                     {
-                        imageUrl = Url.Content("~/Content/img/" + sanPham.AnhChinh);
+                        imageUrl = Url.Content(sanPham.AnhChinh);
                     }
 
                     <tr>
