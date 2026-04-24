@@ -3,112 +3,163 @@
 }
 @model List<DoAnTotNghiep.Models.DonHang>
 
+<style>
+    .order-card {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .order-item img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #eee;
+    }
+
+    .order-price {
+        font-weight: bold;
+        color: #dc3545;
+    }
+
+    .btn-review {
+        font-size: 13px;
+        padding: 4px 10px;
+    }
+
+    .status-badge {
+        font-size: 13px;
+    }
+</style>
+
 <div class="container my-5">
     <div class="row">
 
+        <!-- MENU -->
         <div class="col-lg-3">
-            <div class="list-group shadow-sm">
+            <div class="list-group shadow-sm rounded">
                 <a href="?trangThai=all" class="list-group-item">Tất cả</a>
                 <a href="?trangThai=Chờ xác nhận" class="list-group-item">Chờ xác nhận</a>
                 <a href="?trangThai=Đã xác nhận" class="list-group-item">Đã xác nhận</a>
-                <a href="?trangThai=Đã thanh toán" class="list-group-item">Đã thanh toán</a>
                 <a href="?trangThai=Đang giao hàng" class="list-group-item">Đang giao</a>
-                <a href="?trangThai=Đã giao hàng" class="list-group-item">Đã giao hàng</a>
-                <a href="?trangThai=Đã nhận hàng" class="list-group-item">Đã nhận</a>
+                <a href="?trangThai=HoanThanh" class="list-group-item">Hoàn thành</a>
                 <a href="?trangThai=Đã hủy" class="list-group-item">Đã hủy</a>
             </div>
         </div>
+
+        <!-- DANH SÁCH -->
         <div class="col-lg-9">
 
-            @foreach (var dh in Model)
+            @if (Model != null && Model.Any())
             {
-                <div class="card mb-4 shadow-sm border-0">
-                    <div class="card-header d-flex justify-content-between">
-                        <span>🧾 Mã đơn: <b>#@dh.MaDonHang</b></span>
-                        <span class="badge bg-warning text-dark">
-                            @dh.TrangThai
-                        </span>
-                    </div>
-                    <div class="card-body">
-                        @foreach (var ct in dh.ChiTietDonHang)
-                        {
-                            <div class="d-flex align-items-center mb-3">
+                foreach (var dh in Model)
+                {
+                    <div class="card mb-4 shadow-sm order-card">
 
-                                <img src="@Url.Content(ct.ChiTietSanPham.SanPham.AnhChinh)"
-                                     style="width:70px;height:70px;object-fit:cover;"
-                                     class="rounded border">
+                        <!-- HEADER -->
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div>🧾 Mã đơn: <b>#@dh.MaDonHang</b></div>
 
-                                <div class="ms-3 flex-grow-1">
-                                    <div class="fw-bold">
-                                        @ct.ChiTietSanPham.SanPham.TenSanPham
+                            <span class="badge bg-warning text-dark status-badge">
+                                @dh.TrangThai
+                            </span>
+                        </div>
+
+                        <!-- BODY -->
+                        <div class="card-body">
+
+                            @foreach (var ct in dh.ChiTietDonHangs)
+                            {
+                                <div class="d-flex align-items-center mb-3 order-item">
+
+                                    <!-- ẢNH -->
+                                    <img src="@Url.Content(ct?.ChiTietSanPham?.SanPham?.AnhChinh ?? "~/Content/no-image.png")" />
+
+                                    <!-- INFO -->
+                                    <div class="ms-3 flex-grow-1">
+                                        <div class="fw-bold">
+                                            @(ct?.ChiTietSanPham?.SanPham?.TenSanPham ?? "Không có tên")
+                                        </div>
+                                        <div class="text-muted small">
+                                            Số lượng: @ct.SoLuong
+                                        </div>
                                     </div>
 
-                                    <div class="small text-muted">
-                                        SL: @ct.SoLuong
-                                    </div>
-                                </div>
+                                    <!-- GIÁ + NÚT -->
+                                    <div class="text-end">
 
-                                <div class="text-danger fw-bold">
-                                    @((ct.Gia * ct.SoLuong)?.ToString("N0")) đ
+                                        <div class="order-price">
+                                            @((ct.Gia * ct.SoLuong)?.ToString("N0")) đ
+                                        </div>
+
+                                        @if (dh.TrangThai == "Hoàn thành" || dh.TrangThai == "Đã giao hàng")
+                                        {
+                                            <a href="/Home/danhgiasanpham?maSP=@ct.ChiTietSanPham.MaSanPham"
+                                               class="btn btn-warning btn-sm btn-review mt-1">
+                                                ⭐ Đánh giá
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <div class="text-muted small mt-1">
+                                                Chưa thể đánh giá
+                                            </div>
+                                        }
+
+                                    </div>
+
                                 </div>
+                            }
+
+                            <hr />
+
+                            <!-- THÔNG TIN -->
+                            <div class="small text-muted mb-1">
+                                📍 @(dh.DiaChiGiao ?? "Không có địa chỉ")
                             </div>
-                        }
 
-                        <div class="mt-3 small text-muted">
-                            📍 @dh.DiaChiGiao
+                            <div class="small text-muted mb-1">
+                                👤 @(dh.NguoiDung?.Ten ?? "Không có tên")
+                            </div>
+
+                            <div class="small text-muted mb-2">
+                                📞 @(dh.NguoiDung?.SoDienThoai ?? "Không có SĐT")
+                            </div>
+
+                            <!-- TỔNG -->
+                            <div class="text-end fw-bold text-danger">
+                                Tổng: @((dh.TongTien ?? 0).ToString("N0")) đ
+                            </div>
+
                         </div>
 
-                        <div class="small text-muted">
-                            👤 Họ tên: @dh.NguoiDung.Ten
-                        </div>
+                        <!-- FOOTER -->
+                        <div class="card-footer text-end">
 
-                        <div class="small text-muted">
-                            📞 SĐT: @dh.NguoiDung.SoDienThoai
-                        </div>
-
-                        <div class="small text-muted">
-                            💳 Phương thức thanh toán:
-                            @if (dh.MaPhuongThuc == 1)
+                            @if (dh.TrangThai == "Đang giao hàng")
                             {
-                                <span>Thanh toán khi nhận hàng</span>
+                                <button class="btn btn-success btn-sm"
+                                        onclick="confirmReceived(@dh.MaDonHang)">
+                                    ✅ Đã nhận hàng
+                                </button>
                             }
-                            else if (dh.MaPhuongThuc == 2)
-                            {
-                                <span>Chuyển khoản ngân hàng</span>
-                            }
-                            else if (dh.MaPhuongThuc == 5)
-                            {
-                                <span>Thanh toán COD</span>
-                            }
-                            else
-                            {
-                                <span>Khác</span>
-                            }
+
                         </div>
 
-                        <div class="text-end fw-bold text-danger mt-2">
-                            Tổng: @((dh.TongTien ?? 0).ToString("N0")) đ
-                        </div>
                     </div>
-                    
-
-                    <div class="card-footer text-end">
-
-                        @if (dh.TrangThai == "Đã giao hàng")
-                        {
-                            <button class="btn btn-success btn-sm"
-                                    onclick="confirmReceived(@dh.MaDonHang)">
-                                ✅ Đã nhận hàng
-                            </button>
-                        }
-                    </div>
-
+                }
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    Không có đơn hàng nào
                 </div>
             }
 
         </div>
     </div>
 </div>
+
 <script>
     function confirmReceived(id) {
 
@@ -126,35 +177,6 @@
                     if (res.success) {
                         Swal.fire("Thành công!", "", "success")
                             .then(() => location.reload());
-                    }
-
-                });
-
-            }
-        });
-    }
-    function confirmReceived(id) {
-
-        Swal.fire({
-            title: "Bạn đã nhận hàng?",
-            text: "Xác nhận để hoàn tất đơn",
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonText: "Đã nhận",
-            cancelButtonText: "Chưa"
-        }).then((result) => {
-
-            if (result.isConfirmed) {
-
-                $.post('/DonHang/DaNhanHang', { id: id }, function (res) {
-
-                    if (res.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Hoàn tất đơn hàng 🎉',
-                            timer: 1500,
-                            showConfirmButton: false
-                        }).then(() => location.reload());
                     }
 
                 });

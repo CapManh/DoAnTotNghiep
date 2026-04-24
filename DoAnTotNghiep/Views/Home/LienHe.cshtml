@@ -58,23 +58,36 @@
                 <div class="col-lg-7">
                     <div class="form-wrapper bg-white p-4 p-md-5 rounded-4 shadow-sm">
                         <h2 class="fw-bold mb-4">Gửi tin nhắn cho chúng tôi</h2>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <input type="text" class="form-control" placeholder="Họ và tên">
+                        @model DoAnTotNghiep.Models.LienHe
+
+                        @using (Html.BeginForm("LienHe", "Home", FormMethod.Post))
+                        {
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+                                    <input type="text" name="HoTen" class="form-control" placeholder="Họ và tên" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <input type="email" name="Email" class="form-control" placeholder="Địa chỉ Email" required>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <input type="text" name="SoDienThoai" class="form-control" placeholder="Số điện thoại">
+                                </div>
+
+                                <div class="col-md-12">
+                                    <textarea name="NoiDung" class="form-control" rows="5" placeholder="Nội dung tin nhắn" required></textarea>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-warning w-100 fw-bold py-3 text-white">
+                                        GỬI TIN NHẮN
+                                    </button>
+                                </div>
+
                             </div>
-                            <div class="col-md-6">
-                                <input type="email" class="form-control" placeholder="Địa chỉ Email">
-                            </div>
-                            <div class="col-md-12">
-                                <input type="text" class="form-control" placeholder="Số điện thoại">
-                            </div>
-                            <div class="col-md-12">
-                                <textarea class="form-control" rows="5" placeholder="Nội dung tin nhắn"></textarea>
-                            </div>
-                            <div class="col-md-12">
-                                <button class="btn btn-warning w-100 fw-bold py-3 text-white">GỬI TIN NHẮN</button>
-                            </div>
-                        </div>
+                        }
                     </div>
                 </div>
                 <div class="col-lg-5">
@@ -103,4 +116,3 @@
     </section>
 </body>
 </html>
-

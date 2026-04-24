@@ -1,0 +1,122 @@
+﻿@{
+    ViewBag.Title = "Đánh giá sản phẩm";
+
+    var dg = ViewBag.DanhGia as DoAnTotNghiep.Models.DanhGia;
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+    body {
+        background: #f5f5f5;
+    }
+
+    .review-box {
+        max-width: 600px;
+        margin: 50px auto;
+        background: #fff;
+        border-radius: 10px;
+        padding: 25px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .review-title {
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .star {
+        font-size: 28px;
+        cursor: pointer;
+        color: #ccc;
+        transition: 0.2s;
+    }
+
+        .star.active,
+        .star:hover {
+            color: #ee4d2d;
+        }
+
+    .textarea {
+        border-radius: 8px;
+        resize: none;
+    }
+
+    .btn-shopee {
+        background: #ee4d2d;
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        border-radius: 6px;
+        font-weight: 500;
+    }
+
+        .btn-shopee:hover {
+            background: #d84324;
+        }
+</style>
+
+<div class="review-box">
+
+    <div class="review-title">
+        @(dg != null ? "✏️ Sửa đánh giá" : "⭐ Đánh giá sản phẩm")
+    </div>
+
+    <form method="post">
+
+        <input type="hidden" name="MaSanPham" value="@ViewBag.MaSanPham" />
+        <input type="hidden" name="SoSao" id="SoSao" value="@(dg?.SoSao ?? 5)" />
+
+        <!-- ⭐ STAR -->
+        <div class="mb-3">
+            <label class="fw-bold mb-2 d-block">Chọn số sao</label>
+
+            <div id="starBox">
+                @for (int i = 1; i <= 5; i++)
+                {
+                    <i class="fa-star star @(i <= (dg?.SoSao ?? 5) ? "fas active" : "far")"
+                       data-value="@i"></i>
+                }
+            </div>
+        </div>
+
+        <!-- 📝 CONTENT -->
+        <div class="mb-4">
+            <label class="fw-bold mb-2">Nội dung đánh giá</label>
+            <textarea name="NoiDung"
+                      class="form-control textarea"
+                      rows="4"
+                      placeholder="Chia sẻ trải nghiệm của bạn...">@((dg?.NoiDung ?? "").Trim())</textarea>
+        </div>
+
+        <!-- BUTTON -->
+        <div class="text-end">
+            <button class="btn-shopee">
+                @(dg != null ? "Cập nhật đánh giá" : "Gửi đánh giá")
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+<script>let stars = document.querySelectorAll(".star");
+    let input = document.getElementById("SoSao");
+
+    stars.forEach(star => {
+        star.addEventListener("click", function () {
+            let value = this.getAttribute("data-value");
+            input.value = value;
+
+            stars.forEach(s => {
+                s.classList.remove("fas", "active");
+                s.classList.add("far");
+            });
+
+            for (let i = 0; i < value; i++) {
+                stars[i].classList.remove("far");
+                stars[i].classList.add("fas", "active");
+            }
+        });
+    });</script>

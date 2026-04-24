@@ -1,0 +1,118 @@
+﻿@{
+    ViewBag.Title = "Quên mật khẩu";
+}
+
+<style>
+    /* nền */
+    .forgot-wrapper {
+        height: 80vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    }
+
+    /* box */
+    .forgot-box {
+        width: 100%;
+        max-width: 400px;
+        background: #fff;
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        animation: fadeUp 0.4s ease;
+    }
+
+    /* animation */
+    keyframes fadeUp {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* title */
+    .forgot-title {
+        text-align: center;
+        font-weight: bold;
+        font-size: 26px;
+        margin-bottom: 10px;
+    }
+
+    /* desc */
+    .forgot-desc {
+        text-align: center;
+        color: #777;
+        margin-bottom: 25px;
+    }
+
+    /* input */
+    .forgot-input {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        background: #f9fafb;
+        transition: 0.25s;
+    }
+
+        .forgot-input:focus {
+            border-color: #ee4d2d;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(238,77,45,0.15);
+            outline: none;
+        }
+
+    /* button */
+    .forgot-btn {
+        width: 100%;
+        margin-top: 15px;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #ee4d2d, #ff7337);
+        color: white;
+        font-weight: 600;
+        transition: 0.25s;
+    }
+
+        .forgot-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(238,77,45,0.3);
+        }
+
+    /* error */
+    .forgot-error {
+        margin-top: 10px;
+        color: red;
+        text-align: center;
+        font-size: 14px;
+    }
+</style>
+
+<div class="forgot-wrapper">
+    <div class="forgot-box">
+
+        <h2 class="forgot-title">Quên mật khẩu</h2>
+        <p class="forgot-desc">Nhập email để nhận mã OTP</p>
+
+        <form method="post">
+            <input type="email" name="email" class="forgot-input" placeholder="Nhập email của bạn" required />
+            <button type="submit" class="forgot-btn">Gửi OTP</button>
+        </form>
+
+        @if (ViewBag.Error != null)
+        {
+            <p class="forgot-error">@ViewBag.Error</p>
+        }
+
+    </div>
+</div>

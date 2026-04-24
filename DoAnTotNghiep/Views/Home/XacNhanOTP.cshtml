@@ -1,0 +1,121 @@
+﻿@{
+    ViewBag.Title = "Xác nhận OTP";
+}
+
+<style>
+    /* nền */
+    .otp-wrapper {
+        height: 80vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    }
+
+    /* box */
+    .otp-box {
+        width: 100%;
+        max-width: 400px;
+        background: #fff;
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        animation: fadeUp 0.4s ease;
+    }
+
+    /* animation */
+    keyframes fadeUp {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* title */
+    .otp-title {
+        text-align: center;
+        font-weight: bold;
+        font-size: 26px;
+        margin-bottom: 10px;
+    }
+
+    /* desc */
+    .otp-desc {
+        text-align: center;
+        color: #777;
+        margin-bottom: 25px;
+    }
+
+    /* input */
+    .otp-input {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        background: #f9fafb;
+        transition: 0.25s;
+        text-align: center;
+        font-size: 18px;
+        letter-spacing: 4px;
+    }
+
+        .otp-input:focus {
+            border-color: #ee4d2d;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(238,77,45,0.15);
+            outline: none;
+        }
+
+    /* button */
+    .otp-btn {
+        width: 100%;
+        margin-top: 15px;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #ee4d2d, #ff7337);
+        color: white;
+        font-weight: 600;
+        transition: 0.25s;
+    }
+
+        .otp-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(238,77,45,0.3);
+        }
+
+    /* error */
+    .otp-error {
+        margin-top: 10px;
+        color: red;
+        text-align: center;
+        font-size: 14px;
+    }
+</style>
+
+<div class="otp-wrapper">
+    <div class="otp-box">
+
+        <h2 class="otp-title">Xác nhận OTP</h2>
+        <p class="otp-desc">Nhập mã OTP đã gửi về email của bạn</p>
+
+        <form method="post">
+            <input type="text" name="otp" class="otp-input" placeholder="••••••" required />
+            <button type="submit" class="otp-btn">Xác nhận</button>
+        </form>
+
+        @if (ViewBag.Error != null)
+        {
+            <p class="otp-error">@ViewBag.Error</p>
+        }
+
+    </div>
+</div>

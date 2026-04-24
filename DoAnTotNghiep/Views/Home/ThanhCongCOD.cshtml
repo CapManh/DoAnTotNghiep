@@ -139,43 +139,36 @@
 
 </div>
 <script>
-    function xacNhan() {
+   function xacNhan() {
 
-        if (!confirm("Bạn chắc chắn đã chuyển khoản?"))
-            return;
+    let maDonHang = '@ViewBag.MaDonHang';
 
-        fetch('/Home/XacNhanChuyenKhoan', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(res => {
-
-                if (!res.ok)
-                    throw new Error("HTTP " + res.status);
-
-                return res.json();
-            })
-            .then(data => {
-
-                if (data.success) {
-
-                    alert("✅ Thanh toán thành công");
-                    window.location.href = data.redirect;
-
-                } else {
-
-                    alert(data.message || "Thanh toán thất bại");
-
-                }
-
-            })
-            .catch(error => {
-
-                console.log(error);
-                alert("⚠ Không gọi được Controller");
-
-            });
+    if (!maDonHang || maDonHang === '0') {
+        alert("❌ Không có mã đơn hàng");
+        return;
     }
+
+    if (!confirm("Bạn chắc chắn đã chuyển khoản?"))
+        return;
+
+    fetch('/Home/XacNhanChuyenKhoan?maDonHang=' + maDonHang, {
+        method: 'POST'
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.success) {
+            alert("✅ Thành công");
+            window.location.href = '/Home/GioHang';
+        } else {
+            alert(data.message);
+        }
+
+    })
+    .catch(err => {
+        console.log(err);
+        alert("⚠ Lỗi API");
+    });
+}
+
 </script>

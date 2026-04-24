@@ -88,21 +88,49 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-    keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
+    /* 🔥 THÊM MỚI */
+    .countdown {
+        margin: 15px 0;
+        font-size: 16px;
+        color: #ff9800;
+        font-weight: bold;
+    }
+
+    .btn-cancel {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        margin-top: 10px;
+        background: #dc3545;
+        color: #fff;
+        font-size: 16px;
+        border-radius: 30px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+        .btn-cancel:hover {
+            background: #c82333;
+            transform: scale(1.05);
         }
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
     }
 </style>
 
 <div class="qr-container">
-
     <div class="qr-card">
 
         <h2>Thanh toán chuyển khoản</h2>
@@ -129,52 +157,108 @@
             <img src="@ViewBag.QR" alt="QR Code" />
         </div>
 
+        <!-- 🔥 THỜI GIAN -->
+        <div class="countdown">
+            ⏳ Thời gian còn lại: <b id="timer">05:00</b>
+        </div>
+
+        <!-- 🔥 NÚT HỦY -->
+        <button class="btn-cancel" onclick="huyDon()">
+            ❌ Hủy đơn hàng
+        </button>
+
         <button class="btn-confirm" onclick="xacNhan()">
             ✅ Tôi đã chuyển khoản
         </button>
 
     </div>
-
 </div>
 
 <script>
-    function xacNhan() {
+// ===== XÁC NHẬN =====
+function xacNhan() {
 
-        if (!confirm("Bạn chắc chắn đã chuyển khoản?"))
-            return;
+    if (!confirm("Bạn chắc chắn đã chuyển khoản?"))
+        return;
 
-        fetch('/Home/XacNhanChuyenKhoan', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(res => {
+    let maDonHang = @ViewBag.MaDonHang;
 
-                if (!res.ok)
-                    throw new Error("HTTP " + res.status);
+    fetch('/Home/XacNhanChuyenKhoan', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ maDonHang: maDonHang })
+    })
+    .then(res => res.json())
+    .then(data => {
 
-                return res.json();
-            })
-            .then(data => {
+        if (data.success) {
+            alert("✅ Thanh toán thành công");
+            window.location.href = '/Home/GioHang';
+        } else {
+            alert(data.message || "Thanh toán thất bại");
+        }
 
-                if (data.success) {
+    })
+    .catch(error => {
+        console.log(error);
+        alert("⚠ Không gọi được Controller");
+    });
+}
 
-                    alert("✅ Thanh toán thành công");
-                    window.location.href = data.redirect;
+// ===== HỦY ĐƠN =====
+function huyDon() {
 
-                } else {
+    if (!confirm("Bạn có chắc muốn hủy đơn không?"))
+        return;
 
-                    alert(data.message || "Thanh toán thất bại");
+    let maDonHang = @ViewBag.MaDonHang;
 
-                }
+    fetch('/Home/HuyDonHang', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ maDonHang: maDonHang })
+    })
+    .then(res => res.json())
+    .then(data => {
 
-            })
-            .catch(error => {
+        if (data.success) {
+            alert("❌ Đơn hàng đã bị hủy");
+            window.location.href = '/Home';
+        } else {
+            alert(data.message || "Hủy thất bại");
+        }
 
-                console.log(error);
-                alert("⚠ Không gọi được Controller");
+    })
+    .catch(err => {
+        console.log(err);
+        alert("Lỗi khi hủy đơn");
+    });
+}
 
-            });
+// ===== ĐẾM NGƯỢC =====
+let timeLeft = 300; // 5 phút
+
+let timer = setInterval(function () {
+
+    let minutes = Math.floor(timeLeft / 60);
+    let seconds = timeLeft % 60;
+
+    document.getElementById("timer").innerText =
+        (minutes < 10 ? "0" : "") + minutes + ":" +
+        (seconds < 10 ? "0" : "") + seconds;
+
+    timeLeft--;
+
+    if (timeLeft < 0) {
+        clearInterval(timer);
+
+        alert("⛔ Hết thời gian thanh toán!");
+        huyDon();
     }
+
+}, 1000);
 </script>

@@ -13,6 +13,7 @@
     int soldCount = ViewBag.SoldCount ?? 0;
     int soLuongTon = ViewBag.SoLuongTon ?? 0;
     bool conHang = soLuongTon > 0;
+    bool duocDanhGia = ViewBag.DuocDanhGia ?? false; // ✅ THÊM
 }
 
 <link rel="stylesheet" href="@Url.Content("~/Content/chitietsanpham.css")" />
@@ -101,7 +102,12 @@
             {
                 <div class="d-flex align-items-center mb-3">
                     <button class="btn btn-outline-secondary" onclick="updateQuantity(-1)">-</button>
-                    <input type="text" id="quantity" class="form-control text-center mx-2" value="1" style="width:70px;" readonly />
+                    <input type="number" id="quantity"
+                           class="form-control text-center mx-2"
+                           value="1"
+                           min="1"
+                           max="@soLuongTon"
+                           style="width:70px;" />
                     <button class="btn btn-outline-secondary" onclick="updateQuantity(1)">+</button>
                 </div>
 
@@ -123,22 +129,23 @@
         </div>
     </div>
 
+    <!-- REVIEW -->
     <div class="mt-5">
         <h4 class="fw-bold mb-4">Đánh giá sản phẩm (@reviewCount)</h4>
 
-        @if (TempData["Success"] != null)
-        {<div class="alert alert-success">@TempData["Success"]</div>}
-        @if (TempData["Error"] != null)
-        {<div class="alert alert-danger">@TempData["Error"]</div>}
-
         <div class="card shadow-sm p-4 mb-5">
-            <h5 class="mb-3">Viết đánh giá của bạn</h5>
+            <h5>Viết đánh giá</h5>
 
             @if (Session["MaNguoiDung"] == null)
             {
                 <div class="alert alert-warning">
-                    <i class="fas fa-lock"></i>
-                    Bạn cần <a href="/Home/Login" class="alert-link fw-bold">đăng nhập</a> để viết đánh giá.
+                    Vui lòng đăng nhập để đánh giá
+                </div>
+            }
+            else if (!duocDanhGia)
+            {
+                <div class="alert alert-info">
+                    Bạn cần mua và nhận hàng để đánh giá
                 </div>
             }
             else
@@ -147,64 +154,66 @@
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="MaSanPham" value="@Model.MaSanPham" />
 
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">Đánh giá sao của bạn</label>
-                        <div id="starRating" class="fs-3">
-                            @for (int i = 1; i <= 5; i++)
-                            {
-                                <i class="far fa-star star text-warning" data-value="@i"
-                                   style="cursor: pointer; margin-right: 8px;"></i>
-                            }
-                        </div>
-                        <input type="hidden" name="SoSao" id="SoSao" value="5" />
+                    <div id="starRating">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <i class="far fa-star star text-warning" data-value="@i"></i>
+                        }
                     </div>
 
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">Nội dung đánh giá</label>
-                        <textarea name="NoiDung" class="form-control" rows="4"
-                                  placeholder="Hãy chia sẻ cảm nhận của bạn về sản phẩm..." required></textarea>
-                    </div>
+                    <input type="hidden" name="SoSao" id="SoSao" value="5" />
 
-                    <button type="button" id="btnSubmitReview" class="btn btn-primary btn-lg px-5">
-                        <i class="fas fa-paper-plane"></i> Gửi đánh giá
+                    <textarea name="NoiDung" class="form-control mt-3" required></textarea>
+
+                    <button type="button" id="btnSubmitReview" class="btn btn-primary mt-3">
+                        Gửi đánh giá
                     </button>
                 </form>
             }
         </div>
-        <h5 class="mb-3">Các đánh giá từ khách hàng</h5>
 
-        @if (danhGias.Any())
+        @foreach (var dg in danhGias)
         {
-            foreach (var dg in danhGias)
-            {
-                <div class="border-bottom pb-4 mb-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <strong>@(dg.NguoiDung?.Ten ?? "Khách hàng ẩn danh")</strong>
-                        <small class="text-muted">
-                            @if (dg.NgayDanhGia.HasValue)
-                            {
-                                @dg.NgayDanhGia.Value.ToString("dd/MM/yyyy HH:mm")
-                            }
-                        </small>
-                    </div>
-                    <div class="stars fs-4 mt-1 text-warning">
-                        @for (int i = 1; i <= 5; i++)
-                        {
-                            <i class="@(i <= (dg.SoSao ?? 0) ? "fas fa-star" : "far fa-star")"></i>
-                        }
-                    </div>
-                    <p class="mt-3 mb-0">@dg.NoiDung</p>
+            <div class="border-bottom mb-3">
+                <b>@(dg.NguoiDung?.Ten)</b>
+                <div>
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <i class="@(i <= (dg.SoSao ?? 0) ? "fas fa-star text-warning" : "far fa-star")"></i>
+                    }
                 </div>
-            }
-        }
-        else
-        {
-            <p class="text-muted fst-italic">Chưa có đánh giá nào. Hãy là người đầu tiên đánh giá sản phẩm này!</p>
+                <p>@dg.NoiDung</p>
+            </div>
         }
     </div>
 </div>
 
 <script>
+    // chọn sao
+    $(".star").click(function () {
+        let value = $(this).data("value");
+        $("#SoSao").val(value);
+
+        $(".star").removeClass("fas").addClass("far");
+        $(".star").each(function () {
+            if ($(this).data("value") <= value) {
+                $(this).removeClass("far").addClass("fas");
+            }
+        });
+    });
+
+    // gửi đánh giá
+    $("#btnSubmitReview").click(function () {
+        $.post("/Home/GuiDanhGia", $("#reviewForm").serialize(), function (res) {
+            if (res.success) {
+                alert("Đánh giá thành công");
+                location.reload();
+            } else {
+                alert(res.message);
+            }
+        });
+    });
+
     let maxQuantity = @soLuongTon;
 
     function changeImage(img) {
@@ -213,24 +222,48 @@
         img.classList.add('active-thumb');
     }
 
+    // ✅ nút + - vẫn giới hạn (cho đẹp UX)
     function updateQuantity(change) {
         let input = document.getElementById("quantity");
         let value = parseInt(input.value) || 1;
+
         value += change;
+
         if (value < 1) value = 1;
-        if (value > maxQuantity) value = maxQuantity;
+
         input.value = value;
     }
 
+    // 🔥 CHỈ CHECK Ở ĐÂY
     function muaNgay(btn) {
         let id = $(btn).data("id");
         let soLuong = parseInt($("#quantity").val()) || 1;
+
+        if (soLuong > maxQuantity) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Không đủ hàng',
+                text: `Bạn nhập ${soLuong} nhưng chỉ còn ${maxQuantity} sản phẩm trong kho`,
+            });
+            return;
+        }
+
         window.location.href = `/Home/MuaNgay?id=${id}&soLuong=${soLuong}`;
     }
 
+    // 👉 nên check luôn add cart (tránh lỗi)
     $("#btnAddCart").click(function () {
         let id = $(this).data("id");
         let quantity = parseInt($("#quantity").val()) || 1;
+
+        if (quantity > maxQuantity) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Không đủ hàng',
+                text: `Chỉ còn ${maxQuantity} sản phẩm`,
+            });
+            return;
+        }
 
         $.post("/Home/ThemGioHang", { id: id, quantity: quantity }, function (res) {
             if (res.success) {
@@ -254,46 +287,6 @@
 
             } else {
                 Swal.fire('Lỗi', res.message || 'Không thể thêm vào giỏ', 'error');
-            }
-        });
-    });
-
-    let currentRating = 5;
-    document.querySelectorAll('.star').forEach(star => {
-        star.addEventListener('click', function () {
-            currentRating = parseInt(this.dataset.value);
-            document.getElementById('SoSao').value = currentRating;
-            document.querySelectorAll('.star').forEach(s => {
-                if (parseInt(s.dataset.value) <= currentRating) {
-                    s.classList.remove('far'); s.classList.add('fas');
-                } else {
-                    s.classList.remove('fas'); s.classList.add('far');
-                }
-            });
-        });
-    });
-
-    $("#btnSubmitReview").click(function () {
-        let formData = $("#reviewForm").serialize();
-        $.ajax({
-            url: '/Home/GuiDanhGia',
-            type: 'POST',
-            data: formData,
-            success: function (res) {
-                if (res.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Cảm ơn bạn!',
-                        text: 'Đánh giá đã được gửi thành công.',
-                        timer: 2000,
-                        showConfirmButton: false
-                    }).then(() => location.reload());
-                } else {
-                    Swal.fire('Lỗi', res.message || 'Không thể gửi đánh giá', 'error');
-                }
-            },
-            error: function () {
-                Swal.fire('Lỗi kết nối', 'Vui lòng thử lại sau', 'error');
             }
         });
     });

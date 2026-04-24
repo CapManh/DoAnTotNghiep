@@ -1506,6 +1506,10 @@
     <Content Include="Views\Admin\suath.cshtml" />
     <Content Include="Views\Admin\LienHe.cshtml" />
     <Content Include="Views\Admin\ChiTietLH.cshtml" />
+    <Content Include="Views\Home\QuenMatKhau.cshtml" />
+    <Content Include="Views\Home\XacNhanOTP.cshtml" />
+    <Content Include="Views\Home\DoiMatKhau.cshtml" />
+    <Content Include="Views\Home\danhgiasanpham.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

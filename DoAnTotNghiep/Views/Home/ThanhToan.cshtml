@@ -21,7 +21,7 @@
 
     @using (Html.BeginForm("DatHang", "Home", FormMethod.Post))
     {
-        @Html.AntiForgeryToken()
+
 
         <input type="hidden" name="MuaNgay" value="@isMuaNgay.ToString().ToLower()" />
         <input type="hidden" name="ids" value="@ViewBag.Ids" />
@@ -130,7 +130,7 @@
                                     id="btn-apdung-voucher">
                                 Áp dụng
                             </button>
-</div>
+                        </div>
 
                         <small id="voucher-message"
                                class="text-success mt-2 d-block"></small>
@@ -170,92 +170,106 @@
 
 @section Scripts{
     <script>
-        function format(n) {
-            return n.toLocaleString('vi-VN') + ' ₫';
+    function format(n) {
+        return n.toLocaleString('vi-VN') + ' ₫';
+    }
+
+    // ✅ Tổng tiền gốc (rất quan trọng)
+    let tongGoc = @tongThanhToan;
+
+    // ✅ Update khi chọn QR / COD
+    function updateCOD() {
+        let method = $('input[name="MaPhuongThuc"]:checked').val();
+
+        let tong = tongGoc; // LUÔN dùng tổng gốc
+
+        if (method == "5") { // COD
+            let datCoc = Math.round(tong * 0.1);
+            let conLai = tong - datCoc;
+
+            $('#codBox')
+                .removeClass('d-none')
+                .html(`
+                    Đặt cọc: <b>${format(datCoc)}</b><br>
+                    Còn lại: <b>${format(conLai)}</b>
+                `);
+
+            $('#TongTienText').text(format(datCoc));
+        }
+        else { // QR
+            $('#codBox').addClass('d-none').html('');
+            $('#TongTienText').text(format(tong));
         }
 
-        function getTongTien() {
-            return parseInt($('#TongTienText').text().replace(/[^0-9]/g, '')) || 0;
+        // ⚠️ Backend luôn nhận tổng thật
+        $('#TongTienInput').val(tong);
+    }
+
+    // Khi đổi phương thức thanh toán
+    $('input[name="MaPhuongThuc"]').change(function () {
+        updateCOD();
+    });
+
+    $(document).ready(function () {
+        updateCOD();
+    });
+
+    // =========================
+    // 🎯 ÁP DỤNG VOUCHER
+    // =========================
+    $('#btn-apdung-voucher').click(function () {
+
+        let code = $('#voucher-code').val();
+
+        if (!code) {
+            $('#voucher-message')
+                .removeClass('text-success')
+                .addClass('text-danger')
+                .text("Vui lòng nhập mã giảm giá");
+            return;
         }
 
-        function updateCOD() {
-            let method = $('input[name="MaPhuongThuc"]:checked').val();
-            let tong = getTongTien();
+        // ❌ KHÔNG lấy từ UI nữa
+        let tongTien = tongGoc;
 
-            let hienThiTong = tong;
+        $.post('/Home/ApDungVoucher',
+            {
+                code: code,
+                tongTien: tongTien
+            },
+            function (res) {
 
-            if (method == "5") {
-                let datCoc = Math.round(tong * 0.1);
-                let conLai = tong - datCoc;
+                if (res.success) {
 
-                hienThiTong = datCoc;
+                    $('#voucher-message')
+                        .removeClass('text-danger')
+                        .addClass('text-success')
+                        .text(res.message);
 
-                $('#codBox')
-                    .removeClass('d-none')
-                    .html(`
-                Đặt cọc: <b>${format(datCoc)}</b><br>
-                Còn lại: <b>${format(conLai)}</b>
-            `);
-            } else {
-                $('#codBox').addClass('d-none').html('');
-            }
+                    // ✅ Cập nhật lại tổng gốc
+                    tongGoc = res.tongSauGiam;
 
-            $('#TongTienText').text(format(hienThiTong) + ' ₫');
-        }
+                    // Update UI
+                    $('#TongTienText')
+                        .text(format(res.tongSauGiam));
 
-        $('input[name="MaPhuongThuc"]').change(updateCOD);
+                    $('#TongTienInput')
+                        .val(res.tongSauGiam);
 
-        $(document).ready(function () {
-            updateCOD();
-        });
-        $('#btn-apdung-voucher').click(function () {
+                    $('#MaKhuyenMaiHidden')
+                        .val(res.maKhuyenMai);
 
-            let code = $('#voucher-code').val();
+                    // 👉 Quan trọng: cập nhật lại COD theo tổng mới
+                    updateCOD();
+                }
+                else {
 
-            if (!code) {
-                $('#voucher-message')
-                    .removeClass('text-success')
-                    .addClass('text-danger')
-                    .text("Vui lòng nhập mã giảm giá");
-
-                return;
-            }
-
-            let tongTien = getTongTien();
-
-            $.post('/Home/ApDungVoucher',
-                {
-                    code: code,
-                    tongTien: tongTien
-                },
-                function (res) {
-
-                    if (res.success) {
-
-                        $('#voucher-message')
-                            .removeClass('text-danger')
-                            .addClass('text-success')
-                            .text(res.message);
-
-                        $('#TongTienText')
-                            .text(res.tongSauGiam.toLocaleString() + ' ₫');
-
-                        $('#TongTienInput')
-                            .val(res.tongSauGiam);
-
-                        $('#MaKhuyenMaiHidden')
-                            .val(res.maKhuyenMai);
-
-                        updateCOD();
-                    }
-                    else {
-
-                        $('#voucher-message')
-                            .removeClass('text-success')
-                            .addClass('text-danger')
-                            .text(res.message);
-                    }
-                });
-        });
+                    $('#voucher-message')
+                        .removeClass('text-success')
+                        .addClass('text-danger')
+                        .text(res.message);
+                }
+            });
+    });
     </script>
 }

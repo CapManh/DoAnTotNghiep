@@ -754,3 +754,99 @@ body {
         width: auto;
     }
 }
+/* ===== SHOPEE STYLE ===== */
+
+.shopee-modal {
+    border-radius: 10px;
+}
+
+/* Title */
+.title-auth {
+    font-size: 24px;
+}
+
+/* Label */
+.label-auth {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+}
+
+/* Input */
+.auth-input {
+    border: 1px solid #ddd;
+    box-shadow: none;
+}
+
+    .auth-input:focus {
+        border-color: #ee4d2d;
+        box-shadow: none;
+    }
+
+/* Input icon */
+.input-group-text {
+    background: #fff;
+    border: 1px solid #ddd;
+}
+
+/* Button chính */
+.btn-shopee {
+    background: #ee4d2d;
+    color: #fff;
+    border: none;
+    height: 45px;
+    font-weight: 600;
+}
+
+    .btn-shopee:hover {
+        background: #d73211;
+    }
+
+/* Google */
+.btn-google {
+    border: 1px solid #ddd;
+    background: #fff;
+    height: 45px;
+}
+
+/* Link */
+.link-auth {
+    color: #ee4d2d;
+    text-decoration: none;
+}
+
+/* Divider */
+.divider {
+    text-align: center;
+    position: relative;
+}
+
+    .divider::before,
+    .divider::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        width: 40%;
+        height: 1px;
+        background: #eee;
+    }
+
+    .divider::before {
+        left: 0;
+    }
+
+    .divider::after {
+        right: 0;
+    }
+
+    .divider span {
+        background: #fff;
+        padding: 0 10px;
+        color: #888;
+    }
+
+/* Hover */
+button:hover {
+    opacity: 0.9;
+    transition: 0.2s;
+}
