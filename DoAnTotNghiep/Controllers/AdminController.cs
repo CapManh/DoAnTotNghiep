@@ -6,6 +6,8 @@ using System.Data.Entity;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
 using System.Reflection;
 using System.Web;
 using System.Web.Mvc;
@@ -42,178 +44,384 @@ namespace DoAnTotNghiep.Controllers
                 return View();
             }
         }
-        public ActionResult Thongke()
+        public ActionResult Thongke(string filter = "day", DateTime? selectedDate = null)
         {
-            var today = DateTime.Today;
-            var tomorrow = today.AddDays(1);
-            var firstDayOfMonth = new DateTime(today.Year, today.Month, 1);
-            var doanhThu = db.ChiTietDonHang.Sum(od => (decimal?)(od.Gia * od.SoLuong)) ?? 0;
-            var soLuongDonHang = db.DonHang.Count();
-            var soLuongKhachHang = db.NguoiDung.Count(u => u.MaVaiTro == 2);
-            var soLuongNhanVien = db.NguoiDung.Count(u => u.MaVaiTro == 3 || u.MaVaiTro == 4);
-            var soLuongSanPham = db.SanPham.Count();
-            var soLuongDanhMuc = db.DanhMuc.Count();
-            var tongDanhGia = db.DanhGia.Count();
-            var tongTonKho = db.ChiTietSanPham.Sum(ct => (int?)ct.SoLuongTon) ?? 0;
+            DateTime startDate;
+            DateTime endDate;
 
-            var giaTriTonKho = db.ChiTietSanPham
-                .Include(ct => ct.SanPham)
-                .Sum(ct => (decimal?)(ct.SoLuongTon * ct.SanPham.Gia)) ?? 0;
+            DateTime today = selectedDate ?? DateTime.Today;
 
-            var donHangHomNay = db.DonHang.Count(o => o.NgayDat >= today && o.NgayDat < tomorrow);
-            var sanPhamHetHang = db.ChiTietSanPham.Count(ct => ct.SoLuongTon == 0);
-            var sanPhamSapHet = db.ChiTietSanPham.Count(ct => ct.SoLuongTon > 0 && ct.SoLuongTon <= 5);
+            if (filter == "day")
+            {
+                startDate = today.Date;
+                endDate = startDate.AddDays(1);
+            }
+            else if (filter == "week")
+            {
+                int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
+                startDate = today.AddDays(-diff).Date;
+                endDate = startDate.AddDays(7);
 
-            var khachHangMoiThangNay = db.NguoiDung
-                .Count(u => u.MaVaiTro == 2 && u.NgayTao >= firstDayOfMonth);
+                ViewBag.WeekRange = startDate.ToString("dd/MM/yyyy") +
+                    " - " + endDate.AddDays(-1).ToString("dd/MM/yyyy");
+            }
+            else if (filter == "month")
+            {
+                startDate = new DateTime(today.Year, today.Month, 1);
+                endDate = startDate.AddMonths(1);
+            }
+            else
+            {
+                startDate = new DateTime(today.Year, 1, 1);
+                endDate = startDate.AddYears(1);
+            }
 
-            var donHangHuy = db.DonHang.Count(o => o.TrangThai == "Đã hủy");
-            var donHangHoanThanh = db.DonHang.Count(o => o.TrangThai == "Hoàn thành");
-            var tyLeHoanThanh = soLuongDonHang > 0
-                ? Math.Round((decimal)donHangHoanThanh * 100 / soLuongDonHang, 1) : 0;
+            var doanhThu = db.DonHangs
+                .Where(o => o.NgayDat >= startDate && o.NgayDat < endDate)
+                .SelectMany(o => o.ChiTietDonHangs)
+                .Sum(od => (decimal?)(od.Gia * od.SoLuong)) ?? 0;
 
-            var trungBinhDanhGia = tongDanhGia > 0
-                ? Math.Round(db.DanhGia.Average(r => (decimal)r.SoSao), 1) : 0;
-
-            var averageOrderValue = soLuongDonHang > 0
-                ? Math.Round(doanhThu / soLuongDonHang, 0) : 0;
             ViewBag.DoanhThu = doanhThu;
-            ViewBag.SoLuongDonHang = soLuongDonHang;
-            ViewBag.SoLuongKhachHang = soLuongKhachHang;
-            ViewBag.SoLuongNhanVien = soLuongNhanVien;
-            ViewBag.SoLuongSanPham = soLuongSanPham;
-            ViewBag.SoLuongDanhMuc = soLuongDanhMuc;
-            ViewBag.TongDanhGia = tongDanhGia;
-            ViewBag.TongTonKho = tongTonKho;
-            ViewBag.GiaTriTonKho = giaTriTonKho;
-            ViewBag.DonHangHomNay = donHangHomNay;
-            ViewBag.SanPhamHetHang = sanPhamHetHang;
-            ViewBag.SanPhamSapHet = sanPhamSapHet;
-            ViewBag.KhachHangMoi = khachHangMoiThangNay;
-            ViewBag.DonHangHuy = donHangHuy;
-            ViewBag.TyLeHoanThanh = tyLeHoanThanh;
-            ViewBag.TrungBinhDanhGia = trungBinhDanhGia;
-            ViewBag.AverageOrderValue = averageOrderValue;
+            ViewBag.Filter = filter;
+            ViewBag.SelectedDate = selectedDate ?? today;
 
-            var doanhThuTheoThangRaw = db.DonHang
-                .Where(o => o.NgayDat.HasValue)
-                .SelectMany(o => o.ChiTietDonHang.Select(od => new
+            var dataChart = db.DonHangs
+                .Where(o => o.NgayDat != null)
+                .SelectMany(o => o.ChiTietDonHangs.Select(od => new
                 {
-                    Thang = o.NgayDat.Value.Month,
-                    Nam = o.NgayDat.Value.Year,
+                    Ngay = o.NgayDat.Value,
                     Tien = (decimal)(od.Gia * od.SoLuong)
                 }))
-                .GroupBy(x => new { x.Nam, x.Thang })
-                .Select(g => new
-                {
-                    Nam = g.Key.Nam,
-                    Thang = g.Key.Thang,
-                    DoanhThu = g.Sum(x => x.Tien)
-                })
-                .OrderByDescending(x => x.Nam).ThenByDescending(x => x.Thang)
                 .ToList();
 
-            ViewBag.DoanhThuTheoThang = doanhThuTheoThangRaw.Select(x =>
+            List<string> labels = new List<string>();
+            List<decimal> data = new List<decimal>();
+
+            if (filter == "day")
             {
-                dynamic d = new ExpandoObject();
-                d.ThangNam = $"{x.Thang}/{x.Nam}";
-                d.DoanhThu = x.DoanhThu;
-                return d;
-            }).ToList();
-            var tyLeDonHang = db.DonHang
-                .GroupBy(o => o.TrangThai ?? "Không xác định")
+                var group = dataChart
+                    .Where(x => x.Ngay.Date == startDate)
+                    .GroupBy(x => x.Ngay.Hour)
+                    .Select(g => new { Gio = g.Key, Tien = g.Sum(x => x.Tien) })
+                    .OrderBy(x => x.Gio);
+
+                labels = group.Select(x => x.Gio + "h").ToList();
+                data = group.Select(x => x.Tien).ToList();
+            }
+            else if (filter == "week")
+            {
+                var group = dataChart
+                    .GroupBy(x =>
+                    {
+                        int diff = (7 + (x.Ngay.DayOfWeek - DayOfWeek.Monday)) % 7;
+                        return x.Ngay.AddDays(-diff).Date;
+                    })
+                    .Select(g => new
+                    {
+                        StartWeek = g.Key,
+                        EndWeek = g.Key.AddDays(6),
+                        Tien = g.Sum(x => x.Tien)
+                    })
+                    .OrderBy(x => x.StartWeek);
+
+                labels = group
+                    .Select(x => x.StartWeek.ToString("dd/MM") + " - " + x.EndWeek.ToString("dd/MM"))
+                    .ToList();
+
+                data = group.Select(x => x.Tien).ToList();
+            }
+            else if (filter == "month")
+            {
+                var group = dataChart
+                    .GroupBy(x => new { x.Ngay.Year, x.Ngay.Month })
+                    .Select(g => new
+                    {
+                        Thang = g.Key.Month,
+                        Nam = g.Key.Year,
+                        Tien = g.Sum(x => x.Tien)
+                    })
+                    .OrderBy(x => x.Nam).ThenBy(x => x.Thang);
+
+                labels = group.Select(x => "T" + x.Thang + "/" + x.Nam).ToList();
+                data = group.Select(x => x.Tien).ToList();
+            }
+            else
+            {
+                var group = dataChart
+                    .GroupBy(x => x.Ngay.Year)
+                    .Select(g => new
+                    {
+                        Nam = g.Key,
+                        Tien = g.Sum(x => x.Tien)
+                    })
+                    .OrderBy(x => x.Nam);
+
+                labels = group.Select(x => x.Nam.ToString()).ToList();
+                data = group.Select(x => x.Tien).ToList();
+            }
+
+            var topSP = db.DonHangs
+                .Where(o => o.NgayDat >= startDate && o.NgayDat < endDate)
+                .SelectMany(o => o.ChiTietDonHangs)
+                .Join(db.ChiTietSanPhams,
+                    ct => ct.MaChiTietSanPham,
+                    cts => cts.MaChiTiet,
+                    (ct, cts) => new { ct, cts })
+                .Join(db.SanPhams,
+                    x => x.cts.MaSanPham,
+                    sp => sp.MaSanPham,
+                    (x, sp) => new
+                    {
+                        TenSP = sp.TenSanPham,
+                        SoLuong = x.ct.SoLuong,
+                        Gia = x.ct.Gia
+                    })
+                .GroupBy(x => x.TenSP)
                 .Select(g => new
                 {
-                    TrangThai = g.Key,
-                    SoLuong = g.Count()
+                    TenSP = g.Key,
+                    TongBan = g.Sum(x => x.SoLuong),
+                    DoanhThu = g.Sum(x => x.SoLuong * x.Gia)
                 })
-                .ToList();
-
-            ViewBag.TyLeDonHang = tyLeDonHang.Select(x =>
-            {
-                dynamic d = new ExpandoObject();
-                d.TrangThai = x.TrangThai;
-                d.SoLuong = x.SoLuong;
-                return d;
-            }).ToList();
-
-            // === Top 5 Sản phẩm bán chạy (group theo MaSanPham) ===
-            var topSanPham = db.ChiTietDonHang
-                .Include(cd => cd.ChiTietSanPham.SanPham)
-                .GroupBy(cd => cd.ChiTietSanPham.MaSanPham)
-                .Select(g => new
-                {
-                    MaSanPham = g.Key,
-                    SoLuongBan = g.Sum(x => x.SoLuong)
-                })
-                .OrderByDescending(x => x.SoLuongBan)
+                .OrderByDescending(x => x.TongBan)
                 .Take(5)
                 .ToList();
 
-            var listTopSanPham = topSanPham.Select(item =>
+            var soDon = db.DonHangs
+                .Count(o => o.NgayDat >= startDate && o.NgayDat < endDate);
+
+            ViewBag.SoDon = soDon;
+
+            var tongSP = db.DonHangs
+                .Where(o => o.NgayDat >= startDate && o.NgayDat < endDate)
+                .SelectMany(o => o.ChiTietDonHangs)
+                .Sum(x => (int?)x.SoLuong) ?? 0;
+
+            ViewBag.TongSP = tongSP;
+
+            DateTime prevStart = startDate.AddDays(-(endDate - startDate).Days);
+            DateTime prevEnd = startDate;
+
+            var doanhThuCu = db.DonHangs
+                .Where(o => o.NgayDat >= prevStart && o.NgayDat < prevEnd)
+                .SelectMany(o => o.ChiTietDonHangs)
+                .Sum(x => (decimal?)(x.Gia * x.SoLuong)) ?? 0;
+
+            decimal growth = 0;
+            if (doanhThuCu > 0)
             {
-                dynamic obj = new ExpandoObject();
-                obj.ProductName = item.MaSanPham != null
-                    ? db.SanPham.FirstOrDefault(p => p.MaSanPham == item.MaSanPham)?.TenSanPham ?? "Không rõ"
-                    : "Không rõ";
-                obj.Quantity = item.SoLuongBan;
-                return obj;
-            }).ToList();
+                growth = ((ViewBag.DoanhThu - doanhThuCu) / doanhThuCu) * 100;
+            }
 
-            ViewBag.TopSanPhamBanChay = listTopSanPham;
+            ViewBag.Growth = growth;
 
-            // === Top 5 Khách hàng mua nhiều nhất ===
-            var topKhachHang = db.DonHang
-                .GroupBy(o => o.MaNguoiDung)
-                .Select(g => new { MaNguoiDung = g.Key, SoDonHang = g.Count() })
-                .OrderByDescending(x => x.SoDonHang)
-                .Take(5)
-                .ToList();
+            var topKhachHang = db.DonHangs
+     .Where(o => o.NgayDat >= startDate && o.NgayDat < endDate)
+     .GroupBy(o => o.MaNguoiDung)
+     .Select(g => new
+     {
+         MaNguoiDung = g.Key,
+         SoDonHang = g.Count(),
+         TongTien = g.SelectMany(o => o.ChiTietDonHangs)
+                     .Sum(ct => (decimal?)(ct.Gia * ct.SoLuong)) ?? 0
+     })
+     .OrderByDescending(x => x.SoDonHang)
+     .Take(5)
+     .ToList();
 
             var listTopKhachHang = topKhachHang.Select(item =>
             {
-                dynamic obj = new ExpandoObject();
-                var user = db.NguoiDung.FirstOrDefault(u => u.MaNguoiDung == item.MaNguoiDung);
+                dynamic obj = new System.Dynamic.ExpandoObject();
+                var user = db.NguoiDungs.FirstOrDefault(u => u.MaNguoiDung == item.MaNguoiDung);
                 obj.FullName = user?.Ten ?? "Không rõ";
                 obj.SoDonHang = item.SoDonHang;
+                obj.TongTien = item.TongTien;
                 return obj;
             }).ToList();
 
             ViewBag.TopKhachHang = listTopKhachHang;
 
-            // === Sản phẩm đánh giá thấp (1-2 sao) ===
-            var sanPhamThap = db.DanhGia
-                .Where(r => r.SoSao >= 1 && r.SoSao <= 2)
-                .GroupBy(r => r.MaSanPham)
-                .Select(g => new { MaSanPham = g.Key, SoLuong = g.Count() })
-                .OrderByDescending(g => g.SoLuong)
-                .Take(5)
+            // ================== PHẦN BỔ SUNG ==================
+
+            // ================== KHÁCH HÀNG MỚI ==================
+            var khachHangMoi = db.NguoiDungs
+      .Where(x => x.NgayTao != null
+               && x.NgayTao >= startDate
+               && x.NgayTao < endDate)
+      .OrderByDescending(x => x.NgayTao)
+      .Take(5)
+      .Select(x => new
+      {
+          x.Ten,
+          x.Email,
+          x.NgayTao
+      })
+      .ToList();
+
+            ViewBag.KhachHangMoi = khachHangMoi;
+            // ================== SẢN PHẨM HẾT / SẮP HẾT ==================
+            var tonKho = db.ChiTietSanPhams
+                .Join(db.SanPhams,
+                    ct => ct.MaSanPham,
+                    sp => sp.MaSanPham,
+                    (ct, sp) => new
+                    {
+                        sp.TenSanPham,
+                        ct.SoLuongTon
+                    })
                 .ToList();
 
-            ViewBag.SanPhamDanhGiaThap = sanPhamThap.Select(item =>
-            {
-                dynamic obj = new ExpandoObject();
-                var sp = db.SanPham.FirstOrDefault(p => p.MaSanPham == item.MaSanPham);
-                obj.ProductName = sp?.TenSanPham ?? "Không rõ";
-                obj.SoDanhGiaThap = item.SoLuong;
-                return obj;
-            }).ToList();
+            ViewBag.HetHang = tonKho.Where(x => x.SoLuongTon == 0).ToList();
+            ViewBag.SapHet = tonKho.Where(x => x.SoLuongTon > 0 && x.SoLuongTon <= 5).ToList();
 
-            var sanPhamChuaBanRaw = db.SanPham
-                .Where(p => !db.ChiTietDonHang.Any(cd =>
-                    db.ChiTietSanPham.Any(ct => ct.MaChiTiet == cd.MaChiTietSanPham && ct.MaSanPham == p.MaSanPham)))
-                .Select(p => p.TenSanPham)
+
+            // ================== ĐÁNH GIÁ TRUNG BÌNH ==================
+            var danhGiaTB = db.DanhGias
+      .GroupBy(x => x.MaSanPham)
+      .Select(g => new
+      {
+          MaSanPham = g.Key,
+          SoSaoTB = g.Average(x => x.SoSao),
+          SoLuot = g.Count()
+      })
+      .ToList();
+            var danhGiaView = db.DanhGias
+                .Where(x => x.SoSao != null)
+                .OrderByDescending(x => x.NgayDanhGia)
+                .Select(x => new
+                {
+                    TenSP = x.SanPham.TenSanPham,
+                    SoSao = x.SoSao ?? 0,
+                    NgayDanhGia = x.NgayDanhGia
+                })
                 .ToList();
 
-            ViewBag.SanPhamChuaBan = sanPhamChuaBanRaw.Select(name =>
-            {
-                dynamic obj = new ExpandoObject();
-                obj.ProductName = name;
-                return obj;
-            }).ToList();
+            ViewBag.DanhGiaSP = danhGiaView;
+            ViewBag.DanhGiaTB = danhGiaTB;
+
+
+
+            // ================== TỶ LỆ TRẠNG THÁI ĐƠN HÀNG ==================
+            var trangThaiDonHang = db.DonHangs
+      .Where(x => x.NgayDat >= startDate && x.NgayDat < endDate)
+      .GroupBy(x => x.TrangThai)
+      .Select(g => new
+      {
+          TrangThai = g.Key,
+          SoLuong = g.Count()
+      })
+      .ToList();
+
+            ViewBag.OrderStatusLabels = trangThaiDonHang.Select(x => x.TrangThai).ToList();
+            ViewBag.OrderStatusData = trangThaiDonHang.Select(x => x.SoLuong).ToList();
+            var tongDon = db.DonHangs
+    .Where(x => x.NgayDat >= startDate && x.NgayDat < endDate)
+    .Count();
+
+            // đơn thành công
+            var donThanhCong = db.DonHangs
+                .Where(x => x.NgayDat >= startDate && x.NgayDat < endDate
+                    && x.TrangThai.Contains("Hoàn thành"))
+                .Count();
+
+            // đơn thất bại (hủy)
+            var donThatBai = db.DonHangs
+                .Where(x => x.NgayDat >= startDate && x.NgayDat < endDate
+                    && x.TrangThai.Contains("hủy"))
+                .Count();
+
+            decimal tyLeThanhCong = tongDon > 0 ? (decimal)donThanhCong / tongDon * 100 : 0;
+            decimal tyLeThatBai = tongDon > 0 ? (decimal)donThatBai / tongDon * 100 : 0;
+
+            ViewBag.TyLeThanhCong = tyLeThanhCong;
+            ViewBag.TyLeThatBai = tyLeThatBai;
+            // ==================
+
+            ViewBag.TopLabels = topSP.Select(x => x.TenSP).ToList();
+            ViewBag.TopSL = topSP.Select(x => x.TongBan).ToList();
+            ViewBag.TopDT = topSP.Select(x => x.DoanhThu).ToList();
+
+            ViewBag.ChartLabels = labels;
+            ViewBag.ChartData = data;
 
             return View();
+        } // Danh sách liên hệ
+        public ActionResult LienHe()
+        {
+            var ds = db.LienHes
+                       .OrderByDescending(x => x.NgayGui)
+                       .ToList();
+
+            return View(ds);
         }
+
+        // GET: xem chi tiết
+        public ActionResult ChiTietLH(int id)
+        {
+            var lh = db.LienHes.Find(id);
+            return View(lh);
+        }
+
+        // POST: cập nhật trạng thái ngay tại chi tiết
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ChiTietLH(int id, string trangthai)
+        {
+            var lh = db.LienHes.Find(id);
+            if (lh != null)
+            {
+                lh.TrangThai = trangthai;
+                db.SaveChanges();
+            }
+
+            return RedirectToAction("ChiTietLH", new { id = id }); // quay lại chính nó
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult GuiPhanHoi(int id, string noidung)
+        {
+            var lh = db.LienHes.Find(id);
+            if (lh == null) return RedirectToAction("LienHe");
+
+            try
+            {
+                var fromEmail = new MailAddress("buimanhtuan009@gmail.com", "Nội Thất Shop");
+                var toEmail = new MailAddress(lh.Email);
+
+                string subject = "Phản hồi liên hệ từ shop nội thất";
+                string body = $"Xin chào {lh.HoTen},\n\n{noidung}\n\nTrân trọng!";
+
+                var smtp = new SmtpClient
+                {
+                    Host = "smtp.gmail.com",
+                    Port = 587,
+                    EnableSsl = true,
+                    Credentials = new NetworkCredential("buimanhtuan009@gmail.com", "folvrenlfephvfew")
+                };
+
+                using (var message = new MailMessage(fromEmail, toEmail)
+                {
+                    Subject = subject,
+                    Body = body
+                })
+                {
+                    smtp.Send(message);
+                }
+
+                // Cập nhật trạng thái
+                lh.TrangThai = "Đã xử lý";
+                db.SaveChanges();
+
+                TempData["msg"] = "Gửi email thành công!";
+            }
+            catch
+            {
+                TempData["msg"] = "Gửi email thất bại!";
+            }
+
+            return RedirectToAction("ChiTietLH", new { id = id });
+        }
+
         public ActionResult QuanLySanPham(
     string search,
     int? danhMuc,

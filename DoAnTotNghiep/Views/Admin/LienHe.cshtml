@@ -1,0 +1,46 @@
+﻿@model List<DoAnTotNghiep.Models.LienHe>
+@{
+    Layout = "~/Views/Shared/Admin.cshtml";
+}
+<h2>Danh sách liên hệ</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Họ tên</th>
+            <th>Email</th>
+            <th>SĐT</th>
+            <th>Nội dung</th>
+            <th>Ngày gửi</th>
+            <th>Trạng thái</th>
+            <th>Xử lý</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.HoTen</td>
+                <td>@item.Email</td>
+                <td>@item.SoDienThoai</td>
+                <td>@item.NoiDung</td>
+                <td>@item.NgayGui</td>
+                <td>
+                    <span class="badge
+                        @(item.TrangThai == "Chưa xử lý" ? "bg-danger" :
+                          item.TrangThai == "Đang xử lý" ? "bg-warning" :
+                          "bg-success")">
+                        @item.TrangThai
+                    </span>
+                </td>
+                <td>
+                    <a href="@Url.Action("ChiTietLH", "Admin", new {  id = item.MaLienHe })"
+                       class="btn btn-info btn-sm">
+                        <i class="bi bi-eye"></i> Xem
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

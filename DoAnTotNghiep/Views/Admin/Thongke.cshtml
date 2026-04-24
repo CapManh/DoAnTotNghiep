@@ -1,374 +1,486 @@
 ﻿@{
-    ViewBag.Title = "Tổng Quan Hệ Thống - Quản Lý Nội Thất";
+    ViewBag.Title = "Thống kê";
     Layout = "~/Views/Shared/Admin.cshtml";
+    var filter = ViewBag.Filter as string;
+    var selectedDate = ViewBag.SelectedDate != null
+        ? (DateTime)ViewBag.SelectedDate
+        : DateTime.Now;
 }
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-    .dashboard-header {
-        background: linear-gradient(135deg, #2c3e50, #3498db);
-        color: white;
-        padding: 30px 0;
-        border-radius: 0 0 20px 20px;
-        margin-bottom: 35px;
+    body {
+        background: linear-gradient(135deg, #eef2f7, #f7f9fc);
+        font-family: Arial, sans-serif;
     }
 
-    .kpi-card {
-        border: none;
+    .dashboard {
+        max-width: 1200px;
+        margin: auto;
+        padding: 25px;
+    }
+
+    .title {
+        font-size: 26px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #2c3e50;
+    }
+
+    .card {
+        background: #ffffff;
         border-radius: 16px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.09);
-        transition: all 0.3s ease;
-        height: 100%;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        transition: 0.2s;
     }
 
-        .kpi-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 15px 35px rgba(52, 152, 219, 0.2);
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
         }
 
-    .kpi-value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #2c3e50;
-    }
-
-    .kpi-label {
-        font-size: 0.9rem;
+    .label {
+        font-size: 15px;
         font-weight: 600;
-        color: #6c757d;
-        text-transform: uppercase;
-        letter-spacing: 0.6px;
+        color: #6c7a89;
+        margin-bottom: 12px;
     }
 
-    .section-title {
-        font-weight: 700;
-        color: #2c3e50;
-        position: relative;
-        padding-bottom: 12px;
+    .filter-bar {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
     }
 
-        .section-title:after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: 50px;
-            height: 4px;
-            background: #3498db;
-            border-radius: 4px;
+    .form-control {
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        outline: none;
+        transition: 0.2s;
+    }
+
+        .form-control:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52,152,219,0.15);
         }
 
-    .table thead {
-        background-color: #3498db;
-        color: white;
+    .revenue {
+        font-size: 30px;
+        font-weight: 800;
+        color: #e74c3c;
     }
 
-    .highlight-row:hover {
-        background-color: #f8fbff;
+    .week-range {
+        margin-top: 8px;
+        color: #3498db;
+        font-weight: 500;
     }
 
-    .icon-circle {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.7rem;
+    .grid-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .stat-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        transition: 0.2s;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+    .stat-title {
+        font-size: 13px;
+        color: #888;
+    }
+
+    .stat-value {
+        font-size: 22px;
+        font-weight: bold;
+        margin-top: 6px;
+        color: #2c3e50;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden;
+        border-radius: 10px;
+    }
+
+        table thead {
+            background: #f1f5f9;
+        }
+
+        table th, table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        table tr:hover {
+            background: #f9fbff;
+        }
+
+    canvas {
+        max-height: 320px;
+    }
+
+    small {
+        display: block;
+        margin-top: 4px;
+        color: #888;
     }
 </style>
 
-<div class="container-fluid px-4 py-3">
+<div class="dashboard">
 
-    <!-- Header -->
-    <div class="dashboard-header text-center">
-        <h1 class="fw-bold mb-2">Tổng Quan Hệ Thống</h1>
-        <p class="lead mb-1 opacity-90">Cập nhật tình hình kinh doanh nội thất hôm nay</p>
-        <small>@DateTime.Now.ToString("dd/MM/yyyy - HH:mm")</small>
+    <div class="title">📊 Thống kê hệ thống</div>
+
+    <!-- FILTER -->
+    <div class="card">
+        <form method="get" class="filter-bar">
+
+            <select name="filter" onchange="this.form.submit()" class="form-control">
+                <option value="day" @(filter == "day" ? "selected" : "")>Theo ngày</option>
+                <option value="week" @(filter == "week" ? "selected" : "")>Theo tuần</option>
+                <option value="month" @(filter == "month" ? "selected" : "")>Theo tháng</option>
+                <option value="year" @(filter == "year" ? "selected" : "")>Theo năm</option>
+            </select>
+
+            <input type="date" name="selectedDate"
+                   value="@selectedDate.ToString("yyyy-MM-dd")"
+                   onchange="this.form.submit()"
+                   class="form-control" />
+        </form>
     </div>
 
-    <!-- KPI Cards -->
-    <div class="row g-4">
-        <div class="col-xl-3 col-lg-6">
-            <div class="kpi-card card">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <div class="kpi-label">DOANH THU TỔNG</div>
-                            <div class="kpi-value mt-2">@String.Format("{0:N0} ₫", ViewBag.DoanhThu)</div>
-                        </div>
-                        <div class="icon-circle bg-primary bg-opacity-10 text-primary">
-                            <i class="fas fa-dollar-sign"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- DOANH THU -->
+    <div class="card">
+        <div class="label">Tổng doanh thu</div>
+        <div class="revenue">
+            @String.Format("{0:N0} VNĐ", (decimal)(ViewBag.DoanhThu ?? 0))
         </div>
 
-        <div class="col-xl-3 col-lg-6">
-            <div class="kpi-card card">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <div class="kpi-label">ĐƠN HÀNG</div>
-                            <div class="kpi-value mt-2">@ViewBag.SoLuongDonHang</div>
-                            <small class="text-muted">TB: @String.Format("{0:N0} ₫", ViewBag.AverageOrderValue)</small>
-                        </div>
-                        <div class="icon-circle bg-success bg-opacity-10 text-success">
-                            <i class="fas fa-shopping-bag"></i>
-                        </div>
-                    </div>
-                </div>
+        @if (filter == "week")
+        {
+            <div class="week-range">
+                📅 @ViewBag.WeekRange
             </div>
-        </div>
-
-        <div class="col-xl-3 col-lg-6">
-            <div class="kpi-card card">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <div class="kpi-label">KHÁCH HÀNG</div>
-                            <div class="kpi-value mt-2">@ViewBag.SoLuongKhachHang</div>
-                            <small class="text-info">Mới tháng này: @ViewBag.KhachHangMoi</small>
-                        </div>
-                        <div class="icon-circle bg-info bg-opacity-10 text-info">
-                            <i class="fas fa-users"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-lg-6">
-            <div class="kpi-card card">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <div class="kpi-label">SẢN PHẨM</div>
-                            <div class="kpi-value mt-2">@ViewBag.SoLuongSanPham</div>
-                            <small class="text-danger">Hết hàng: @ViewBag.SanPhamHetHang</small>
-                        </div>
-                        <div class="icon-circle bg-warning bg-opacity-10 text-warning">
-                            <i class="fas fa-box"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Các KPI bổ sung -->
-        <div class="col-xl-3 col-lg-6">
-            <div class="kpi-card card">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <div class="kpi-label">ĐƠN HÀNG HÔM NAY</div>
-                            <div class="kpi-value mt-2">@ViewBag.DonHangHomNay</div>
-                        </div>
-                        <div class="icon-circle bg-danger bg-opacity-10 text-danger">
-                            <i class="fas fa-calendar-day"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-lg-6">
-            <div class="kpi-card card">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <div class="kpi-label">GIÁ TRỊ TỒN KHO</div>
-                            <div class="kpi-value mt-2">@String.Format("{0:N0} ₫", ViewBag.GiaTriTonKho)</div>
-                        </div>
-                        <div class="icon-circle bg-secondary bg-opacity-10 text-secondary">
-                            <i class="fas fa-warehouse"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-lg-6">
-            <div class="kpi-card card">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <div class="kpi-label">ĐÁNH GIÁ TRUNG BÌNH</div>
-                            <div class="kpi-value mt-2">@ViewBag.TrungBinhDanhGia ★</div>
-                            <small>@ViewBag.TongDanhGia đánh giá</small>
-                        </div>
-                        <div class="icon-circle bg-success bg-opacity-10 text-success">
-                            <i class="fas fa-star"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-lg-6">
-            <div class="kpi-card card">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <div class="kpi-label">TỶ LỆ HOÀN THÀNH</div>
-                            <div class="kpi-value mt-2">@ViewBag.TyLeHoanThanh %</div>
-                        </div>
-                        <div class="icon-circle bg-primary bg-opacity-10 text-primary">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        }
     </div>
 
-    <!-- Bảng dữ liệu -->
-    <div class="row g-4 mt-5">
-        <!-- Doanh Thu Theo Tháng -->
-        <div class="col-lg-7">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white py-4">
-                    <h5 class="section-title">Doanh Thu Theo Tháng</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Tháng/Năm</th>
-                                    <th class="text-end">Doanh Thu</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (dynamic item in ViewBag.DoanhThuTheoThang)
-                                {
-                                    <tr class="highlight-row">
-                                        <td class="fw-medium">@item.ThangNam</td>
-                                        <td class="text-end fw-bold text-success">@String.Format("{0:N0} ₫", item.DoanhThu)</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+    <!-- STAT -->
+    <div class="grid-stats">
+
+        <div class="stat-card">
+            <div class="stat-title">📦 Số đơn</div>
+            <div class="stat-value">@ViewBag.SoDon</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-title">📦 SP đã bán</div>
+            <div class="stat-value">@ViewBag.TongSP</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-title">📈 Tăng trưởng</div>
+            <div class="stat-value">@String.Format("{0:0.##}%", ViewBag.Growth)</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-title">✅ Tỷ lệ đơn thành công</div>
+            <div class="stat-value">
+                @String.Format("{0:0.##}%", ViewBag.TyLeThanhCong)
             </div>
         </div>
 
-        <!-- Top 5 Sản Phẩm -->
-        <div class="col-lg-5">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white py-4">
-                    <h5 class="section-title">Top 5 Sản Phẩm Bán Chạy</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Sản phẩm</th>
-                                    <th class="text-end">Số lượng bán</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (dynamic item in ViewBag.TopSanPhamBanChay)
-                                {
-                                    <tr class="highlight-row">
-                                        <td>@item.ProductName</td>
-                                        <td class="text-end fw-bold">@item.Quantity</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-title">❌ Tỷ lệ đơn thất bại</div>
+            <div class="stat-value">
+                @String.Format("{0:0.##}%", ViewBag.TyLeThatBai)
             </div>
         </div>
+
+        <!-- 🆕 KHÁCH HÀNG MỚI -->
+        <div class="stat-card">
+            <div class="stat-title">🆕 Khách mới</div>
+            <div class="stat-value">
+                @(ViewBag.KhachHangMoi != null ? ((IEnumerable<dynamic>)ViewBag.KhachHangMoi).Count() : 0)
+            </div>
+        </div>
+
+        <!-- ❌ HẾT HÀNG -->
+        <div class="stat-card">
+            <div class="stat-title">❌ Hết hàng</div>
+            <div class="stat-value">
+                @(ViewBag.HetHang != null ? ((IEnumerable<dynamic>)ViewBag.HetHang).Count() : 0)
+            </div>
+        </div>
+
+        <!-- ⚠️ SẮP HẾT -->
+        <div class="stat-card">
+            <div class="stat-title">⚠️ Sắp hết</div>
+            <div class="stat-value">
+                @(ViewBag.SapHet != null ? ((IEnumerable<dynamic>)ViewBag.SapHet).Count() : 0)
+            </div>
+        </div>
+
+        <!-- ⭐ ĐÁNH GIÁ -->
+        <div class="stat-card">
+            <div class="stat-title">⭐ Đánh giá</div>
+            <div class="stat-value">
+                @(ViewBag.DanhGiaTB != null ? ((IEnumerable<dynamic>)ViewBag.DanhGiaTB).Count() : 0)
+            </div>
+        </div>
+
     </div>
 
-    <div class="row g-4 mt-4">
-        <!-- Top Khách Hàng -->
-        <div class="col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white py-4">
-                    <h5 class="section-title">Top 5 Khách Hàng Mua Nhiều Nhất</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Khách hàng</th>
-                                    <th class="text-end">Số đơn hàng</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (dynamic item in ViewBag.TopKhachHang)
-                                {
-                                    <tr class="highlight-row">
-                                        <td>@item.FullName</td>
-                                        <td class="text-end">@item.SoDonHang</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- TOP KHÁCH -->
+    <div class="card">
+        <div class="label">🏆 Top khách hàng</div>
 
-        <!-- Sản phẩm đánh giá thấp & Chưa bán -->
-        <div class="col-lg-6">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-white py-4">
-                    <h5 class="section-title text-danger">Sản Phẩm Đánh Giá Thấp (1-2 sao)</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Sản phẩm</th>
-                                    <th class="text-end">Số đánh giá thấp</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (dynamic item in ViewBag.SanPhamDanhGiaThap)
-                                {
-                                    <tr class="highlight-row">
-                                        <td>@item.ProductName</td>
-                                        <td class="text-end text-danger fw-bold">@item.SoDanhGiaThap</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Khách</th>
+                    <th>Đơn</th>
+                    <th>Tổng tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (dynamic item in ViewBag.TopKhachHang)
+                {
+                    <tr>
+                        <td>@item.FullName</td>
+                        <td>@item.SoDonHang</td>
+                        <td>@String.Format("{0:N0}", item.TongTien)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="card">
+        <div class="label">🆕 Khách hàng mới</div>
 
-            <div class="card shadow-sm">
-                <div class="card-header bg-white py-4">
-                    <h5 class="section-title text-warning">Sản Phẩm Chưa Từng Bán</h5>
-                </div>
-                <div class="card-body">
-                    @if (ViewBag.SanPhamChuaBan.Count > 0)
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Khách</th>
+                    <th>Email</th>
+                    <th>Ngày tạo</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (ViewBag.KhachHangMoi != null)
+                {
+                    foreach (var item in ViewBag.KhachHangMoi)
                     {
-                        <ul class="list-group list-group-flush">
-                            @foreach (dynamic item in ViewBag.SanPhamChuaBan)
-                            {
-                                <li class="list-group-item">@item.ProductName</li>
-                            }
-                        </ul>
+                        <tr>
+                            <td>
+                                @{
+                                    var ten = item?.GetType().GetProperty("Ten")?.GetValue(item)
+                                              ?? item?.GetType().GetProperty("FullName")?.GetValue(item)
+                                              ?? "Không rõ";
+                                }
+                                @ten
+                            </td>
+
+                            <td>
+                                @(item?.GetType().GetProperty("Email")?.GetValue(item) ?? "Không có email")
+                            </td>
+
+                            <td>
+                                @{
+                                    var ngay = item?.GetType().GetProperty("NgayTao")?.GetValue(item);
+                                }
+                                @(ngay != null ? Convert.ToDateTime(ngay).ToString("dd/MM/yyyy") : "")
+                            </td>
+                        </tr>
                     }
-                    else
-                    {
-                        <p class="text-success text-center py-4">Tất cả sản phẩm đều đã có đơn bán.</p>
-                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+
+    <!-- BIỂU ĐỒ -->
+    <div class="card">
+        <div class="label">📊 Doanh thu</div>
+        <canvas id="barChart"></canvas>
+    </div>
+
+    <div class="card">
+        <div class="label">🔥 Top sản phẩm</div>
+        <canvas id="topBar"></canvas>
+    </div>
+
+
+    <div class="card">
+        <div class="label">📦 Trạng thái đơn hàng</div>
+        <canvas id="orderStatusChart"></canvas>
+    </div>
+    <!-- HẾT HÀNG -->
+    <div class="card">
+        <div class="label">❌ Hết hàng</div>
+
+        @if (ViewBag.HetHang != null)
+        {
+            foreach (var item in ViewBag.HetHang)
+            {
+                <div>
+                    @(item?.GetType().GetProperty("TenSanPham")?.GetValue(item)
+      ?? item?.GetType().GetProperty("TenSP")?.GetValue(item)
+      ?? "Không có tên sản phẩm")
                 </div>
-            </div>
-        </div>
+            }
+        }
+    </div>
+
+    <!-- SẮP HẾT -->
+    <div class="card">
+        <div class="label">⚠️ Sắp hết</div>
+
+        @if (ViewBag.SapHet != null)
+        {
+            foreach (var item in ViewBag.SapHet)
+            {
+                <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f1f1;">
+                    @{
+                        var ten =
+                            item?.GetType().GetProperty("TenSanPham")?.GetValue(item)
+                            ?? item?.GetType().GetProperty("TenSP")?.GetValue(item)
+                            ?? "Không có tên";
+
+                        var tonObj =
+                            item?.GetType().GetProperty("SoLuongTon")?.GetValue(item)
+                            ?? item?.GetType().GetProperty("TonKho")?.GetValue(item)
+                            ?? 0;
+
+                        int ton = 0;
+                        int.TryParse(tonObj?.ToString(), out ton);
+                    }
+
+                    <span>@ten</span>
+
+                    <span style="color:@(ton <= 2 ? "red" : "#e67e22"); font-weight:600;">
+                        @ton
+                    </span>
+                </div>
+            }
+        }
+    </div>
+    <div class="card">
+        <div class="label">⭐ Đánh giá sản phẩm</div>
+
+        @if (ViewBag.DanhGiaSP != null)
+        {
+            foreach (var item in ViewBag.DanhGiaSP)
+            {
+                <div>
+                    @{
+                        var ten = item?.GetType().GetProperty("TenSP")?.GetValue(item);
+                        var sao = item?.GetType().GetProperty("SoSao")?.GetValue(item);
+                        var ngay = item?.GetType().GetProperty("NgayDanhGia")?.GetValue(item);
+                    }
+
+                    @ten - ⭐ @(sao ?? 0)
+
+                    <small style="color:gray;">
+                        @(ngay != null ? Convert.ToDateTime(ngay).ToString("dd/MM/yyyy HH:mm") : "")
+                    </small>
+                </div>
+            }
+        }
     </div>
 </div>
 
-@section Styles {
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-}
+
+
+
+<script>
+    // ===== DOANH THU =====
+    var labels = @Html.Raw(Json.Encode(ViewBag.ChartLabels ?? new string[] {}));
+    var data = @Html.Raw(Json.Encode(ViewBag.ChartData ?? new decimal[] {}));
+
+    new Chart(document.getElementById("barChart"), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Doanh thu',
+                data: data,
+                backgroundColor: 'rgba(52, 152, 219, 0.5)',
+                borderRadius: 6
+            }]
+        }
+    });
+
+    // ===== TOP SẢN PHẨM =====
+    var topLabels = @Html.Raw(Json.Encode(ViewBag.TopLabels ?? new string[] {}));
+    var topSL = @Html.Raw(Json.Encode(ViewBag.TopSL ?? new int[] {}));
+    var topDT = @Html.Raw(Json.Encode(ViewBag.TopDT ?? new decimal[] {}));
+
+    new Chart(document.getElementById("topBar"), {
+        type: 'bar',
+        data: {
+            labels: topLabels,
+            datasets: [{
+                label: 'Số lượng bán',
+                data: topSL,
+                backgroundColor: 'rgba(231,76,60,0.6)',
+                borderRadius: 6
+            }]
+        }
+    });
+
+
+
+    // ===== 📦 TRẠNG THÁI ĐƠN HÀNG (MỚI THÊM) =====
+    var statusLabels = @Html.Raw(Json.Encode(ViewBag.OrderStatusLabels ?? new string[] {}));
+    var statusData = @Html.Raw(Json.Encode(ViewBag.OrderStatusData ?? new int[] {}));
+
+    new Chart(document.getElementById("orderStatusChart"), {
+        type: 'doughnut',
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                data: statusData,
+                backgroundColor: [
+                    '#2ecc71', // hoàn thành
+                    '#f1c40f', // đang xử lý
+                    '#3498db', // đang giao
+                    '#e74c3c', // hủy
+                    '#9b59b6',
+                    '#1abc9c'
+                ]
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            let value = context.raw;
+                            let percent = ((value / total) * 100).toFixed(1);
+                            return context.label + ': ' + value + ' đơn (' + percent + '%)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>

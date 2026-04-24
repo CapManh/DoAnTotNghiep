@@ -1504,6 +1504,8 @@
     <Content Include="Views\Admin\QuanLyThuongHieu.cshtml" />
     <Content Include="Views\Admin\themth.cshtml" />
     <Content Include="Views\Admin\suath.cshtml" />
+    <Content Include="Views\Admin\LienHe.cshtml" />
+    <Content Include="Views\Admin\ChiTietLH.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

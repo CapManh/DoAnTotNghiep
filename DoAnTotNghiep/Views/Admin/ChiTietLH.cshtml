@@ -1,0 +1,55 @@
+﻿@model DoAnTotNghiep.Models.LienHe
+@{
+    Layout = "~/Views/Shared/Admin.cshtml";
+}
+<h3>Chi tiết liên hệ</h3>
+
+<p><b>Họ tên:</b> @Model.HoTen</p>
+<p><b>Email:</b> @Model.Email</p>
+<p><b>SĐT:</b> @Model.SoDienThoai</p>
+<p><b>Nội dung:</b> @Model.NoiDung</p>
+<p><b>Ngày gửi:</b> @Model.NgayGui</p>
+
+<p>
+    <b>Trạng thái hiện tại:</b>
+    <span class="badge bg-warning">@Model.TrangThai</span>
+</p>
+
+<hr />
+<h4>Phản hồi khách hàng</h4>
+
+@using (Html.BeginForm("GuiPhanHoi", "Admin", FormMethod.Post, new { area = "Admin" }))
+{
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" name="id" value="@Model.MaLienHe" />
+
+    <div class="mb-3">
+        <label>Nội dung phản hồi</label>
+        <textarea name="noidung" class="form-control" rows="5" required></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-success">
+        Gửi phản hồi
+    </button>
+}
+<h4>Cập nhật trạng thái</h4>
+
+@using (Html.BeginForm("ChiTietLH", "Admin", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" name="id" value="@Model.MaLienHe" />
+
+    <select name="trangthai" class="form-control">
+        <option value="Chưa xử lý">Chưa xử lý</option>
+        <option value="Đang xử lý">Đang xử lý</option>
+        <option value="Đã xử lý">Đã xử lý</option>
+    </select>
+
+    <br />
+
+    <button type="submit" class="btn btn-primary">
+        Cập nhật
+    </button>
+}
