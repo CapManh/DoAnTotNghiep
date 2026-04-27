@@ -4,7 +4,7 @@
     ViewBag.Title = "Danh Sách Đơn Hàng";
     var tongTienDict = ViewBag.TongTienDict as Dictionary<int, decimal>;
 }
-
+<link href="~/Content/Donhang1.css" rel="stylesheet" />
 <h2 class="mb-4">📋 Danh Sách Đơn Hàng</h2>
 
 @if (TempData["Message"] != null)
@@ -152,21 +152,21 @@ else
     </nav>
 }
 
-<style>
-    .product-image {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 6px;
-        border: 1px solid #ddd;
-    }
+@**<style>*
+        <!--.product-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
 
-    .table th, .table td {
-        vertical-align: middle;
-    }
+        .table th, .table td {
+            vertical-align: middle;
+        }
 
-    .btn-sm {
-        padding: 5px 10px;
-        font-size: 13px;
-    }
-</style>
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 13px;
+        }
+    </style>-->*@

@@ -1541,3 +1541,136 @@ body {
         max-width: 360px;
     }
 }
+/* ================= MOBILE (<=768px) ================= */
+@media (max-width: 768px) {
+
+    /* Banner */
+    .banner-slider {
+        height: 250px;
+        border-radius: 10px;
+    }
+
+    .content h2 {
+        font-size: 22px;
+    }
+
+    /* 2 banner nhỏ */
+    .section-2img {
+        flex-direction: column;
+    }
+
+    .box-img.left,
+    .box-img.right {
+        height: 200px;
+    }
+
+    .box-content h2 {
+        font-size: 20px;
+    }
+
+    /* PRODUCT LIST */
+    .product-list {
+        grid-template-columns: repeat(2, 1fr); /* từ 4 -> 2 */
+        gap: 15px;
+    }
+
+    .img-box img {
+        height: 160px;
+    }
+
+    .price span {
+        font-size: 16px;
+    }
+
+    /* PROMO */
+    .promo-wrap {
+        flex-direction: column;
+    }
+
+    .promo-big,
+    .promo-small {
+        height: 200px;
+    }
+
+    .promo-text h2 {
+        font-size: 20px;
+    }
+
+    /* GRID BANNER */
+    .grid-banner {
+        grid-template-columns: 1fr;
+    }
+
+    .card-a,
+    .card-b,
+    .card-c {
+        height: 220px;
+    }
+
+    /* TESTIMONIAL */
+    .testimonial-cards {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .testimonial-card {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    /* NP SLIDER FIX */
+    .np-item {
+        width: 100%; /* mỗi lần 1 sản phẩm */
+    }
+}
+
+
+/* ================= TABLET (<=1024px) ================= */
+@media (max-width: 1024px) {
+
+    .product-list {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .np-item {
+        width: 50%; /* 2 sản phẩm */
+    }
+
+    .banner-slider {
+        height: 350px;
+    }
+
+    .promo-big,
+    .promo-small {
+        height: 300px;
+    }
+}
+/* ===== MOBILE: LUÔN 2 SẢN PHẨM / HÀNG ===== */
+@media (max-width: 768px) {
+
+    .product-list {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px;
+    }
+
+    .product-card {
+        padding: 10px;
+    }
+
+    .img-box img {
+        height: 150px;
+    }
+
+    .product-name a {
+        font-size: 14px;
+    }
+
+    .price span {
+        font-size: 15px;
+    }
+
+    .add-cart {
+        font-size: 13px;
+        padding: 10px;
+    }
+}

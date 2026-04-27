@@ -1,0 +1,50 @@
+﻿
+@media (max-width: 768px) {
+    /* Cho phép scroll ngang */
+    .table
+
+{
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Scale nhỏ mạnh nhưng vẫn dùng được */
+.table {
+    transform: scale(0.6);
+    transform-origin: top left;
+    width: 160%;
+}
+
+    /* Font siêu nhỏ */
+    .table th,
+    .table td {
+        font-size: 9px;
+        padding: 4px 3px;
+        white-space: nowrap;
+    }
+
+        /* Cột nội dung cho xuống dòng (QUAN TRỌNG) */
+        .table td:nth-child(4) {
+            white-space: normal;
+            min-width: 150px;
+        }
+
+/* Badge nhỏ */
+.badge {
+    font-size: 8px;
+    padding: 3px 6px;
+}
+
+/* Button nhỏ */
+.btn-sm {
+    font-size: 9px;
+    padding: 4px 6px;
+}
+
+/* Header */
+h2 {
+    font-size: 18px;
+    text-align: center;
+}
+}

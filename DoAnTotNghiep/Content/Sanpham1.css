@@ -1,0 +1,231 @@
+﻿
+body {
+    background: #eef2f7;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+h2 {
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.card {
+    border: none;
+    border-radius: 18px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.table {
+    margin: 0;
+}
+
+    .table thead {
+        background: linear-gradient(45deg, #4e73df, #224abe);
+        color: white;
+    }
+
+    .table th {
+        border: none;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    .table td {
+        text-align: center;
+        vertical-align: middle;
+        border-top: 1px solid #f1f1f1;
+    }
+
+    .table tbody tr {
+        transition: 0.25s;
+    }
+
+        .table tbody tr:hover {
+            background: #f4f8ff;
+        }
+
+/* IMAGE */
+.img-main {
+    width: 65px;
+    height: 65px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 2px solid #eee;
+    transition: 0.3s;
+}
+
+    .img-main:hover {
+        transform: scale(1.1);
+    }
+
+.img-sub {
+    width: 42px;
+    height: 42px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin: 2px;
+    border: 1px solid #ddd;
+    transition: 0.3s;
+}
+
+    .img-sub:hover {
+        transform: scale(1.15);
+    }
+
+/* PRICE */
+.price {
+    color: #e74a3b;
+    font-weight: 700;
+}
+
+/* STOCK */
+.stock-low {
+    color: #e74a3b;
+    font-weight: bold;
+}
+
+.stock-ok {
+    color: #1cc88a;
+    font-weight: bold;
+}
+
+/* BADGE */
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+/* BUTTON */
+.btn-success {
+    border-radius: 10px;
+}
+
+.btn-warning {
+    background: #f6c23e;
+    border: none;
+}
+
+.btn-danger {
+    background: #e74a3b;
+    border: none;
+}
+
+.btn-warning:hover {
+    background: #dda20a;
+}
+
+.btn-danger:hover {
+    background: #c0392b;
+}
+
+/* SEARCH */
+.form-control {
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.btn-primary {
+    border-radius: 10px;
+    padding: 10px 18px;
+    background: #4e73df;
+    border: none;
+}
+
+/* PAGINATION */
+.custom-circle-pagination .page-link {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 26px;
+    margin: 0 5px;
+    border: none;
+    background: #e9ecef;
+    color: #333;
+}
+
+.custom-circle-pagination .active .page-link {
+    background: #4e73df;
+    color: white;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+
+    /* ===== CONTAINER ===== */
+    body {
+        overflow-x: hidden;
+    }
+
+    .card {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* ===== TABLE ===== */
+    .table {
+        transform: scale(0.38); /* nhỏ mạnh */
+        transform-origin: top left;
+        width: 260%;
+    }
+
+        .table th,
+        .table td {
+            font-size: 7px;
+            padding: 2px 1px;
+            white-space: nowrap;
+        }
+
+    /* ===== IMAGE ===== */
+    .img-main {
+        width: 22px;
+        height: 22px;
+    }
+
+    .img-sub {
+        width: 14px;
+        height: 14px;
+    }
+
+    /* ===== BUTTON ===== */
+    .btn {
+        padding: 2px 3px;
+        font-size: 7px;
+    }
+
+    /* ===== BADGE ===== */
+    .badge {
+        font-size: 7px;
+        padding: 2px 3px;
+    }
+
+    /* ===== TOP BAR ===== */
+    .top-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+    }
+
+    /* ===== FORM ===== */
+    .form-control,
+    .form-select {
+        width: 100%;
+        font-size: 13px;
+    }
+
+    /* ===== PAGINATION ===== */
+    .custom-circle-pagination .page-link {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+}

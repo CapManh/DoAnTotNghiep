@@ -120,7 +120,8 @@ namespace DoAnTotNghiep.Controllers
                     Ten = name,
                     IsActive = true,
                     MatKhau = "",
-                    MaVaiTro = 2
+                    MaVaiTro = 2,
+                    NgayTao = DateTime.Now
                 };
 
                 db.NguoiDungs.Add(user);

@@ -1,0 +1,71 @@
+﻿
+
+.product-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+}
+
+.table th, .table td {
+    vertical-align: middle;
+}
+
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 13px;
+}
+/* ===== MOBILE NHỎ NHẤT ===== */
+@media (max-width: 768px) {
+
+    /* Cho phép kéo ngang */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Scale nhẹ (an toàn) */
+    .table {
+        transform: scale(0.75); /* nhỏ mạnh nhưng vẫn dùng được */
+        transform-origin: top left;
+        width: 130%;
+    }
+
+        /* Chữ nhỏ nhất có thể đọc */
+        .table th,
+        .table td {
+            font-size: 10px;
+            padding: 4px 3px;
+            white-space: nowrap;
+        }
+
+    /* Ảnh cực gọn */
+    .product-image {
+        width: 40px;
+        height: 40px;
+    }
+
+    /* Button mini */
+    .btn-sm {
+        font-size: 10px;
+        padding: 3px 5px;
+    }
+
+    /* Form filter */
+    .form-control {
+        font-size: 13px;
+        padding: 8px;
+    }
+
+    /* Xuống dòng cho filter */
+    .row > div {
+        margin-bottom: 6px;
+    }
+
+    /* Pagination */
+    .pagination .page-link {
+        font-size: 11px;
+        padding: 5px 8px;
+    }
+}

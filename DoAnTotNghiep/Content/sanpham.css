@@ -328,3 +328,95 @@ body {
         border-radius: 30px !important;
         font-size: 15px;
     }
+/* ================= MOBILE FIX ================= */
+@media (max-width: 768px) {
+
+    /* Layout dọc */
+    .main-container {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .sidebar {
+        width: 100%;
+        padding: 15px;
+    }
+
+    /* GRID: LUÔN 2 SẢN PHẨM */
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+    }
+
+    /* Card gọn lại */
+    .product-card {
+        border-radius: 10px;
+    }
+
+    /* Ảnh nhỏ lại */
+    .img-box {
+        height: 150px;
+        padding: 8px;
+    }
+
+        .img-box img {
+            object-fit: contain;
+        }
+
+    /* Text */
+    .product-name {
+        font-size: 13px;
+        line-height: 1.3;
+    }
+
+    .price span {
+        font-size: 14px;
+    }
+
+    /* Nút */
+    .add-cart {
+        padding: 10px;
+        font-size: 13px;
+        border-radius: 6px;
+    }
+
+    /* Header nhỏ lại */
+    .policy-header {
+        height: 180px;
+    }
+
+        .policy-header h1 {
+            font-size: 22px;
+        }
+
+    /* Filter đẹp hơn */
+    .sidebar h3 {
+        font-size: 15px;
+    }
+
+    .filter-btn {
+        padding: 10px;
+        font-size: 14px;
+    }
+}
+
+
+/* ================= MOBILE NHỎ (IPHONE) ================= */
+@media (max-width: 480px) {
+
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .img-box {
+        height: 130px;
+    }
+
+    .product-name {
+        font-size: 12px;
+    }
+
+    .price span {
+        font-size: 13px;
+    }
+}

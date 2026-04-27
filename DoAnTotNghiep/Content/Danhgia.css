@@ -1,0 +1,54 @@
+﻿/* ===== MOBILE SIÊU NHỎ - ĐÁNH GIÁ ===== */
+@media (max-width: 768px) {
+
+    /* Cho phép kéo ngang */
+    .table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Scale nhỏ mạnh */
+    .table {
+        transform: scale(0.6);
+        transform-origin: top left;
+        width: 160%;
+    }
+
+        /* Font nhỏ tối đa */
+        .table th,
+        .table td {
+            font-size: 9px;
+            padding: 4px 3px;
+            white-space: nowrap;
+        }
+
+            /* Nội dung đánh giá cho xuống dòng */
+            .table td:nth-child(4) {
+                white-space: normal;
+                min-width: 140px;
+            }
+
+            /* Tên sản phẩm cũng có thể dài */
+            .table td:nth-child(2) {
+                white-space: normal;
+                min-width: 120px;
+            }
+
+        /* Sao nhỏ lại */
+        .table span {
+            font-size: 10px;
+        }
+
+    /* Button nhỏ */
+    .btn {
+        font-size: 9px;
+        padding: 4px 6px;
+    }
+
+    /* Header */
+    h2 {
+        font-size: 18px;
+        text-align: center;
+    }
+}

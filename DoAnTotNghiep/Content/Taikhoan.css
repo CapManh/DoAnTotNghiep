@@ -1,0 +1,157 @@
+﻿
+body {
+    background: #eef2f7;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+h2 {
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.card {
+    border: none;
+    border-radius: 18px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+.table thead {
+    background: linear-gradient(45deg, #36b9cc, #1cc88a);
+    color: white;
+}
+
+.table th, .table td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 12px 8px;
+}
+
+.table tbody tr:hover {
+    background: #f4f8ff;
+}
+
+.badge {
+    border-radius: 20px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.btn {
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin: 0 3px;
+}
+
+.btn-sm {
+    padding: 6px 10px !important;
+}
+
+.search-box input {
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.search-box button {
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.action-btn {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+
+    /* ===== FIX TRÀN MÀN ===== */
+    body {
+        overflow-x: hidden;
+    }
+
+    .container-fluid {
+        padding: 8px;
+    }
+
+    /* ===== CARD SCROLL MƯỢT ===== */
+    .card {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* ===== ÉP TABLE NHỎ TỐI ĐA ===== */
+    .table {
+        transform: scale(0.4); /* nhỏ mạnh */
+        transform-origin: top left;
+        width: 240%;
+    }
+
+        /* ===== TEXT SIÊU NHỎ ===== */
+        .table th,
+        .table td {
+            font-size: 7px;
+            padding: 2px 2px;
+            white-space: nowrap;
+            line-height: 1;
+        }
+
+    /* ===== CỘT ĐỊA CHỈ KHÔNG BỊ VỠ ===== */
+    td[style*="max-width"] {
+        max-width: 120px !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* ===== BADGE ===== */
+    .badge {
+        font-size: 7px;
+        padding: 2px 4px;
+    }
+
+    /* ===== BUTTON ===== */
+    .btn {
+        font-size: 7px;
+        padding: 3px 4px;
+    }
+
+    .action-btn {
+        width: 26px;
+        height: 26px;
+    }
+
+    /* ===== HEADER ===== */
+    .d-flex {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 8px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    /* ===== FORM FILTER ===== */
+    .row.g-2 > div {
+        width: 100%;
+    }
+
+    .form-control,
+    .form-select {
+        font-size: 13px;
+        padding: 8px;
+    }
+
+    /* ===== PAGINATION ===== */
+    .pagination {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .page-link {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+}
